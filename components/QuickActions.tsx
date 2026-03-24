@@ -15,10 +15,8 @@ import {
     Copy,
     MapPin,
     Star,
-    Bell,
     MessageCircle,
     Link,
-    Download,
     Check,
     ExternalLink,
 } from "lucide-react";
@@ -28,6 +26,7 @@ import type { TideData, LocationData } from "@/lib/tide-service";
 interface QuickActionsProps {
     location: LocationData;
     tideData: TideData;
+    onSelectPreset?: (location: LocationData) => void;
     className?: string;
 }
 
@@ -44,6 +43,7 @@ const LOCATION_PRESETS = [
 export default function QuickActions({
     location,
     tideData,
+    onSelectPreset,
     className,
 }: QuickActionsProps) {
     const [copied, setCopied] = useState(false);
@@ -193,14 +193,19 @@ export default function QuickActions({
                     <DropdownMenuSeparator />
 
                     <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                        สถานที่ยอดนิยม
+                        เปลี่ยนตำแหน่งเร็ว
                     </div>
-                    {LOCATION_PRESETS.slice(0, 4).map((preset) => (
+                    {LOCATION_PRESETS.map((preset) => (
                         <DropdownMenuItem
                             key={preset.name}
                             onClick={() => {
-                                // This would need to be connected to the location selector
-                                toast.info(`เลือก ${preset.name} - กรุณาใช้ตัวเลือกตำแหน่งเพื่อเปลี่ยน`);
+                                const nextLocation = {
+                                    lat: preset.lat,
+                                    lon: preset.lon,
+                                    name: preset.name,
+                                };
+                                onSelectPreset?.(nextLocation);
+                                toast.success(`เลือก ${preset.name} แล้ว`);
                             }}
                         >
                             <MapPin className="h-4 w-4 mr-2" />

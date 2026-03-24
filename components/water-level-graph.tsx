@@ -4,6 +4,7 @@ import React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TideData, ApiStatus } from "@/lib/tide-service"
+import { tideControlManager } from "@/lib/controls"
 import { cn } from "@/lib/utils"
 import { ArrowUp, ArrowDown } from "lucide-react"
 
@@ -92,7 +93,7 @@ export const WaterLevelGraph: React.FC<WaterLevelGraphProps> = ({ tideData }) =>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                  {tideData.currentWaterLevel.toFixed(2)} ม.
+                  {tideControlManager.adjustHeightForDatum(tideData.currentWaterLevel).toFixed(2)} ม.
                 </div>
                 <div className="text-sm text-muted-foreground">ระดับน้ำปัจจุบัน</div>
               </div>

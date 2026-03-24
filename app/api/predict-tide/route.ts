@@ -1,10 +1,10 @@
 /**
  * Real-time Tide Prediction API
- * ใช้ Harmonic Analysis 37 constituents + Stormglass calibration
+ * Uses the canonical harmonic forecast series for Thai coastal predictions
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getLocationConstituents, predictWaterLevel } from '@/lib/harmonic-prediction'
+import { generatePredictionTimeSeries, getLocationConstituents } from '@/lib/harmonic-prediction'
 import type { LocationData } from '@/lib/harmonic-prediction'
 
 export const runtime = 'edge' // Use edge runtime for faster response
@@ -52,22 +52,13 @@ export async function POST(request: NextRequest) {
     const hours = Math.min(body.hours || 72, 168) // Max 1 week
     const interval = Math.max(body.interval || 30, 5) // Min 5 minutes
 
-    // Get constituents for this location
     const constituents = getLocationConstituents(location)
-
-    // Generate predictions
-    const predictions: TidePrediction[] = []
-    const totalMinutes = hours * 60
-    
-    for (let minutes = 0; minutes < totalMinutes; minutes += interval) {
-      const predictionTime = new Date(startDate.getTime() + minutes * 60 * 1000)
-      const waterLevel = predictWaterLevel(predictionTime, location, constituents)
-      
-      predictions.push({
-        time: predictionTime.toISOString(),
-        waterLevel: Number(waterLevel.toFixed(3))
-      })
-    }
+    const endDate = new Date(startDate.getTime() + hours * 60 * 60 * 1000)
+    const series = generatePredictionTimeSeries(startDate, endDate, location, interval)
+    const predictions: TidePrediction[] = series.map((point) => ({
+      time: point.time.toISOString(),
+      waterLevel: Number(point.level.toFixed(3)),
+    }))
 
     // Find high/low tides
     for (let i = 1; i < predictions.length - 1; i++) {
@@ -101,7 +92,7 @@ export async function POST(request: NextRequest) {
       },
       prediction: {
         start: startDate.toISOString(),
-        end: new Date(startDate.getTime() + totalMinutes * 60 * 1000).toISOString(),
+        end: endDate.toISOString(),
         interval: interval,
         count: predictions.length
       },
@@ -123,10 +114,13 @@ export async function POST(request: NextRequest) {
         level: p.waterLevel
       })),
       metadata: {
-        engine: 'Harmonic Analysis',
+        engine: 'Canonical Harmonic Forecast',
         constituents: constituents.length,
         datum: 'MSL (Mean Sea Level)',
-        version: '1.0.0'
+        version: 'canonical-harmonic-v1',
+        sourceTier: 'harmonic',
+        confidenceMethod: 'none',
+        qualityScore: 68
       }
     })
 

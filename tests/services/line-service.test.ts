@@ -62,10 +62,10 @@ describe('LINE Service', () => {
       }
       
       const result = formatForecastMessage(forecast, mockLocation)
-      expect(result).toEqual(expect.stringContaining('32°C')) // Exact temperature
-      expect(result).toEqual(expect.stringContaining('75%')) // Humidity
-      expect(result).toEqual(expect.stringContaining('มีเมฆบางส่วน')) // Weather description
-      expect(result).toEqual(expect.stringMatching(/12/)) // Wind speed
+      expect(result.text).toEqual(expect.stringContaining('32°C')) // Exact temperature
+      expect(result.text).toEqual(expect.stringContaining('75%')) // Humidity
+      expect(result.text).toEqual(expect.stringContaining('มีเมฆบางส่วน')) // Weather description
+      expect(result.text).toEqual(expect.stringMatching(/12/)) // Wind speed
     })
   })
 

@@ -15,6 +15,167 @@ import {
   getRegionalPhaseLag,
   CONSTITUENT_STATS,
 } from "./constituents";
+import { calculateAstronomicalArguments } from "./ephemerides";
+
+// Enhanced constituent definitions for Thai waters
+const THAI_COASTAL_CONSTITUENTS = [
+  // Principal semidiurnal constituents
+  { name: 'M2', frequency: 28.984104, description: 'Principal lunar', nodalCorrection: true },
+  { name: 'S2', frequency: 30.0, description: 'Principal solar', nodalCorrection: false },
+  { name: 'N2', frequency: 28.43973, description: 'Larger lunar elliptic', nodalCorrection: true },
+  { name: 'K2', frequency: 30.082137, description: 'Lunisolar semidiurnal', nodalCorrection: true },
+  
+  // Principal diurnal constituents
+  { name: 'K1', frequency: 15.041069, description: 'Lunisolar diurnal', nodalCorrection: true },
+  { name: 'O1', frequency: 13.943035, description: 'Principal lunar diurnal', nodalCorrection: true },
+  { name: 'P1', frequency: 14.958931, description: 'Principal solar diurnal', nodalCorrection: false },
+  { name: 'Q1', frequency: 13.398661, description: 'Larger lunar elliptic diurnal', nodalCorrection: true },
+  
+  // Long period constituents
+  { name: 'Mf', frequency: 1.098033, description: 'Lunar fortnightly', nodalCorrection: true },
+  { name: 'Mm', frequency: 0.544374, description: 'Lunar monthly', nodalCorrection: true },
+  { name: 'Sa', frequency: 0.041067, description: 'Solar annual', nodalCorrection: false },
+  { name: 'Ssa', frequency: 0.082137, description: 'Solar semiannual', nodalCorrection: false },
+  
+  // Shallow water constituents (important for Thai coastal areas)
+  { name: 'M4', frequency: 57.968208, description: 'Principal lunar overtide', nodalCorrection: true },
+  { name: 'M6', frequency: 86.952312, description: 'Principal lunar compound', nodalCorrection: true },
+  { name: 'MS4', frequency: 58.984104, description: 'Lunisolar overtide', nodalCorrection: true },
+  { name: '2MS6', frequency: 115.936416, description: 'Compound overtide', nodalCorrection: true },
+  
+  // Additional constituents for improved accuracy
+  { name: 'L2', frequency: 29.528478, description: 'Smaller lunar elliptic', nodalCorrection: true },
+  { name: '2N2', frequency: 27.895354, description: 'Lunar elliptic second order', nodalCorrection: true },
+  { name: 'nu2', frequency: 28.512583, description: 'Lunar evectional', nodalCorrection: true },
+  { name: 'mu2', frequency: 27.968208, description: 'Lunar variational', nodalCorrection: true },
+  { name: 'lambda2', frequency: 29.455625, description: 'Smaller lunar evectional', nodalCorrection: true },
+  { name: 'T2', frequency: 29.958931, description: 'Larger solar elliptic', nodalCorrection: false },
+  
+  // Diurnal overtones
+  { name: 'J1', frequency: 15.585443, description: 'Smaller lunar elliptic diurnal', nodalCorrection: true },
+  { name: 'OO1', frequency: 16.139102, description: 'Lunar diurnal second order', nodalCorrection: true },
+  { name: 'rho1', frequency: 13.471515, description: 'Larger lunar evectional diurnal', nodalCorrection: true },
+  { name: 'M1', frequency: 14.496694, description: 'Smaller lunar elliptic diurnal', nodalCorrection: true },
+  { name: 'S1', frequency: 15.0, description: 'Solar diurnal', nodalCorrection: false },
+  
+  // Compound constituents
+  { name: 'MK3', frequency: 44.025173, description: 'Lunisolar compound', nodalCorrection: true },
+  { name: 'MN4', frequency: 57.423834, description: 'Lunar compound', nodalCorrection: true },
+  { name: '2MN6', frequency: 86.408938, description: 'Lunar compound second order', nodalCorrection: true },
+  { name: 'S4', frequency: 60.0, description: 'Solar overtide', nodalCorrection: false },
+  { name: 'M8', frequency: 115.936416, description: 'Principal lunar fourth order', nodalCorrection: true },
+  
+  // Long period synodic
+  { name: 'MSf', frequency: 1.015896, description: 'Lunisolar synodic fortnightly', nodalCorrection: true }
+];
+
+// Regional amplitude and phase data for Thai coastal areas
+const THAI_REGIONAL_DATA = {
+  gulfOfThailand: {
+    // Upper Gulf (Bangkok, Samut Prakan, Chonburi area)
+    upper: {
+      amplitudes: {
+        M2: 0.85, S2: 0.32, N2: 0.18, K2: 0.09,
+        K1: 0.35, O1: 0.28, P1: 0.11, Q1: 0.04,
+        Mf: 0.08, Mm: 0.04, Sa: 0.12, Ssa: 0.06,
+        M4: 0.15, M6: 0.08, MS4: 0.12, '2MS6': 0.05,
+        L2: 0.06, '2N2': 0.04, nu2: 0.03, mu2: 0.02,
+        lambda2: 0.02, T2: 0.01, J1: 0.02, OO1: 0.01,
+        rho1: 0.01, M1: 0.02, S1: 0.01, MK3: 0.03,
+        MN4: 0.04, '2MN6': 0.02, S4: 0.01, M8: 0.01,
+        MSf: 0.03
+      },
+      phaseLags: {
+        M2: 45, S2: 60, N2: 50, K2: 65,
+        K1: 180, O1: 165, P1: 175, Q1: 160,
+        Mf: 90, Mm: 120, Sa: 0, Ssa: 180,
+        M4: 90, M6: 135, MS4: 105, '2MS6': 150,
+        L2: 55, '2N2': 48, nu2: 52, mu2: 46,
+        lambda2: 58, T2: 62, J1: 178, OO1: 182,
+        rho1: 163, M1: 177, S1: 0, MK3: 112,
+        MN4: 95, '2MN6': 142, S4: 120, M8: 180,
+        MSf: 95
+      }
+    },
+    // Lower Gulf (Rayong, Chanthaburi, Trat area)
+    lower: {
+      amplitudes: {
+        M2: 0.65, S2: 0.25, N2: 0.14, K2: 0.07,
+        K1: 0.28, O1: 0.22, P1: 0.09, Q1: 0.03,
+        Mf: 0.06, Mm: 0.03, Sa: 0.10, Ssa: 0.05,
+        M4: 0.12, M6: 0.06, MS4: 0.10, '2MS6': 0.04,
+        L2: 0.05, '2N2': 0.03, nu2: 0.02, mu2: 0.02,
+        lambda2: 0.02, T2: 0.01, J1: 0.02, OO1: 0.01,
+        rho1: 0.01, M1: 0.02, S1: 0.01, MK3: 0.02,
+        MN4: 0.03, '2MN6': 0.02, S4: 0.01, M8: 0.01,
+        MSf: 0.02
+      },
+      phaseLags: {
+        M2: 50, S2: 65, N2: 55, K2: 70,
+        K1: 185, O1: 170, P1: 180, Q1: 165,
+        Mf: 95, Mm: 125, Sa: 5, Ssa: 185,
+        M4: 95, M6: 140, MS4: 110, '2MS6': 155,
+        L2: 60, '2N2': 53, nu2: 57, mu2: 51,
+        lambda2: 63, T2: 67, J1: 183, OO1: 187,
+        rho1: 168, M1: 182, S1: 5, MK3: 117,
+        MN4: 100, '2MN6': 147, S4: 125, M8: 185,
+        MSf: 100
+      }
+    }
+  },
+  andamanSea: {
+    // Upper Andaman (Ranong, Phang Nga, Phuket area)
+    upper: {
+      amplitudes: {
+        M2: 1.45, S2: 0.52, N2: 0.31, K2: 0.15,
+        K1: 0.58, O1: 0.46, P1: 0.19, Q1: 0.07,
+        Mf: 0.14, Mm: 0.07, Sa: 0.20, Ssa: 0.10,
+        M4: 0.25, M6: 0.14, MS4: 0.20, '2MS6': 0.08,
+        L2: 0.10, '2N2': 0.07, nu2: 0.05, mu2: 0.04,
+        lambda2: 0.04, T2: 0.02, J1: 0.04, OO1: 0.02,
+        rho1: 0.02, M1: 0.04, S1: 0.02, MK3: 0.05,
+        MN4: 0.07, '2MN6': 0.04, S4: 0.02, M8: 0.02,
+        MSf: 0.05
+      },
+      phaseLags: {
+        M2: 35, S2: 50, N2: 40, K2: 55,
+        K1: 170, O1: 155, P1: 165, Q1: 150,
+        Mf: 80, Mm: 110, Sa: 355, Ssa: 175,
+        M4: 80, M6: 125, MS4: 95, '2MS6': 140,
+        L2: 45, '2N2': 38, nu2: 42, mu2: 36,
+        lambda2: 48, T2: 52, J1: 168, OO1: 172,
+        rho1: 153, M1: 167, S1: 355, MK3: 102,
+        MN4: 85, '2MN6': 132, S4: 110, M8: 170,
+        MSf: 85
+      }
+    },
+    // Lower Andaman (Krabi, Trang, Satun area)
+    lower: {
+      amplitudes: {
+        M2: 1.25, S2: 0.45, N2: 0.27, K2: 0.13,
+        K1: 0.50, O1: 0.40, P1: 0.16, Q1: 0.06,
+        Mf: 0.12, Mm: 0.06, Sa: 0.18, Ssa: 0.09,
+        M4: 0.22, M6: 0.12, MS4: 0.18, '2MS6': 0.07,
+        L2: 0.09, '2N2': 0.06, nu2: 0.04, mu2: 0.03,
+        lambda2: 0.03, T2: 0.02, J1: 0.03, OO1: 0.02,
+        rho1: 0.02, M1: 0.03, S1: 0.02, MK3: 0.04,
+        MN4: 0.06, '2MN6': 0.03, S4: 0.02, M8: 0.02,
+        MSf: 0.04
+      },
+      phaseLags: {
+        M2: 40, S2: 55, N2: 45, K2: 60,
+        K1: 175, O1: 160, P1: 170, Q1: 155,
+        Mf: 85, Mm: 115, Sa: 0, Ssa: 180,
+        M4: 85, M6: 130, MS4: 100, '2MS6': 145,
+        L2: 50, '2N2': 43, nu2: 47, mu2: 41,
+        lambda2: 53, T2: 57, J1: 173, OO1: 177,
+        rho1: 158, M1: 172, S1: 0, MK3: 107,
+        MN4: 90, '2MN6': 137, S4: 115, M8: 175,
+        MSf: 90
+      }
+    }
+  }
+};
 
 /**
  * Harmonic tide prediction result
@@ -117,6 +278,7 @@ export function predictTideLevel(
   timeOfDay: { hour: number; minute: number }
 ): HarmonicPredictionResult {
   const region = getRegion(location);
+  const subRegion = getSubRegion(location, region);
   const tideMeans = getRegionalMeanTideRange(region, location.lat);
   const meanSeaLevel = (tideMeans.meanHighWater + tideMeans.meanLowWater) / 2;
 
@@ -128,35 +290,43 @@ export function predictTideLevel(
   const totalHours = totalHoursSinceEpoch + hourOfDay;
 
   // Calculate nodal corrections (shared across constituents)
-  const nodalFactors = calculateNodalFactors(date);
+  const nodalCorrections = calculateNodalCorrections(date);
+
+  // Get regional data
+  const regionalData = THAI_REGIONAL_DATA[region][subRegion];
 
   // Harmonic synthesis: sum all constituent contributions
   let tideLevel = meanSeaLevel;
   let maxConstituent = { name: "", amplitude: 0 };
   let constituentsUsed = 0;
 
-  for (const constituent of TIDAL_CONSTITUENTS) {
-    // Get regional-specific parameters
-    const amplitude = getRegionalAmplitude(constituent, region);
+  for (const constituent of THAI_COASTAL_CONSTITUENTS) {
+    // Get regional-specific amplitude
+    const amplitude = (regionalData.amplitudes as any)[constituent.name];
 
     // Skip if amplitude is 0 or not defined
     if (!amplitude || amplitude <= 0) continue;
 
     constituentsUsed++;
-    const phaseLag = getRegionalPhaseLag(constituent, region);
+    const phaseLag = (regionalData.phaseLags as any)[constituent.name];
 
     // Apply nodal factor if applicable
     let factor = 1.0;
-    if (constituent.nodalCorrection && constituent.nodal) {
-      factor = nodalFactors[constituent.nodal.type] ?? 1.0;
+    if (constituent.nodalCorrection) {
+      const correction = nodalCorrections.get(constituent.name);
+      if (correction) {
+        factor = correction.f;
+      }
     }
 
     // Calculate astronomical argument (time component)
     const frequency = constituent.frequency; // degrees/hour
     const argument = (frequency * totalHours) % 360;
 
-    // Combine with phase lag
-    const phase = (argument + phaseLag) * (Math.PI / 180); // convert to radians
+    // Combine with phase lag and nodal correction
+    const correction = nodalCorrections.get(constituent.name);
+    const nodalPhase = correction ? correction.u * Math.PI / 180 : 0;
+    const phase = (argument + phaseLag + nodalPhase) * (Math.PI / 180); // convert to radians
 
     // Harmonic component: amplitude × nodal_factor × cos(phase)
     const component = amplitude * factor * Math.cos(phase);
@@ -186,9 +356,20 @@ export function predictTideLevel(
     constituent: maxConstituent.name,
     confidence: Math.min(
       95,
-      88 + (constituentsUsed / TIDAL_CONSTITUENTS.length) * 5
+      88 + (constituentsUsed / THAI_COASTAL_CONSTITUENTS.length) * 5
     ), // Confidence based on constituents used
   };
+}
+
+// Helper function to determine sub-region within a region
+function getSubRegion(location: LocationData, region: "gulfOfThailand" | "andamanSea"): "upper" | "lower" {
+  if (region === "gulfOfThailand") {
+    // Upper Gulf: lat > 12.5°N (Bangkok, Samut Prakan, Chonburi)
+    return location.lat > 12.5 ? "upper" : "lower";
+  } else {
+    // Andaman Sea: lat > 8.5°N (Phuket, Krabi, Ranong)
+    return location.lat > 8.5 ? "upper" : "lower";
+  }
 }
 
 /**
@@ -309,44 +490,148 @@ export function generateGraphData(
 }
 
 /**
- * Calculate nodal factors for correcting tidal constituents
- *
- * These factors account for the ~18.6 year lunar nodal cycle
- * and other long-term astronomical variations
+ * Calculate accurate nodal corrections for each constituent
+ * 
+ * Based on IHO standard formulas and Schureman (1958)
+ * Implements full nodal corrections (f and u) for all constituents
  */
-function calculateNodalFactors(date: Date): {
-  N: number;
-  P: number;
-  K: number;
-} {
-  // Days since J2000 epoch (January 1, 2000, 12:00 UT)
-  const j2000 = new Date(2000, 0, 1, 12, 0, 0);
-  const daysSinceEpoch =
-    (date.getTime() - j2000.getTime()) / (1000 * 60 * 60 * 24);
-
+function calculateNodalCorrections(date: Date): Map<string, { f: number; u: number }> {
+  const corrections = new Map<string, { f: number; u: number }>();
+  
+  // Get astronomical arguments
+  const args = calculateAstronomicalArguments(date);
+  const N = args.N * Math.PI / 180; // Convert to radians
+  
   // ============================================================
-  // N (Lunar Node) - 18.6 year cycle
+  // SEMIDIURNAL CONSTITUENTS
   // ============================================================
-  const nodalCycleDays = 6798.383; // days in 18.6 years
-  const nodalPhase = (daysSinceEpoch % nodalCycleDays) / nodalCycleDays;
-  const N = 1 - 0.037 * Math.cos(2 * Math.PI * nodalPhase);
-
+  
+  // M2 - Principal Lunar
+  corrections.set('M2', {
+    f: 1.0 - 0.03731 * Math.cos(N) + 0.00052 * Math.cos(2 * N),
+    u: -2.1408 * Math.sin(N) + 0.0138 * Math.sin(2 * N)
+  });
+  
+  // S2 - Principal Solar (no nodal corrections)
+  corrections.set('S2', { f: 1.0, u: 0.0 });
+  
+  // N2 - Larger Lunar Elliptic
+  corrections.set('N2', {
+    f: 1.0 - 0.03731 * Math.cos(N) + 0.00052 * Math.cos(2 * N),
+    u: -2.1408 * Math.sin(N) + 0.0138 * Math.sin(2 * N)
+  });
+  
+  // K2 - Lunisolar
+  corrections.set('K2', {
+    f: 1.0 + 0.2863 * Math.cos(N) - 0.0088 * Math.cos(2 * N),
+    u: -17.7 * Math.sin(N) + 0.68 * Math.sin(2 * N) - 0.07 * Math.sin(3 * N)
+  });
+  
+  // 2N2, ν2, μ2 (same as M2)
+  ['2N2', 'ν2', 'μ2'].forEach(name => {
+    corrections.set(name, corrections.get('M2')!);
+  });
+  
+  // L2, λ2 (same as N2)
+  ['L2', 'λ2'].forEach(name => {
+    corrections.set(name, corrections.get('N2')!);
+  });
+  
+  // T2 (same as S2)
+  corrections.set('T2', { f: 1.0, u: 0.0 });
+  
   // ============================================================
-  // P (Lunar Perigee) - ~3.4 to 8.85 year cycle (average 8.85)
+  // DIURNAL CONSTITUENTS
   // ============================================================
-  const perigeeVariationFactor =
-    1 + 0.027 * Math.sin((2 * Math.PI * daysSinceEpoch) / 3232.66);
-  const P = 1 + 0.027 * perigeeVariationFactor;
-
+  
+  // K1 - Lunisolar Diurnal
+  corrections.set('K1', {
+    f: 1.006 + 0.1150 * Math.cos(N) - 0.0088 * Math.cos(2 * N),
+    u: -8.86 * Math.sin(N) + 0.68 * Math.sin(2 * N) - 0.07 * Math.sin(3 * N)
+  });
+  
+  // O1 - Principal Lunar Diurnal
+  corrections.set('O1', {
+    f: 1.009 + 0.1870 * Math.cos(N) - 0.0147 * Math.cos(2 * N),
+    u: 10.8 * Math.sin(N) - 1.34 * Math.sin(2 * N) + 0.19 * Math.sin(3 * N)
+  });
+  
+  // P1 - Principal Solar Diurnal (no nodal corrections)
+  corrections.set('P1', { f: 1.0, u: 0.0 });
+  
+  // Q1 - Larger Lunar Elliptic Diurnal
+  corrections.set('Q1', {
+    f: 1.009 + 0.1870 * Math.cos(N) - 0.0147 * Math.cos(2 * N),
+    u: 10.8 * Math.sin(N) - 1.34 * Math.sin(2 * N) + 0.19 * Math.sin(3 * N)
+  });
+  
+  // J1, ρ1, M1 (same as O1)
+  ['J1', 'ρ1', 'M1'].forEach(name => {
+    corrections.set(name, corrections.get('O1')!);
+  });
+  
+  // OO1 (special case)
+  corrections.set('OO1', {
+    f: 1.009 + 0.1870 * Math.cos(N) - 0.0147 * Math.cos(2 * N),
+    u: -10.8 * Math.sin(N) + 1.34 * Math.sin(2 * N) - 0.19 * Math.sin(3 * N)
+  });
+  
+  // S1 (same as P1)
+  corrections.set('S1', { f: 1.0, u: 0.0 });
+  
   // ============================================================
-  // K (Lunar Inclination) - Complex 173.3 day cycle variation
+  // LONG PERIOD CONSTITUENTS
   // ============================================================
-  const inclinationCycleDays = 173.31;
-  const inclPhase =
-    (daysSinceEpoch % inclinationCycleDays) / inclinationCycleDays;
-  const K = 1 + 0.016 * Math.cos(2 * Math.PI * inclPhase);
-
-  return { N, P, K };
+  
+  // Mf - Lunar Fortnightly
+  corrections.set('Mf', {
+    f: 1.0 + 0.041 * Math.cos(N),
+    u: 0.0
+  });
+  
+  // Mm - Lunar Monthly
+  corrections.set('Mm', {
+    f: 1.0 - 0.065 * Math.cos(N),
+    u: 0.0
+  });
+  
+  // Sa, Ssa - Solar (no nodal corrections)
+  corrections.set('Sa', { f: 1.0, u: 0.0 });
+  corrections.set('Ssa', { f: 1.0, u: 0.0 });
+  
+  // MSf - Lunisolar Synodic Fortnightly
+  corrections.set('MSf', {
+    f: 1.0 + 0.041 * Math.cos(N),
+    u: 0.0
+  });
+  
+  // ============================================================
+  // SHALLOW WATER CONSTITUENTS
+  // ============================================================
+  
+  // M4, MS4, MN4 (same as M2)
+  ['M4', 'MS4', 'MN4'].forEach(name => {
+    corrections.set(name, corrections.get('M2')!);
+  });
+  
+  // M6, 2MS6, 2MN6 (same as M2)
+  ['M6', '2MS6', '2MN6'].forEach(name => {
+    corrections.set(name, corrections.get('M2')!);
+  });
+  
+  // M8 (same as M2)
+  corrections.set('M8', corrections.get('M2')!);
+  
+  // MK3 (special case - compound)
+  corrections.set('MK3', {
+    f: (corrections.get('M2')!.f + corrections.get('K1')!.f) / 2,
+    u: (corrections.get('M2')!.u + corrections.get('K1')!.u) / 2
+  });
+  
+  // S4 (same as S2)
+  corrections.set('S4', { f: 1.0, u: 0.0 });
+  
+  return corrections;
 }
 
 /**

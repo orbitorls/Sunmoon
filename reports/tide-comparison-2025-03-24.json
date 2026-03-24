@@ -1,0 +1,733 @@
+{
+  "generatedAt": "2026-03-24T13:27:47.574Z",
+  "date": "2025-03-24",
+  "locations": [
+    {
+      "location": {
+        "id": "benchmark-upper-gulf-bangkok",
+        "name": "Bangkok Inner Gulf",
+        "lat": 13.702817,
+        "lon": 100.58025236193,
+        "region": "gulf",
+        "zone": "upper-gulf",
+        "notes": "Upper Gulf reference point for dense estuary behavior."
+      },
+      "baseline": {
+        "sourceId": "internal",
+        "category": "internal",
+        "sourceLabel": "Canonical Harmonic Forecast",
+        "location": {
+          "id": "benchmark-upper-gulf-bangkok",
+          "name": "Bangkok Inner Gulf",
+          "lat": 13.702817,
+          "lon": 100.58025236193,
+          "region": "gulf",
+          "zone": "upper-gulf",
+          "notes": "Upper Gulf reference point for dense estuary behavior."
+        },
+        "date": "2025-03-24",
+        "available": true,
+        "datum": "MSL",
+        "datumConfidence": "known",
+        "supportsHeightComparison": true,
+        "events": [],
+        "rawEventCount": 51,
+        "metadata": {
+          "engine": "canonical-harmonic-v1",
+          "intervalMinutes": 30,
+          "constituents": "regional-harmonic"
+        }
+      },
+      "comparisons": [
+        {
+          "source": {
+            "sourceId": "worldtides",
+            "category": "api",
+            "sourceLabel": "WorldTides",
+            "location": {
+              "id": "benchmark-upper-gulf-bangkok",
+              "name": "Bangkok Inner Gulf",
+              "lat": 13.702817,
+              "lon": 100.58025236193,
+              "region": "gulf",
+              "zone": "upper-gulf",
+              "notes": "Upper Gulf reference point for dense estuary behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "WORLDTIDES_API_KEY is not configured",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "WORLDTIDES_API_KEY is not configured",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        },
+        {
+          "source": {
+            "sourceId": "stormglass",
+            "category": "api",
+            "sourceLabel": "Stormglass",
+            "location": {
+              "id": "benchmark-upper-gulf-bangkok",
+              "name": "Bangkok Inner Gulf",
+              "lat": 13.702817,
+              "lon": 100.58025236193,
+              "region": "gulf",
+              "zone": "upper-gulf",
+              "notes": "Upper Gulf reference point for dense estuary behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "STORMGLASS_API_KEY is not configured",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "STORMGLASS_API_KEY is not configured",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        },
+        {
+          "source": {
+            "sourceId": "website",
+            "category": "website",
+            "sourceLabel": "Public Tide Website",
+            "location": {
+              "id": "benchmark-upper-gulf-bangkok",
+              "name": "Bangkok Inner Gulf",
+              "lat": 13.702817,
+              "lon": 100.58025236193,
+              "region": "gulf",
+              "zone": "upper-gulf",
+              "notes": "Upper Gulf reference point for dense estuary behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "No stable public website adapter has been configured yet",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "No stable public website adapter has been configured yet",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "location": {
+        "id": "benchmark-middle-gulf-ko-sichang",
+        "name": "Ko Si Chang",
+        "lat": 13.1599381,
+        "lon": 100.8096189,
+        "region": "gulf",
+        "zone": "middle-gulf",
+        "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
+      },
+      "baseline": {
+        "sourceId": "internal",
+        "category": "internal",
+        "sourceLabel": "Canonical Harmonic Forecast",
+        "location": {
+          "id": "benchmark-middle-gulf-ko-sichang",
+          "name": "Ko Si Chang",
+          "lat": 13.1599381,
+          "lon": 100.8096189,
+          "region": "gulf",
+          "zone": "middle-gulf",
+          "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
+        },
+        "date": "2025-03-24",
+        "available": true,
+        "datum": "MSL",
+        "datumConfidence": "known",
+        "supportsHeightComparison": true,
+        "events": [],
+        "rawEventCount": 51,
+        "metadata": {
+          "engine": "canonical-harmonic-v1",
+          "intervalMinutes": 30,
+          "constituents": "regional-harmonic"
+        }
+      },
+      "comparisons": [
+        {
+          "source": {
+            "sourceId": "worldtides",
+            "category": "api",
+            "sourceLabel": "WorldTides",
+            "location": {
+              "id": "benchmark-middle-gulf-ko-sichang",
+              "name": "Ko Si Chang",
+              "lat": 13.1599381,
+              "lon": 100.8096189,
+              "region": "gulf",
+              "zone": "middle-gulf",
+              "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "WORLDTIDES_API_KEY is not configured",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "WORLDTIDES_API_KEY is not configured",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        },
+        {
+          "source": {
+            "sourceId": "stormglass",
+            "category": "api",
+            "sourceLabel": "Stormglass",
+            "location": {
+              "id": "benchmark-middle-gulf-ko-sichang",
+              "name": "Ko Si Chang",
+              "lat": 13.1599381,
+              "lon": 100.8096189,
+              "region": "gulf",
+              "zone": "middle-gulf",
+              "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "STORMGLASS_API_KEY is not configured",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "STORMGLASS_API_KEY is not configured",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        },
+        {
+          "source": {
+            "sourceId": "website",
+            "category": "website",
+            "sourceLabel": "Public Tide Website",
+            "location": {
+              "id": "benchmark-middle-gulf-ko-sichang",
+              "name": "Ko Si Chang",
+              "lat": 13.1599381,
+              "lon": 100.8096189,
+              "region": "gulf",
+              "zone": "middle-gulf",
+              "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "No stable public website adapter has been configured yet",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "No stable public website adapter has been configured yet",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "location": {
+        "id": "benchmark-lower-gulf-samui",
+        "name": "Koh Samui",
+        "lat": 9.50139445,
+        "lon": 99.9956192732,
+        "region": "gulf",
+        "zone": "lower-gulf",
+        "notes": "Lower Gulf benchmark for island/coastal user flow."
+      },
+      "baseline": {
+        "sourceId": "internal",
+        "category": "internal",
+        "sourceLabel": "Canonical Harmonic Forecast",
+        "location": {
+          "id": "benchmark-lower-gulf-samui",
+          "name": "Koh Samui",
+          "lat": 9.50139445,
+          "lon": 99.9956192732,
+          "region": "gulf",
+          "zone": "lower-gulf",
+          "notes": "Lower Gulf benchmark for island/coastal user flow."
+        },
+        "date": "2025-03-24",
+        "available": true,
+        "datum": "MSL",
+        "datumConfidence": "known",
+        "supportsHeightComparison": true,
+        "events": [],
+        "rawEventCount": 51,
+        "metadata": {
+          "engine": "canonical-harmonic-v1",
+          "intervalMinutes": 30,
+          "constituents": "regional-harmonic"
+        }
+      },
+      "comparisons": [
+        {
+          "source": {
+            "sourceId": "worldtides",
+            "category": "api",
+            "sourceLabel": "WorldTides",
+            "location": {
+              "id": "benchmark-lower-gulf-samui",
+              "name": "Koh Samui",
+              "lat": 9.50139445,
+              "lon": 99.9956192732,
+              "region": "gulf",
+              "zone": "lower-gulf",
+              "notes": "Lower Gulf benchmark for island/coastal user flow."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "WORLDTIDES_API_KEY is not configured",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "WORLDTIDES_API_KEY is not configured",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        },
+        {
+          "source": {
+            "sourceId": "stormglass",
+            "category": "api",
+            "sourceLabel": "Stormglass",
+            "location": {
+              "id": "benchmark-lower-gulf-samui",
+              "name": "Koh Samui",
+              "lat": 9.50139445,
+              "lon": 99.9956192732,
+              "region": "gulf",
+              "zone": "lower-gulf",
+              "notes": "Lower Gulf benchmark for island/coastal user flow."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "STORMGLASS_API_KEY is not configured",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "STORMGLASS_API_KEY is not configured",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        },
+        {
+          "source": {
+            "sourceId": "website",
+            "category": "website",
+            "sourceLabel": "Public Tide Website",
+            "location": {
+              "id": "benchmark-lower-gulf-samui",
+              "name": "Koh Samui",
+              "lat": 9.50139445,
+              "lon": 99.9956192732,
+              "region": "gulf",
+              "zone": "lower-gulf",
+              "notes": "Lower Gulf benchmark for island/coastal user flow."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "No stable public website adapter has been configured yet",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 0,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "No stable public website adapter has been configured yet",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "location": {
+        "id": "benchmark-andaman-phuket",
+        "name": "Phuket Andaman",
+        "lat": 8.047222,
+        "lon": 98.915833,
+        "region": "andaman",
+        "zone": "andaman-phuket",
+        "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
+      },
+      "baseline": {
+        "sourceId": "internal",
+        "category": "internal",
+        "sourceLabel": "Canonical Harmonic Forecast",
+        "location": {
+          "id": "benchmark-andaman-phuket",
+          "name": "Phuket Andaman",
+          "lat": 8.047222,
+          "lon": 98.915833,
+          "region": "andaman",
+          "zone": "andaman-phuket",
+          "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
+        },
+        "date": "2025-03-24",
+        "available": true,
+        "datum": "MSL",
+        "datumConfidence": "known",
+        "supportsHeightComparison": true,
+        "events": [
+          {
+            "type": "low",
+            "timestamp": "2025-03-24T15:30:00+07:00",
+            "clockTime": "15:30",
+            "level": 0.523,
+            "confidence": 68
+          }
+        ],
+        "rawEventCount": 51,
+        "metadata": {
+          "engine": "canonical-harmonic-v1",
+          "intervalMinutes": 30,
+          "constituents": "regional-harmonic"
+        }
+      },
+      "comparisons": [
+        {
+          "source": {
+            "sourceId": "worldtides",
+            "category": "api",
+            "sourceLabel": "WorldTides",
+            "location": {
+              "id": "benchmark-andaman-phuket",
+              "name": "Phuket Andaman",
+              "lat": 8.047222,
+              "lon": 98.915833,
+              "region": "andaman",
+              "zone": "andaman-phuket",
+              "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "WORLDTIDES_API_KEY is not configured",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [
+            {
+              "type": "low",
+              "timestamp": "2025-03-24T15:30:00+07:00",
+              "clockTime": "15:30",
+              "level": 0.523,
+              "confidence": 68
+            }
+          ],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 1,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "WORLDTIDES_API_KEY is not configured",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        },
+        {
+          "source": {
+            "sourceId": "stormglass",
+            "category": "api",
+            "sourceLabel": "Stormglass",
+            "location": {
+              "id": "benchmark-andaman-phuket",
+              "name": "Phuket Andaman",
+              "lat": 8.047222,
+              "lon": 98.915833,
+              "region": "andaman",
+              "zone": "andaman-phuket",
+              "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "STORMGLASS_API_KEY is not configured",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [
+            {
+              "type": "low",
+              "timestamp": "2025-03-24T15:30:00+07:00",
+              "clockTime": "15:30",
+              "level": 0.523,
+              "confidence": 68
+            }
+          ],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 1,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "STORMGLASS_API_KEY is not configured",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        },
+        {
+          "source": {
+            "sourceId": "website",
+            "category": "website",
+            "sourceLabel": "Public Tide Website",
+            "location": {
+              "id": "benchmark-andaman-phuket",
+              "name": "Phuket Andaman",
+              "lat": 8.047222,
+              "lon": 98.915833,
+              "region": "andaman",
+              "zone": "andaman-phuket",
+              "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
+            },
+            "date": "2025-03-24",
+            "available": false,
+            "unavailableReason": "No stable public website adapter has been configured yet",
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [],
+            "rawEventCount": 0,
+            "metadata": {}
+          },
+          "matches": [],
+          "unmatchedBaselineEvents": [
+            {
+              "type": "low",
+              "timestamp": "2025-03-24T15:30:00+07:00",
+              "clockTime": "15:30",
+              "level": 0.523,
+              "confidence": 68
+            }
+          ],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 1,
+            "candidateEventCount": 0,
+            "matchedEventCount": 0,
+            "eventCoverage": 0,
+            "meanAbsoluteTimingErrorMinutes": null,
+            "meanTimingBiasMinutes": null,
+            "maxAbsoluteTimingErrorMinutes": null,
+            "meanAbsoluteLevelErrorMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "supportsHeightComparison": false,
+            "warnings": [
+              "No stable public website adapter has been configured yet",
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "sourcesRequested": [
+    "internal",
+    "worldtides",
+    "stormglass",
+    "website"
+  ],
+  "summary": {
+    "totalLocations": 4,
+    "availableComparisons": 0,
+    "unavailableComparisons": 12
+  }
+}

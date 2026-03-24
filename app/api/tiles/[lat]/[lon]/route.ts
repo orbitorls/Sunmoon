@@ -7,16 +7,17 @@ import { getLocationConstituents } from '@/lib/harmonic-prediction'
  * API endpoint for tile data
  * GET /api/tiles/[lat]/[lon]
  * 
- * Returns compressed tile package with tidal constituents for the location
+ * Returns compressed tile package with tidal constituents for location
  */
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { lat: string; lon: string } }
+  context: { params: Promise<{ lat: string; lon: string }> }
 ) {
   try {
-    const lat = parseFloat(params.lat)
-    const lon = parseFloat(params.lon)
+    const { lat: latParam, lon: lonParam } = await context.params
+    const lat = parseFloat(latParam)
+    const lon = parseFloat(lonParam)
 
     if (isNaN(lat) || isNaN(lon)) {
       return NextResponse.json(
@@ -48,7 +49,7 @@ export async function GET(
     const centroid: [number, number] = [lon, lat]
     
     // Get constituents for this location
-    const location = { lat, lon, name: `Location ${lat},${lon}` }
+    const location = { lat, lon: lon, name: `Location ${lat},${lon}` }
     const constituents = getLocationConstituents(location)
     
     // Convert to ConstituentData format

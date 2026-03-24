@@ -17,6 +17,7 @@ import type {
   TideEvent,
   WaterLevelGraphData,
 } from "@/lib/tide-service";
+import { tideControlManager } from "@/lib/controls";
 import { cn } from "@/lib/utils";
 
 type TideAnimationProps = { tideData: TideData };
@@ -121,7 +122,7 @@ export default function TideAnimationNew({ tideData }: TideAnimationProps) {
                 ระดับน้ำปัจจุบัน
               </p>
               <p className="text-4xl font-bold text-blue-700 dark:text-blue-300">
-                {currentWaterLevel.toFixed(2)}
+                {tideControlManager.adjustHeightForDatum(currentWaterLevel).toFixed(2)}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 เมตร

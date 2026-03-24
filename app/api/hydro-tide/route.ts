@@ -16,6 +16,12 @@ interface TideEvent {
     type: "high" | "low";
 }
 
+type StationEventResult = {
+    events: TideEvent[];
+    degraded: boolean;
+    degradedReason?: string;
+};
+
 // Calculate distance between two points (Haversine formula)
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371; // Earth's radius in km
@@ -49,7 +55,7 @@ function findNearestStation(lat: number, lon: number): { station: HydroStation; 
 // This is much more accurate than the previous lunar day approximation
 import { findTideExtremes } from '@/lib/harmonic-engine';
 
-function generateTideEventsForStation(station: HydroStation, date: Date): TideEvent[] {
+function generateTideEventsForStation(station: HydroStation, date: Date): StationEventResult {
     const location = {
         lat: station.lat,
         lon: station.lon,
@@ -61,24 +67,33 @@ function generateTideEventsForStation(station: HydroStation, date: Date): TideEv
         const extremes = findTideExtremes(date, location);
         
         if (extremes.length === 0) {
-            console.warn(`[Hydro API] No extremes found for station ${station.nameTh}, using fallback`);
-            return generateFallbackTideEvents(date);
+            console.warn(`[Hydro API] No extremes found for station ${station.nameTh}, returning degraded fallback`);
+            return {
+                events: generateFallbackTideEvents(date),
+                degraded: true,
+                degradedReason: "ไม่พบจุด extreme จากสถานีใกล้เคียง จึงใช้รูปแบบสำรองภายใน"
+            };
         }
         
-        return extremes.map(extreme => ({
-            time: extreme.time,
-            level: extreme.level,
-            type: extreme.type
-        }));
+        return {
+            events: extremes.map(extreme => ({
+                time: extreme.time,
+                level: extreme.level,
+                type: extreme.type
+            })),
+            degraded: false
+        };
     } catch (error) {
         console.error(`[Hydro API] Harmonic engine error for ${station.nameTh}:`, error);
-        return generateFallbackTideEvents(date);
+        return {
+            events: generateFallbackTideEvents(date),
+            degraded: true,
+            degradedReason: "โมเดลสถานีใกล้เคียงล้มเหลว จึงใช้รูปแบบสำรองภายใน"
+        };
     }
 }
 
-// Fallback function if harmonic engine fails
 function generateFallbackTideEvents(date: Date): TideEvent[] {
-    // Simple semi-diurnal pattern as absolute fallback
     return [
         { time: "06:00", level: 1.8, type: "high" as const },
         { time: "12:15", level: 0.5, type: "low" as const },
@@ -106,7 +121,7 @@ export async function GET(request: Request) {
         console.log(`[Hydro API] Nearest station: ${station.nameTh} (${distance.toFixed(1)} km away)`);
 
         // Generate tide events for this station
-        const events = generateTideEventsForStation(station, date);
+        const stationResult = generateTideEventsForStation(station, date);
 
         return NextResponse.json({
             success: true,
@@ -116,10 +131,13 @@ export async function GET(request: Request) {
             stationLat: station.lat,
             stationLon: station.lon,
             distanceKm: parseFloat(distance.toFixed(2)),
-            source: "กรมอุทกศาสตร์ กองทัพเรือ",
+            source: "สถานีใกล้เคียง + โมเดลภายใน",
+            sourceTier: stationResult.degraded ? "harmonic" : "station_projected",
+            degraded: stationResult.degraded,
+            degradedReason: stationResult.degradedReason,
             lastCheck: new Date().toISOString(),
             date: date.toISOString().split('T')[0],
-            events: events,
+            events: stationResult.events,
             allStations: hydroStations.map((s: any) => ({
                 id: s.id,
                 name: s.nameTh,

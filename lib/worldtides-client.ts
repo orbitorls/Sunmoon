@@ -26,6 +26,18 @@ export interface WorldTidesExtremes {
   lows: WorldTidesPrediction[]
 }
 
+type WorldTidesExtremesApiResponse = {
+  extremes?: Array<{ timestamp: number; height: number; type: string }>
+}
+
+type WorldTidesStationApiResponse = {
+  stations?: Array<{ id: string; name: string; lat: number; lon: number }>
+}
+
+type WorldTidesHeightsApiResponse = {
+  heights?: Array<{ timestamp: number; height: number }>
+}
+
 /**
  * WorldTides API client
  * Docs: https://www.worldtides.info/api
@@ -41,23 +53,47 @@ export class WorldTidesClient {
     this.apiKey = apiKey
   }
 
+  isConfigured(): boolean {
+    return this.apiKey.trim().length > 0
+  }
+
+  private buildUrl(path: string, params: Record<string, string | number | boolean>): string {
+    const searchParams = new URLSearchParams()
+
+    for (const [key, value] of Object.entries(params)) {
+      searchParams.set(key, String(value))
+    }
+
+    if (this.isConfigured()) {
+      searchParams.set('key', this.apiKey)
+    }
+
+    return `${this.baseUrl}/${path}?${searchParams.toString()}`
+  }
+
   /**
    * Find nearest tide station to coordinates
    */
   async findNearestStation(lat: number, lon: number): Promise<WorldTidesStation | null> {
     try {
+      if (!this.isConfigured()) {
+        return null
+      }
+
       await this.rateLimitCheck()
 
-      const response = await fetch(
-        `${this.baseUrl}/stationlist?lat=${lat}&lon=${lon}&type=current`
-      )
+      const response = await fetch(this.buildUrl('stationlist', {
+        lat,
+        lon,
+        type: 'current',
+      }))
 
       if (!response.ok) {
         console.warn('WorldTides station list failed:', response.statusText)
         return null
       }
 
-      const data = await response.json() as { stations?: Array<{ id: string; name: string; lat: number; lon: number }> }
+      const data = await response.json() as WorldTidesStationApiResponse
 
       if (data.stations && data.stations.length > 0) {
         return {
@@ -86,21 +122,28 @@ export class WorldTidesClient {
     endDate: Date
   ): Promise<WorldTidesPrediction[]> {
     try {
+      if (!this.isConfigured()) {
+        return []
+      }
+
       await this.rateLimitCheck()
 
       const start = Math.floor(startDate.getTime() / 1000)
       const end = Math.floor(endDate.getTime() / 1000)
 
-      const response = await fetch(
-        `${this.baseUrl}/tide?station=${stationId}&begin=${start}&end=${end}&step=600`
-      )
+      const response = await fetch(this.buildUrl('tide', {
+        station: stationId,
+        begin: start,
+        end,
+        step: 600,
+      }))
 
       if (!response.ok) {
         console.warn('WorldTides prediction failed:', response.statusText)
         return []
       }
 
-      const data = await response.json() as { heights?: Array<{ timestamp: number; height: number }> }
+      const data = await response.json() as WorldTidesHeightsApiResponse
 
       if (!data.heights) return []
 
@@ -124,21 +167,28 @@ export class WorldTidesClient {
     endDate: Date
   ): Promise<WorldTidesExtremes> {
     try {
+      if (!this.isConfigured()) {
+        return { highs: [], lows: [] }
+      }
+
       await this.rateLimitCheck()
 
       const start = Math.floor(startDate.getTime() / 1000)
       const end = Math.floor(endDate.getTime() / 1000)
 
-      const response = await fetch(
-        `${this.baseUrl}/tide?station=${stationId}&begin=${start}&end=${end}&extremes`
-      )
+      const response = await fetch(this.buildUrl('tide', {
+        station: stationId,
+        begin: start,
+        end,
+        extremes: true,
+      }))
 
       if (!response.ok) {
         console.warn('WorldTides extremes failed:', response.statusText)
         return { highs: [], lows: [] }
       }
 
-      const data = await response.json() as { extremes?: Array<{ timestamp: number; height: number; type: string }> }
+      const data = await response.json() as WorldTidesExtremesApiResponse
 
       if (!data.extremes) return { highs: [], lows: [] }
 
@@ -163,6 +213,66 @@ export class WorldTidesClient {
       return { highs, lows }
     } catch (error) {
       console.error('WorldTides extremes fetch failed:', error)
+      return { highs: [], lows: [] }
+    }
+  }
+
+  async getExtremesForCoordinates(
+    lat: number,
+    lon: number,
+    startDate: Date,
+    endDate: Date
+  ): Promise<WorldTidesExtremes> {
+    try {
+      if (!this.isConfigured()) {
+        return { highs: [], lows: [] }
+      }
+
+      await this.rateLimitCheck()
+
+      const start = Math.floor(startDate.getTime() / 1000)
+      const length = Math.max(0, Math.floor((endDate.getTime() - startDate.getTime()) / 1000))
+
+      const response = await fetch(this.buildUrl('', {
+        extremes: true,
+        lat,
+        lon,
+        start,
+        length,
+      }))
+
+      if (!response.ok) {
+        console.warn('WorldTides coordinate extremes failed:', response.statusText)
+        return { highs: [], lows: [] }
+      }
+
+      const data = await response.json() as WorldTidesExtremesApiResponse
+
+      if (!data.extremes) {
+        return { highs: [], lows: [] }
+      }
+
+      const highs: WorldTidesPrediction[] = []
+      const lows: WorldTidesPrediction[] = []
+
+      for (const extreme of data.extremes) {
+        const prediction: WorldTidesPrediction = {
+          timestamp: extreme.timestamp * 1000,
+          height: extreme.height,
+          type: extreme.type === 'High' ? 'high' : 'low',
+          confidence: 95,
+        }
+
+        if (prediction.type === 'high') {
+          highs.push(prediction)
+        } else {
+          lows.push(prediction)
+        }
+      }
+
+      return { highs, lows }
+    } catch (error) {
+      console.error('WorldTides coordinate extremes fetch failed:', error)
       return { highs: [], lows: [] }
     }
   }
@@ -205,7 +315,7 @@ export class WorldTidesClient {
 }
 
 // Singleton instance
-const apiKey = process.env.NEXT_PUBLIC_WORLDTIDES_API_KEY || ''
+const apiKey = process.env.WORLDTIDES_API_KEY || process.env.NEXT_PUBLIC_WORLDTIDES_API_KEY || ''
 export const worldTidesClient = new WorldTidesClient(apiKey)
 
 export default worldTidesClient

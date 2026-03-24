@@ -1,4 +1,7 @@
-import { findTideExtremes } from "./harmonic-engine";
+import {
+  generatePredictionTimeSeries,
+} from "./harmonic-prediction";
+import { fetchHydroTideData } from "./hydro-service";
 import moonEventSource from "@/data/authoritative-moons.json";
 
 type MoonEvent = {
@@ -40,6 +43,13 @@ export type LocationData = {
 };
 
 export type ApiStatus = "loading" | "success" | "error" | "offline" | "timeout";
+export type SourceTier =
+  | "observed"
+  | "provider"
+  | "station_projected"
+  | "harmonic"
+  | "synthetic";
+export type ConfidenceMethod = "empirical" | "provider" | "none";
 
 export type TideEvent = {
   time: string; // HH:MM format
@@ -87,6 +97,15 @@ export type TideData = {
   lastUpdated: string; // Last update timestamp
   isFromCache?: boolean; // Indicates if data is from cache
   dataSource?: string; // Source of the data (e.g., "WorldTides", "Hydrographic Dept", "Harmonic Model")
+  sourceTier?: SourceTier;
+  sourceLabel?: string;
+  qualityScore?: number | null;
+  confidenceMethod?: ConfidenceMethod;
+  degraded?: boolean;
+  degradedReason?: string;
+  modelVersion?: string;
+  stationId?: string;
+  stationDistanceKm?: number;
 };
 
 export type WeatherData = {
@@ -446,35 +465,123 @@ function calculateTideStatus(lunarPhaseKham: number): "น้ำเป็น" | 
 /**
  * Fetch real tide data from WorldTides API or use harmonic prediction as fallback
  */
-import { fetchHydroTideData } from "./hydro-service";
+const FORECAST_MODEL_VERSION = "canonical-harmonic-v1";
 
-// ... existing code ...
+type TideSourceMetadata = {
+  source: string;
+  sourceTier: SourceTier;
+  sourceLabel: string;
+  confidenceMethod: ConfidenceMethod;
+  qualityScore: number | null;
+  degraded: boolean;
+  degradedReason?: string;
+  isObserved: boolean;
+  stationId?: string;
+  distanceKm?: number;
+};
 
-/**
- * Fetch real tide data from WorldTides API or use harmonic prediction as fallback
- */
+type TideInputResult = {
+  events: TideEvent[];
+  metadata: TideSourceMetadata;
+};
+
+function getWaterLevelReference(metadata: TideSourceMetadata): string {
+  switch (metadata.sourceTier) {
+    case "station_projected":
+      return metadata.stationId
+        ? `สถานีใกล้เคียง ${metadata.stationId} ร่วมกับโมเดลคาดการณ์ภายใน`
+        : "สถานีใกล้เคียงร่วมกับโมเดลคาดการณ์ภายใน";
+    case "provider":
+      return `ข้อมูลผู้ให้บริการภายนอก: ${metadata.source}`;
+    case "observed":
+      return metadata.source;
+    case "harmonic":
+    default:
+      return "โมเดล harmonic ภายในสำหรับชายฝั่งไทย";
+  }
+}
+
+function toClockString(value: Date): string {
+  return `${value.getHours().toString().padStart(2, "0")}:${value
+    .getMinutes()
+    .toString()
+    .padStart(2, "0")}`;
+}
+
+function deriveCanonicalGraphData(
+  location: LocationData,
+  date: Date,
+  intervalMinutes = 60,
+): WaterLevelGraphData[] {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(date);
+  end.setHours(23, 59, 0, 0);
+
+  return generatePredictionTimeSeries(start, end, location, intervalMinutes).map(
+    (point) => ({
+      time: toClockString(point.time),
+      level: Number.parseFloat(point.level.toFixed(2)),
+      prediction: point.time.getTime() > Date.now(),
+    }),
+  );
+}
+
+function deriveExtremesFromGraphData(graphData: WaterLevelGraphData[]): TideEvent[] {
+  const events: TideEvent[] = [];
+
+  for (let i = 1; i < graphData.length - 1; i++) {
+    const prev = graphData[i - 1].level;
+    const current = graphData[i].level;
+    const next = graphData[i + 1].level;
+
+    if (current >= prev && current > next) {
+      events.push({
+        time: graphData[i].time,
+        level: current,
+        type: "high",
+        prediction: graphData[i].prediction,
+      });
+    } else if (current <= prev && current < next) {
+      events.push({
+        time: graphData[i].time,
+        level: current,
+        type: "low",
+        prediction: graphData[i].prediction,
+      });
+    }
+  }
+
+  return sortTideEvents(events);
+}
+
 async function fetchRealTideData(
   location: LocationData,
   date: Date,
-): Promise<{ events: TideEvent[], source: string }> {
-  // 1. Try Hydrographic Department (Official Source)
+): Promise<TideInputResult> {
   try {
-    const officialData = await fetchHydroTideData(date, location.lat, location.lon);
-    if (officialData && officialData.events.length > 0) {
-      console.log(`Using official Hydrographic Dept data from ${officialData.stationName} (${officialData.distanceKm} km)`);
-      console.log("Using official Hydrographic Dept data");
+    const stationProjectedData = await fetchHydroTideData(date, location.lat, location.lon);
+    if (stationProjectedData && stationProjectedData.events.length > 0) {
       return {
-        events: sortTideEvents(officialData.events),
-        source: officialData.source
+        events: sortTideEvents(stationProjectedData.events),
+        metadata: {
+          source: stationProjectedData.source,
+          sourceTier: "station_projected",
+          sourceLabel: `สถานีใกล้เคียง ${stationProjectedData.stationName}`,
+          confidenceMethod: "empirical",
+          qualityScore: 78,
+          degraded: false,
+          isObserved: false,
+          stationId: stationProjectedData.stationId,
+          distanceKm: stationProjectedData.distanceKm,
+        },
       };
     }
   } catch (error) {
-    console.warn("Failed to fetch official hydro data:", error);
+    console.warn("Failed to fetch station-projected tide data:", error);
   }
 
-  // 2. Try multiple free APIs before falling back to harmonic prediction
   let worldTidesApiKey: string | undefined;
-
   let stormglassApiKey: string | undefined;
 
   if (typeof process !== "undefined" && process.env) {
@@ -484,22 +591,14 @@ async function fetchRealTideData(
 
   if (worldTidesApiKey) {
     try {
-      // Format date for API
       const startDate = new Date(date);
       startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(date);
-      endDate.setHours(23, 59, 59, 999);
-
       const start = Math.floor(startDate.getTime() / 1000);
-      const length = 86400; // 24 hours in seconds
-
-      const url = `https://www.worldtides.info/api/v3?extremes&lat=${location.lat}&lon=${location.lon}&start=${start}&length=${length}&key=${worldTidesApiKey}`;
-
+      const url = `https://www.worldtides.info/api/v3?extremes&lat=${location.lat}&lon=${location.lon}&start=${start}&length=86400&key=${worldTidesApiKey}`;
       const response = await fetch(url, { cache: "force-cache" });
 
       if (response.ok) {
         const payload: unknown = await response.json();
-
         if (isWorldTidesResponse(payload) && payload.extremes.length > 0) {
           const events = payload.extremes
             .map(toTideEventFromWorldTides)
@@ -507,7 +606,15 @@ async function fetchRealTideData(
           if (events.length > 0) {
             return {
               events: sortTideEvents(events),
-              source: "WorldTides API"
+              metadata: {
+                source: "WorldTides API",
+                sourceTier: "provider",
+                sourceLabel: "WorldTides",
+                confidenceMethod: "provider",
+                qualityScore: 84,
+                degraded: false,
+                isObserved: false,
+              },
             };
           }
         }
@@ -517,30 +624,20 @@ async function fetchRealTideData(
     }
   }
 
-  // Try Stormglass API (Free tier: 150 requests/day)
   if (!worldTidesApiKey && stormglassApiKey) {
     try {
       const startDate = new Date(date);
       startDate.setHours(0, 0, 0, 0);
       const endDate = new Date(date);
       endDate.setHours(23, 59, 59, 999);
-
-      const start = startDate.toISOString();
-      const end = endDate.toISOString();
-
-      const url = `https://api.stormglass.io/v2/tide/extremes/point?lat=${location.lat}&lng=${location.lon}&start=${start}&end=${end}`;
-
+      const url = `https://api.stormglass.io/v2/tide/extremes/point?lat=${location.lat}&lng=${location.lon}&start=${startDate.toISOString()}&end=${endDate.toISOString()}`;
       const response = await fetch(url, {
-        headers: {
-          Authorization: stormglassApiKey,
-        },
+        headers: { Authorization: stormglassApiKey },
         cache: "force-cache",
       });
 
       if (response.ok) {
         const payload: unknown = await response.json();
-        console.debug("Stormglass API response:", payload);
-
         if (isStormglassResponse(payload) && payload.data.length > 0) {
           const events = payload.data
             .map(toTideEventFromStormglass)
@@ -548,7 +645,15 @@ async function fetchRealTideData(
           if (events.length > 0) {
             return {
               events: sortTideEvents(events),
-              source: "Stormglass API"
+              metadata: {
+                source: "Stormglass API",
+                sourceTier: "provider",
+                sourceLabel: "Stormglass",
+                confidenceMethod: "provider",
+                qualityScore: 80,
+                degraded: false,
+                isObserved: false,
+              },
             };
           }
         }
@@ -558,48 +663,19 @@ async function fetchRealTideData(
     }
   }
 
-  // Fallback to harmonic prediction for Thai coastal areas (Works great without any API!)
-  console.log("Using Harmonic Model prediction (no external API available)");
   return {
-    events: generateHarmonicTidePrediction(location, date),
-    source: "Harmonic Model (กรมอุทกศาสตร์ สถานี 28 แห่ง)"
+    events: [],
+    metadata: {
+      source: "Canonical Harmonic Model",
+      sourceTier: "harmonic",
+      sourceLabel: "โมเดล harmonic ภายใน",
+      confidenceMethod: "none",
+      qualityScore: 68,
+      degraded: true,
+      degradedReason: "ไม่มี provider หรือ station feed ที่พร้อมใช้ จึงใช้โมเดลภายใน",
+      isObserved: false,
+    },
   };
-}
-
-/**
- * Generate harmonic tide prediction using 37+ constituents
- *
- * Uses advanced harmonic-engine with real astronomical calculations
- * Improved accuracy: ±0.08m vs ±0.15m from previous simple method
- */
-function generateHarmonicTidePrediction(
-  location: LocationData,
-  date: Date,
-): TideEvent[] {
-  // Use the advanced harmonic engine with 37+ constituents
-  const extremes = findTideExtremes(date, location);
-
-  // Convert to TideEvent format
-  const tideEvents: TideEvent[] = extremes.map((extreme) => ({
-    time: extreme.time,
-    level: extreme.level,
-    type: extreme.type,
-    timeRange: undefined, // Will be generated separately
-  }));
-
-  // Ensure we have at least some events (fallback)
-  if (tideEvents.length === 0) {
-    console.warn(
-      `⚠️ No tide extremes found for ${location.name}, using default pattern`,
-    );
-    // Generate fallback pattern
-    tideEvents.push(
-      { time: "06:00", level: 1.8, type: "high" },
-      { time: "12:00", level: 0.5, type: "low" },
-    );
-  }
-
-  return sortTideEvents(tideEvents);
 }
 
 // Deprecated helper functions removed to reduce bundle size and unused exports.
@@ -632,102 +708,46 @@ function getSurroundingTideEvents(
   return { prev: prevEvent, next: nextEvent };
 }
 
-/**
- * Calculate current water level based on tide events and time
- * (Legacy interpolation method - kept for fallback)
- */
 function calculateCurrentWaterLevel(
-  tideEvents: TideEvent[],
+  graphData: WaterLevelGraphData[],
   currentTime: { hour: number; minute: number },
 ): { level: number; status: string } {
-  let currentMinutes = currentTime.hour * 60 + currentTime.minute;
+  if (graphData.length === 0) {
+    return { level: 0, status: "ไม่ทราบ" };
+  }
 
-  // Find the surrounding tide events
-  let prevEvent: TideEvent | null = null;
-  let nextEvent: TideEvent | null = null;
+  const currentMinutes = currentTime.hour * 60 + currentTime.minute;
+  const indexed = graphData.map((point) => {
+    const [hours, minutes] = point.time.split(":").map(Number);
+    return { ...point, totalMinutes: hours * 60 + minutes };
+  });
 
-  for (let i = 0; i < tideEvents.length; i++) {
-    const event = tideEvents[i];
-    const [eventHour, eventMinute] = event.time.split(":").map(Number);
-    const eventMinutes = eventHour * 60 + eventMinute;
+  let before = indexed[0];
+  let after = indexed[indexed.length - 1];
 
-    if (eventMinutes <= currentMinutes) {
-      prevEvent = event;
-    } else if (!nextEvent) {
-      nextEvent = event;
+  for (let i = 0; i < indexed.length; i++) {
+    if (indexed[i].totalMinutes <= currentMinutes) {
+      before = indexed[i];
+    }
+    if (indexed[i].totalMinutes >= currentMinutes) {
+      after = indexed[i];
       break;
     }
   }
 
-  // Handle edge cases (before first event or after last event)
-  if (!prevEvent && nextEvent) {
-    // Before first event - use previous day's last event
-    const lastEvent = tideEvents[tideEvents.length - 1];
-    prevEvent = {
-      ...lastEvent,
-      time:
-        String(Number.parseInt(lastEvent.time.split(":")[0]) - 24).padStart(
-          2,
-          "0",
-        ) +
-        ":" +
-        lastEvent.time.split(":")[1],
-    };
+  if (after.totalMinutes === before.totalMinutes) {
+    return { level: before.level, status: "น้ำนิ่ง" };
   }
 
-  if (!nextEvent && prevEvent) {
-    // After last event - use next day's first event
-    const firstEvent = tideEvents[0];
-    nextEvent = {
-      ...firstEvent,
-      time:
-        String(Number.parseInt(firstEvent.time.split(":")[0]) + 24).padStart(
-          2,
-          "0",
-        ) +
-        ":" +
-        firstEvent.time.split(":")[1],
-    };
-  }
-
-  if (!prevEvent || !nextEvent) {
-    // Fallback
-    return { level: 1.5, status: "น้ำนิ่ง" };
-  }
-
-  // Calculate interpolated water level
-  const [prevHour, prevMinute] = prevEvent.time.split(":").map(Number);
-  const [nextHour, nextMinute] = nextEvent.time.split(":").map(Number);
-
-  const prevMinutes = prevHour * 60 + prevMinute;
-  let nextMinutes = nextHour * 60 + nextMinute;
-
-  // Handle day transitions
-  if (nextMinutes < prevMinutes) {
-    nextMinutes += 24 * 60;
-  }
-  if (currentMinutes < prevMinutes) {
-    currentMinutes += 24 * 60;
-  }
-
-  const timeFactor =
-    (currentMinutes - prevMinutes) / (nextMinutes - prevMinutes);
-  const levelDifference = nextEvent.level - prevEvent.level;
-  const currentLevel = prevEvent.level + levelDifference * timeFactor;
-
-  // Determine status
-  let status = "น้ำนิ่ง";
-  if (Math.abs(levelDifference) > 0.1) {
-    if (prevEvent.type === "low" && nextEvent.type === "high") {
-      status = "น้ำขึ้น";
-    } else if (prevEvent.type === "high" && nextEvent.type === "low") {
-      status = "น้ำลง";
-    }
-  }
+  const ratio =
+    (currentMinutes - before.totalMinutes) /
+    (after.totalMinutes - before.totalMinutes);
+  const level = before.level + (after.level - before.level) * ratio;
+  const delta = after.level - before.level;
 
   return {
-    level: Number.parseFloat(currentLevel.toFixed(2)),
-    status,
+    level: Number.parseFloat(level.toFixed(2)),
+    status: delta > 0.03 ? "น้ำขึ้น" : delta < -0.03 ? "น้ำลง" : "น้ำนิ่ง",
   };
 }
 
@@ -736,209 +756,63 @@ function calculateCurrentWaterLevel(
  */
 function generateTimeRangePredictions(
   tideEvents: TideEvent[],
+  qualityScore: number | null,
 ): TimeRangePrediction[] {
-  const predictions: TimeRangePrediction[] = [];
+  const confidence = qualityScore ?? 70;
 
-  // Generate predictions for high/low tide periods
-  tideEvents.forEach((event) => {
-    const eventHour = parseInt(event.time.split(":")[0]);
-    const startHour = Math.max(0, eventHour - 3);
-    const endHour = Math.min(23, eventHour + 3);
+  return tideEvents.slice(0, 4).map((event) => {
+    const [hours, minutes] = event.time.split(":").map(Number);
+    const eventMinutes = hours * 60 + minutes;
+    const startMinutes = Math.max(0, eventMinutes - 120);
+    const endMinutes = Math.min(23 * 60 + 59, eventMinutes + 120);
+    const startHours = Math.floor(startMinutes / 60);
+    const endHours = Math.floor(endMinutes / 60);
 
-    // Add time range to the event itself
-    event.timeRange = `${startHour}-${endHour}`;
-
-    predictions.push({
-      startTime: `${startHour.toString().padStart(2, "0")}:00`,
-      endTime: `${endHour.toString().padStart(2, "0")}:00`,
-      range: `${startHour}-${endHour}`,
-      description: event.type === "high" ? "น้ำขึ้นสูงสุด" : "น้ำลงต่ำสุด",
-      confidence: 85 + Math.floor(Math.random() * 10), // 85-95% confidence
-    });
+    return {
+      startTime: `${startHours.toString().padStart(2, "0")}:${(startMinutes % 60)
+        .toString()
+        .padStart(2, "0")}`,
+      endTime: `${endHours.toString().padStart(2, "0")}:${(endMinutes % 60)
+        .toString()
+        .padStart(2, "0")}`,
+      range: `${startHours.toString().padStart(2, "0")}-${endHours
+        .toString()
+        .padStart(2, "0")}`,
+      description:
+        event.type === "high" ? "ช่วงเข้าใกล้น้ำขึ้นสูงสุด" : "ช่วงเข้าใกล้น้ำลงต่ำสุด",
+      confidence,
+    };
   });
-
-  // Add general time predictions for different periods of the day
-  const generalPredictions = [
-    {
-      startTime: "06:00",
-      endTime: "10:00",
-      range: "06-10",
-      description: "น้ำขึ้นช่วงเช้า",
-      confidence: 75,
-    },
-    {
-      startTime: "13:00",
-      endTime: "19:00",
-      range: "13-19",
-      description: "น้ำขึ้นช่วงบ่ายเย็น",
-      confidence: 80,
-    },
-    {
-      startTime: "20:00",
-      endTime: "23:00",
-      range: "20-23",
-      description: "น้ำลงช่วงค่ำ",
-      confidence: 72,
-    },
-    {
-      startTime: "00:00",
-      endTime: "05:00",
-      range: "00-05",
-      description: "น้ำลงช่วงดึก",
-      confidence: 78,
-    },
-  ];
-
-  predictions.push(...generalPredictions);
-
-  return predictions;
 }
 
-/**
- * Generate water level graph data for 24 hours using actual tide events
- */
-function generateWaterLevelGraphData(
-  tideEvents: TideEvent[],
-  date: Date,
-): WaterLevelGraphData[] {
-  const graphData: WaterLevelGraphData[] = [];
-
-  if (tideEvents.length === 0) {
-    // Fallback: Generate simple tide pattern if no events
-    for (let hour = 0; hour < 24; hour++) {
-      const time = `${hour.toString().padStart(2, "0")}:00`;
-      const tidePhase = (hour / 24) * 2 * Math.PI;
-      const level = 1.5 + Math.sin(tidePhase) * 0.8;
-
-      const currentDate = new Date(date);
-      currentDate.setHours(hour, 0, 0, 0);
-      const isPrediction = currentDate > new Date();
-
-      graphData.push({
-        time,
-        level: Math.max(-0.5, Math.min(3.5, level)),
-        prediction: isPrediction,
-      });
-    }
-    return graphData;
+function getApiStatus(
+  metadata: TideSourceMetadata,
+): { status: ApiStatus; message: string } {
+  if (metadata.degraded) {
+    return {
+      status: "offline",
+      message: metadata.degradedReason || "ใช้ข้อมูลสำรองจากโมเดลภายใน",
+    };
   }
 
-  // Sort tide events by time for proper interpolation
-  const sortedEvents = [...tideEvents].sort((a, b) => {
-    const [ha, ma] = a.time.split(":").map(Number);
-    const [hb, mb] = b.time.split(":").map(Number);
-    const timeA = ha + ma / 60;
-    const timeB = hb + mb / 60;
-    return timeA - timeB;
-  });
-
-  // Generate data points for every hour of the day
-  for (let hour = 0; hour < 24; hour++) {
-    const time = `${hour.toString().padStart(2, "0")}:00`;
-    const currentHourDecimal = hour;
-
-    let level = 1.5; // default middle level
-
-    // Find the two surrounding tide events for interpolation
-    let beforeEvent: TideEvent | null = null;
-    let afterEvent: TideEvent | null = null;
-
-    for (let i = 0; i < sortedEvents.length; i++) {
-      const event = sortedEvents[i];
-      const [eventHour, eventMinute] = event.time.split(":").map(Number);
-      const eventHourDecimal = eventHour + eventMinute / 60;
-
-      if (eventHourDecimal <= currentHourDecimal) {
-        beforeEvent = event;
-      }
-
-      if (eventHourDecimal >= currentHourDecimal && !afterEvent) {
-        afterEvent = event;
-      }
-    }
-
-    // If we don't have a before event, use the last event (wrap around)
-    if (!beforeEvent && sortedEvents.length > 0) {
-      beforeEvent = sortedEvents[sortedEvents.length - 1];
-    }
-
-    // If we don't have an after event, use the first event (wrap around)
-    if (!afterEvent && sortedEvents.length > 0) {
-      afterEvent = sortedEvents[0];
-    }
-
-    // Interpolate between events
-    if (beforeEvent && afterEvent) {
-      const [beforeHour, beforeMinute] = beforeEvent.time
-        .split(":")
-        .map(Number);
-      const [afterHour, afterMinute] = afterEvent.time.split(":").map(Number);
-
-      const beforeHourDecimal = beforeHour + beforeMinute / 60;
-      const afterHourDecimal = afterHour + afterMinute / 60;
-
-      let timeDiff = afterHourDecimal - beforeHourDecimal;
-
-      // Handle wrap-around (e.g., high tide at 22:00, low tide at 04:00 next day)
-      if (timeDiff < 0) {
-        timeDiff += 24;
-      }
-
-      // Handle edge case where times are the same
-      if (timeDiff === 0) {
-        level = beforeEvent.level;
-      } else {
-        // Calculate position in the cycle between before and after events
-        let positionInCycle = currentHourDecimal - beforeHourDecimal;
-
-        // Handle wrap-around in position calculation
-        if (positionInCycle < 0) {
-          positionInCycle += 24;
-        }
-
-        // Clamp position to [0, 1]
-        const clampedPosition = Math.min(
-          1,
-          Math.max(0, positionInCycle / timeDiff),
-        );
-
-        // Linear interpolation
-        level =
-          beforeEvent.level +
-          (afterEvent.level - beforeEvent.level) * clampedPosition;
-      }
-    } else if (beforeEvent) {
-      level = beforeEvent.level;
-    } else if (afterEvent) {
-      level = afterEvent.level;
-    }
-
-    // Check if this is predicted data (after current time)
-    const currentDate = new Date(date);
-    currentDate.setHours(hour, 0, 0, 0);
-    const isPrediction = currentDate > new Date();
-
-    graphData.push({
-      time,
-      level: Math.max(-0.5, Math.min(3.5, level)), // Clamp to reasonable range
-      prediction: isPrediction,
-    });
+  if (metadata.sourceTier === "station_projected") {
+    return {
+      status: "success",
+      message: "ใช้สถานีใกล้เคียงร่วมกับโมเดลภายใน",
+    };
   }
 
-  return graphData;
-}
+  if (metadata.sourceTier === "provider") {
+    return {
+      status: "success",
+      message: "ใช้ข้อมูลจากผู้ให้บริการภายนอก",
+    };
+  }
 
-/**
- * Get API status based on various conditions
- * 
- * Note: This function now always returns success.
- * Error states should be set by actual error handlers in the calling code,
- * not randomly simulated here. Previously, this function used random probability
- * to return error states, which caused confusing behavior for users.
- */
-function getApiStatus(): { status: ApiStatus; message: string } {
-  // Always return success - actual errors should be caught and reported by the calling code
-  return { status: "success", message: "ข้อมูลอัปเดตเรียบร้อย" };
+  return {
+    status: "success",
+    message: "ใช้การคำนวณจากโมเดล harmonic ภายใน",
+  };
 }
 
 /**
@@ -954,11 +828,12 @@ export async function getTideData(
     const { isWaxingMoon, lunarPhaseKham } = await calculateLunarPhase(date);
     const tideStatus = calculateTideStatus(lunarPhaseKham);
 
-    // Fetch real tide events
-    const { events: tideEvents, source: dataSource } = await fetchRealTideData(location, date);
+    const tideInput = await fetchRealTideData(location, date);
+    const graphData = deriveCanonicalGraphData(location, date);
+    const harmonicEvents = deriveExtremesFromGraphData(graphData);
+    const tideEvents =
+      tideInput.events.length > 0 ? tideInput.events : harmonicEvents;
 
-    // Calculate current water level directly from harmonic engine
-    // (More accurate than interpolating between events)
     const currentTime =
       time ||
       (() => {
@@ -966,37 +841,9 @@ export async function getTideData(
         return { hour: now.getHours(), minute: now.getMinutes() };
       })();
 
-    // Use harmonic prediction for accurate current level (if available)
-    let currentWaterLevel: number
-    let waterLevelStatus: string
-
-    // Try to use harmonic prediction if we have it
-    try {
-      // Import here to avoid circular dependency
-      const { predictTideLevel } = await import('./harmonic-engine');
-      const result = predictTideLevel(date, location, currentTime);
-      currentWaterLevel = result.level;
-
-      // Determine status from surrounding tide events
-      const surrounding = getSurroundingTideEvents(tideEvents, currentTime);
-      if (surrounding.prev && surrounding.next) {
-        if (surrounding.prev.type === 'low' && surrounding.next.type === 'high') {
-          waterLevelStatus = 'น้ำขึ้น';
-        } else if (surrounding.prev.type === 'high' && surrounding.next.type === 'low') {
-          waterLevelStatus = 'น้ำลง';
-        } else {
-          waterLevelStatus = 'น้ำนิ่ง';
-        }
-      } else {
-        waterLevelStatus = 'น้ำนิ่ง';
-      }
-    } catch (error) {
-      // Fallback to interpolation method
-      console.warn('⚠️ Falling back to interpolation for current water level');
-      const interpolated = calculateCurrentWaterLevel(tideEvents, currentTime);
-      currentWaterLevel = interpolated.level;
-      waterLevelStatus = interpolated.status;
-    }
+    const interpolated = calculateCurrentWaterLevel(graphData, currentTime);
+    const currentWaterLevel = interpolated.level;
+    const waterLevelStatus = interpolated.status;
 
     // Determine high and low tide times
     const highTideTime =
@@ -1015,9 +862,13 @@ export async function getTideData(
     const pierDistance = isCoastalArea ? 50 : 150; // Fixed values instead of random
 
     // Generate additional data
-    const timeRangePredictions = generateTimeRangePredictions(tideEvents);
-    const graphData = generateWaterLevelGraphData(tideEvents, date);
-    const { status: apiStatus, message: apiStatusMessage } = getApiStatus();
+    const timeRangePredictions = generateTimeRangePredictions(
+      tideEvents,
+      tideInput.metadata.qualityScore,
+    );
+    const { status: apiStatus, message: apiStatusMessage } = getApiStatus(
+      tideInput.metadata,
+    );
     const lastUpdated = new Date().toISOString();
 
     return {
@@ -1029,7 +880,7 @@ export async function getTideData(
       isSeaLevelHighToday,
       currentWaterLevel,
       waterLevelStatus,
-      waterLevelReference: "กรมอุทกศาสตร์ กองทัพเรือไทย และ WorldTides API",
+      waterLevelReference: getWaterLevelReference(tideInput.metadata),
       seaLevelRiseReference:
         "กรมทรัพยากรทางทะเลและชายฝั่ง กระทรวงทรัพยากรธรรมชาติและสิ่งแวดล้อม",
       pierDistance,
@@ -1040,7 +891,16 @@ export async function getTideData(
       apiStatus,
       apiStatusMessage,
       lastUpdated,
-      dataSource,
+      dataSource: tideInput.metadata.source,
+      sourceTier: tideInput.metadata.sourceTier,
+      sourceLabel: tideInput.metadata.sourceLabel,
+      qualityScore: tideInput.metadata.qualityScore,
+      confidenceMethod: tideInput.metadata.confidenceMethod,
+      degraded: tideInput.metadata.degraded,
+      degradedReason: tideInput.metadata.degradedReason,
+      modelVersion: FORECAST_MODEL_VERSION,
+      stationId: tideInput.metadata.stationId,
+      stationDistanceKm: tideInput.metadata.distanceKm,
     };
   } catch (error) {
     console.error("Error in getTideData:", error);

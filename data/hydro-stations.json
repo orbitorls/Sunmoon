@@ -221,6 +221,108 @@
     "nameTh": "เกาะตะรุเตา",
     "lat": 6.6206601,
     "lon": 99.646945329265,
-    "source": "Hydrographic Department"
+    "source": "Hydrographic Department",
+    "region": "andaman",
+    "zone": "Southern Andaman"
+  },
+  {
+    "id": "hydro-29",
+    "name": "ท่าเรือสุรินทร์",
+    "nameTh": "ท่าเรือสุรินทร์",
+    "lat": 9.143764,
+    "lon": 99.337692,
+    "source": "Hydrographic Department",
+    "region": "gulf",
+    "zone": "Upper Gulf"
+  },
+  {
+    "id": "hydro-30",
+    "name": "เกาะช้าง",
+    "nameTh": "เกาะช้าง",
+    "lat": 11.782222,
+    "lon": 99.449722,
+    "source": "Hydrographic Department",
+    "region": "gulf",
+    "zone": "Middle Gulf"
+  },
+  {
+    "id": "hydro-31",
+    "name": "ปากน้ำตลาด",
+    "nameTh": "ปากน้ำตลาด",
+    "lat": 13.545278,
+    "lon": 100.922778,
+    "source": "Hydrographic Department",
+    "region": "gulf",
+    "zone": "Upper Gulf"
+  },
+  {
+    "id": "hydro-32",
+    "name": "แหลมพันวาก",
+    "nameTh": "แหลมพันวาก",
+    "lat": 9.561667,
+    "lon": 99.978611,
+    "source": "Hydrographic Department",
+    "region": "gulf",
+    "zone": "Middle Gulf"
+  },
+  {
+    "id": "hydro-33",
+    "name": "ท่าเรือหัตถกรรม",
+    "nameTh": "ท่าเรือหัตถกรรม",
+    "lat": 6.228611,
+    "lon": 101.803333,
+    "source": "Hydrographic Department",
+    "region": "andaman",
+    "zone": "Southern Andaman"
+  },
+  {
+    "id": "hydro-34",
+    "name": "เกาะราชา",
+    "nameTh": "เกาะราชา",
+    "lat": 11.306111,
+    "lon": 99.805833,
+    "source": "Hydrographic Department",
+    "region": "gulf",
+    "zone": "Middle Gulf"
+  },
+  {
+    "id": "hydro-35",
+    "name": "ท่าเรือประจวบคีรีขันธ์",
+    "nameTh": "ท่าเรือประจวบคีรีขันธ์",
+    "lat": 12.411111,
+    "lon": 99.987500,
+    "source": "Hydrographic Department",
+    "region": "gulf",
+    "zone": "Upper Gulf"
+  },
+  {
+    "id": "hydro-36",
+    "name": "บ่อน้ำร้อน",
+    "nameTh": "บ่อน้ำร้อน",
+    "lat": 8.047222,
+    "lon": 98.915833,
+    "source": "Hydrographic Department",
+    "region": "andaman",
+    "zone": "Phuket Andaman"
+  },
+  {
+    "id": "hydro-37",
+    "name": "ท่าเรือกิ่งอำเภอเมือง",
+    "nameTh": "ท่าเรือกิ่งอำเภอเมือง",
+    "lat": 7.009722,
+    "lon": 99.192222,
+    "source": "Hydrographic Department",
+    "region": "andaman",
+    "zone": "Trang Coast"
+  },
+  {
+    "id": "hydro-38",
+    "name": "เกาะยาว",
+    "nameTh": "เกาะยาว",
+    "lat": 7.364444,
+    "lon": 99.040000,
+    "source": "Hydrographic Department",
+    "region": "andaman",
+    "zone": "Krabi Coast"
   }
 ]

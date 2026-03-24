@@ -7,11 +7,30 @@
   },
   "scripts": {
     "build": "next build",
+    "compare:tides": "tsx scripts/compare-external-tides.ts",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
     "test": "jest",
     "test:watch": "jest --watch"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/tests"
+    ],
+    "testRegex": "tests/.*\\.test\\.[jt]sx?$",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
+    },
+    "transform": {
+      "^.+\\.(ts|tsx)$": [
+        "ts-jest",
+        {
+          "tsconfig": "<rootDir>/tsconfig.json"
+        }
+      ]
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -48,6 +67,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "latest",
+    "critters": "^0.0.25",
     "date-fns": "latest",
     "embla-carousel-react": "latest",
     "input-otp": "latest",
@@ -82,6 +102,7 @@
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "ts-jest": "^29.4.5",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

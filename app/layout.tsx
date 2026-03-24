@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Sarabun } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 
 const sarabun = Sarabun({
   weight: ["300", "400", "500", "600", "700"],
@@ -51,6 +52,7 @@ export default function RootLayout({
         >
           ข้ามไปยังเนื้อหา
         </a>
+        <ServiceWorkerRegistration />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

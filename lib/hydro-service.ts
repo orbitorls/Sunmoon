@@ -11,7 +11,7 @@ export interface HydroData {
     stationName: string;
     stationId: string;
     distanceKm: number;
-    source: "Hydrographic Department" | "กรมอุทกศาสตร์ กองทัพเรือ";
+    source: "Hydrographic Station Projection" | "สถานีใกล้เคียง + โมเดลภายใน";
     events: TideEvent[];
 }
 
@@ -97,7 +97,7 @@ export async function fetchHydroTideData(
             stationName: station.nameTh || station.name,
             stationId: station.id,
             distanceKm: parseFloat(distance.toFixed(2)),
-            source: "กรมอุทกศาสตร์ กองทัพเรือ",
+            source: "สถานีใกล้เคียง + โมเดลภายใน",
             events
         };
     } catch (error) {
