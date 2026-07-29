@@ -1,51 +1,56 @@
-import { readFile, readdir, writeFile } from 'node:fs/promises'
-import path from 'node:path'
+import { writeFile } from 'node:fs/promises'
 
 import stationConstants from '../data/station-harmonic-constants.json'
-import type { CalibrationSuggestion, TideComparisonReport } from '../lib/tide-comparison'
+import hydroStations from '../data/hydro-stations.json'
+import validationFixtures from '../data/tide-validation-events.json'
+import { CONSTITUENTS_DATABASE, findHighLowTides, type TideConstituent } from '../lib/harmonic-tide-core'
+import { getThailandDayBoundsFromIsoDate } from '../lib/thailand-time'
+
+const MIN_MATCHED_EVENTS = 4
+const TIME_OFFSET_RANGE_MINUTES = { min: -360, max: 360, step: 1 }
+const DEFAULT_EPOCH = new Date('2000-01-01T00:00:00Z')
 
 type StationConstant = (typeof stationConstants)[number]
+type ValidationFixture = (typeof validationFixtures)[number]
+type HydroStation = (typeof hydroStations)[number]
 
-type AggregatedSuggestion = {
-  matchedEventCount: number
-  weightedTimeDelta: number
-  weightedLevelDelta: number
-  levelWeight: number
-}
-
-function parseArgument(name: string): string | undefined {
-  return process.argv
-    .slice(2)
-    .find((argument) => argument.startsWith(`--${name}=`))
-    ?.split('=')
-    .slice(1)
-    .join('=')
-}
-
-async function readReports(): Promise<TideComparisonReport[]> {
-  const reportDir = path.resolve('reports')
-  const entries = await readdir(reportDir)
-  const jsonFiles = entries.filter((name) => /^tide-comparison-.*\.json$/.test(name))
-  const reports: TideComparisonReport[] = []
-  for (const file of jsonFiles) {
-    const raw = await readFile(path.join(reportDir, file), 'utf8')
-    reports.push(JSON.parse(raw) as TideComparisonReport)
-  }
-  return reports
-}
-
-function collectSuggestions(reports: TideComparisonReport[]): CalibrationSuggestion[] {
-  const suggestions: CalibrationSuggestion[] = []
-  for (const report of reports) {
-    for (const location of report.locations) {
-      for (const comparison of location.comparisons) {
-        if (comparison.calibrationSuggestion) {
-          suggestions.push(comparison.calibrationSuggestion)
-        }
+function toConstituents(constants: StationConstant): TideConstituent[] {
+  return constants.constituents
+    .map((item) => {
+      const definition = CONSTITUENTS_DATABASE[item.name]
+      if (!definition || !Number.isFinite(item.amplitude) || !Number.isFinite(item.phase)) {
+        return null
       }
-    }
-  }
-  return suggestions
+      return {
+        name: item.name,
+        speed: definition.speed,
+        amplitude: item.amplitude,
+        phase: item.phase,
+        description: definition.description,
+      }
+    })
+    .filter((item): item is TideConstituent => item !== null)
+}
+
+function parseEpoch(epoch: string): Date {
+  const parsed = new Date(epoch)
+  return Number.isFinite(parsed.getTime()) ? parsed : DEFAULT_EPOCH
+}
+
+function clockMinutes(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number)
+  return hours * 60 + minutes
+}
+
+const MINUTES_PER_DAY = 24 * 60
+
+function normalizeDayMinutes(m: number): number {
+  return ((m % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY
+}
+
+function dayMinutesDistance(a: number, b: number): number {
+  const diff = Math.abs(normalizeDayMinutes(a) - normalizeDayMinutes(b))
+  return Math.min(diff, MINUTES_PER_DAY - diff)
 }
 
 function roundToOne(value: number): number {
@@ -56,79 +61,221 @@ function roundToThree(value: number): number {
   return Number(value.toFixed(3))
 }
 
-async function main(): Promise<void> {
-  const minEventsArg = parseArgument('min-events')
-  const minMatchedEventsForCalibration = minEventsArg ? Number(minEventsArg) : 2
+interface PredictedEvent {
+  minutes: number
+  level: number
+  type: 'high' | 'low'
+}
 
-  const reports = await readReports()
-  if (reports.length === 0) {
-    throw new Error('No tide-comparison reports found in reports/')
-  }
-  console.log(`Aggregating ${reports.length} comparison reports`)
+interface FixtureEvents {
+  date: string
+  observed: Array<{ minutes: number; type: 'high' | 'low'; level: number }>
+}
 
-  const suggestions = collectSuggestions(reports)
-  const aggregated = new Map<string, AggregatedSuggestion>()
-
-  for (const suggestion of suggestions) {
-    if (suggestion.matchedEventCount <= 0 || suggestion.timeOffsetMinutesDelta === null) {
-      continue
-    }
-    const prior = aggregated.get(suggestion.stationId) ?? {
-      matchedEventCount: 0,
-      weightedTimeDelta: 0,
-      weightedLevelDelta: 0,
-      levelWeight: 0,
-    }
-    prior.matchedEventCount += suggestion.matchedEventCount
-    prior.weightedTimeDelta += suggestion.timeOffsetMinutesDelta * suggestion.matchedEventCount
-    if (suggestion.levelOffsetMetersDelta !== null) {
-      prior.weightedLevelDelta += suggestion.levelOffsetMetersDelta * suggestion.matchedEventCount
-      prior.levelWeight += suggestion.matchedEventCount
-    }
-    aggregated.set(suggestion.stationId, prior)
+function predictDayEvents(
+  constant: StationConstant,
+  station: HydroStation,
+  date: string,
+): PredictedEvent[] | null {
+  const { start, end } = getThailandDayBoundsFromIsoDate(date)
+  const constituents = toConstituents(constant)
+  if (constituents.length === 0) {
+    return null
   }
 
-  const constants = structuredClone(stationConstants) as StationConstant[]
-  const applied: Array<{ stationId: string; timeOffsetMinutes: number; matchedEvents: number }> = []
-  const skipped: string[] = []
+  const epoch = parseEpoch(constant.epoch)
+  const extremes = findHighLowTides(start, end, constituents, 10, station.lon, epoch)
 
-  for (let i = 0; i < constants.length; i++) {
-    const constant = constants[i]
-    const suggestion = aggregated.get(constant.stationId)
-    if (!suggestion) {
-      skipped.push(`${constant.stationId}: no suggestions`)
+  return extremes.map((event) => {
+    const minutes = Math.round((event.time.getTime() - start.getTime()) / (60 * 1000))
+    return {
+      minutes,
+      level: event.level,
+      type: event.type,
+    }
+  })
+}
+
+function scoreOffset(
+  fixtures: FixtureEvents[],
+  predictedByDate: Map<string, PredictedEvent[]>,
+  offset: number,
+): { mae: number; matched: number } {
+  let totalError = 0
+  let matched = 0
+
+  for (const fixture of fixtures) {
+    const predicted = predictedByDate.get(fixture.date)
+    if (!predicted || predicted.length === 0) {
       continue
     }
-    if (suggestion.matchedEventCount < minMatchedEventsForCalibration) {
-      skipped.push(`${constant.stationId}: only ${suggestion.matchedEventCount} matched events`)
+
+    for (const obs of fixture.observed) {
+      const sameType = predicted.filter((p) => p.type === obs.type)
+      if (sameType.length === 0) {
+        continue
+      }
+
+      let best = Infinity
+      for (const p of sameType) {
+        const predictedMinutes = p.minutes + offset
+        const dist = dayMinutesDistance(obs.minutes, predictedMinutes)
+        if (dist < best) {
+          best = dist
+        }
+      }
+
+      totalError += best
+      matched++
+    }
+  }
+
+  if (matched === 0) {
+    return { mae: Infinity, matched: 0 }
+  }
+  return { mae: totalError / matched, matched }
+}
+
+function findBestTimeOffset(
+  fixtures: FixtureEvents[],
+  predictedByDate: Map<string, PredictedEvent[]>,
+): { offset: number; mae: number } {
+  let bestOffset = 0
+  let bestMae = Infinity
+
+  for (
+    let offset = TIME_OFFSET_RANGE_MINUTES.min;
+    offset <= TIME_OFFSET_RANGE_MINUTES.max;
+    offset += TIME_OFFSET_RANGE_MINUTES.step
+  ) {
+    const { mae } = scoreOffset(fixtures, predictedByDate, offset)
+    if (mae < bestMae) {
+      bestMae = mae
+      bestOffset = offset
+    }
+  }
+
+  return { offset: bestOffset, mae: bestMae }
+}
+
+function computeLevelOffset(
+  fixtures: FixtureEvents[],
+  predictedByDate: Map<string, PredictedEvent[]>,
+  timeOffset: number,
+): number | null {
+  let total = 0
+  let count = 0
+
+  for (const fixture of fixtures) {
+    const predicted = predictedByDate.get(fixture.date)
+    if (!predicted || predicted.length === 0) {
       continue
     }
 
-    const timeDelta = roundToOne(suggestion.weightedTimeDelta / suggestion.matchedEventCount)
-    const levelDelta =
-      suggestion.levelWeight > 0
-        ? roundToThree(suggestion.weightedLevelDelta / suggestion.levelWeight)
-        : null
+    for (const obs of fixture.observed) {
+      const sameType = predicted.filter((p) => p.type === obs.type)
+      if (sameType.length === 0) {
+        continue
+      }
 
-    constants[i].timeOffsetMinutes = roundToOne((constant.timeOffsetMinutes ?? 0) + timeDelta)
-    if (levelDelta !== null) {
-      constants[i].levelOffsetMeters = roundToThree(constant.levelOffsetMeters + levelDelta)
+      let best: PredictedEvent | null = null
+      let bestDist = Infinity
+      for (const p of sameType) {
+        const predictedMinutes = p.minutes + timeOffset
+        const dist = dayMinutesDistance(obs.minutes, predictedMinutes)
+        if (dist < bestDist) {
+          bestDist = dist
+          best = p
+        }
+      }
+
+      if (best) {
+        total += obs.level - best.level
+        count++
+      }
     }
-    constants[i].sourceCitation = `${constant.sourceCitation ?? ''} Pilot calibration: ${suggestion.matchedEventCount} matched validation events, timeDelta ${timeDelta}${levelDelta !== null ? `, levelDelta ${levelDelta}` : ''}.`.trim()
+  }
 
-    applied.push({
+  return count > 0 ? total / count : null
+}
+
+async function main() {
+  const fixturesByStation = new Map<string, ValidationFixture[]>()
+  for (const fixture of validationFixtures) {
+    const stationId = fixture.stationId
+    if (!stationId) {
+      continue
+    }
+    const list = fixturesByStation.get(stationId) ?? []
+    list.push(fixture)
+    fixturesByStation.set(stationId, list)
+  }
+
+  const calibrated = structuredClone(stationConstants) as StationConstant[]
+  const results: Array<{
+    stationId: string
+    timeOffsetMinutes: number
+    levelOffsetMeters: number
+    maeMinutes: number
+    matchedEvents: number
+  }> = []
+
+  for (let i = 0; i < calibrated.length; i++) {
+    const constant = calibrated[i]
+    const fixtures = fixturesByStation.get(constant.stationId)
+    const station = (hydroStations as HydroStation[]).find((s) => s.id === constant.stationId)
+
+    if (!fixtures || fixtures.length === 0 || !station) {
+      continue
+    }
+
+    const observedEvents: FixtureEvents[] = fixtures.map((fixture) => ({
+      date: fixture.date,
+      observed: fixture.events.map((event) => ({
+        minutes: clockMinutes(event.time),
+        type: event.type,
+        level: event.level ?? 0,
+      })),
+    }))
+
+    const predictedByDate = new Map<string, PredictedEvent[]>()
+    for (const fixture of fixtures) {
+      const events = predictDayEvents(constant, station, fixture.date)
+      if (events && events.length > 0) {
+        predictedByDate.set(fixture.date, events)
+      }
+    }
+
+    const totalEventCount = observedEvents.reduce((sum, f) => sum + f.observed.length, 0)
+    if (totalEventCount < MIN_MATCHED_EVENTS) {
+      console.log(`${constant.stationId}: skipped, only ${totalEventCount} events`)
+      continue
+    }
+
+    const { offset, mae } = findBestTimeOffset(observedEvents, predictedByDate)
+    const levelOffset = computeLevelOffset(observedEvents, predictedByDate, offset)
+
+    constant.timeOffsetMinutes = roundToOne(offset)
+    if (levelOffset !== null) {
+      constant.levelOffsetMeters = roundToThree(levelOffset)
+      constant.datum = 'LLW'
+    }
+    constant.sourceCitation = `${constant.sourceCitation ?? ''} Calibrated against ${totalEventCount} official Thai Navy tide-table fixtures (2026); timing MAE ${roundToOne(mae)} min`.trim()
+
+    results.push({
       stationId: constant.stationId,
-      timeOffsetMinutes: constants[i].timeOffsetMinutes,
-      matchedEvents: suggestion.matchedEventCount,
+      timeOffsetMinutes: constant.timeOffsetMinutes,
+      levelOffsetMeters: constant.levelOffsetMeters,
+      maeMinutes: roundToOne(mae),
+      matchedEvents: totalEventCount,
     })
   }
 
   const outputPath = 'data/station-harmonic-constants.calibrated.json'
-  await writeFile(outputPath, `${JSON.stringify(constants, null, 2)}\n`, 'utf8')
+  await writeFile(outputPath, `${JSON.stringify(calibrated, null, 2)}\n`, 'utf8')
 
-  console.log('Applied calibration:')
-  console.table(applied)
-  console.log('Skipped:', skipped.length > 0 ? skipped : 'none')
+  console.log('Calibration results:')
+  console.table(results)
   console.log(`Wrote ${outputPath}`)
 }
 

@@ -167,19 +167,36 @@ export function dateToJulianDay(date: Date): number {
 }
 
 /**
- * Calculate local mean lunar time (hours) for longitude in degrees.
+ * Calculate local mean lunar time tau (hours) for longitude in degrees.
+ *
+ * tau is Doodson's mean lunar time: the Greenwich hour angle of the mean sun
+ * (~15 deg/hour of UT) adjusted by (h - s) so the argument tracks the Moon's
+ * mean longitude rather than the Sun's. Without the (h - s) term this would
+ * be mean SOLAR time, giving every constituent whose Doodson number has a
+ * non-zero tau coefficient (M2, N2, O1, Q1, ...) the wrong period.
  */
-export function calculateLocalMeanLunarTime(date: Date, longitudeDeg: number): number {
+export function calculateLocalMeanLunarTime(
+  date: Date,
+  longitudeDeg: number,
+  sDeg: number,
+  hDeg: number,
+): number {
   const jd = dateToJulianDay(date)
   const t = (jd - 2451545.0) / 36525.0
 
-  // Mean lunar time tau = (hours UT) + longitude + 0.002 (approx) + ΔT contribution
   const utHours =
     date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600
-  const deltaT = getDeltaTSeconds(date) / 3600 // convert seconds to hours
 
-  // Meeus Astronomical Algorithms (chapter 11) approximation
-  const tau = utHours + longitudeDeg / 15 + 0.00256 * Math.cos((125.04 - 1934.136 * t) * DEG2RAD) + deltaT
+  // Meeus Astronomical Algorithms (chapter 11) approximation for the small
+  // nutation-in-longitude term, plus the (h - s) correction (deg -> hours).
+  // tau is a civil (UT) hour angle, so it does NOT get a delta-T shift here;
+  // delta-T is applied upstream when s/h are derived from TT (see
+  // calculateAstronomicalArguments).
+  const tau =
+    utHours +
+    longitudeDeg / 15 +
+    0.00256 * Math.cos((125.04 - 1934.136 * t) * DEG2RAD) +
+    (hDeg - sDeg) / 15
   return ((tau % 24) + 24) % 24
 }
 
@@ -191,14 +208,17 @@ function normalizeAngle(angleDegrees: number): number {
 
 /**
  * Fundamental arguments using DE430 polynomials (Meeus 1998, Chap. 47).
- * Returns degrees in [0, 360).
+ * The mean-longitude polynomials (s, h, p, N, pp) are functions of T in
+ * Terrestrial Time, so delta-T is added to the UT Julian Day before T is
+ * derived. Returns degrees in [0, 360).
  */
 export function calculateAstronomicalArguments(
   date: Date,
   longitudeDeg = 0,
 ): AstronomicalArguments {
   const jd = dateToJulianDay(date)
-  const T = (jd - 2451545.0) / 36525.0
+  const jdTT = jd + getDeltaTSeconds(date) / 86400
+  const T = (jdTT - 2451545.0) / 36525.0
 
   const s =
     218.3164477 +
@@ -234,7 +254,7 @@ export function calculateAstronomicalArguments(
     0.0004527 * T * T +
     T * T * T / 300000000
 
-  const tau = calculateLocalMeanLunarTime(date, longitudeDeg)
+  const tau = calculateLocalMeanLunarTime(date, longitudeDeg, s, h)
 
   return {
     s: normalizeAngle(s),

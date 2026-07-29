@@ -8,7 +8,7 @@
     "zone": "upper-gulf",
     "expectedStationId": "hydro-1",
     "expectedStationName": "ท่าเรือกรุงเทพ",
-    "expectedSourceTier": "station_projected",
+    "expectedSourceTier": "station_harmonic",
     "modelFamily": "harmonic",
     "notes": "Upper Gulf reference point for dense estuary behavior."
   },
@@ -21,7 +21,7 @@
     "zone": "middle-gulf",
     "expectedStationId": "hydro-19",
     "expectedStationName": "เกาะสีชัง",
-    "expectedSourceTier": "station_projected",
+    "expectedSourceTier": "station_harmonic",
     "modelFamily": "harmonic",
     "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
   },
@@ -34,7 +34,7 @@
     "zone": "lower-gulf",
     "expectedStationId": "hydro-21",
     "expectedStationName": "เกาะสมุย",
-    "expectedSourceTier": "station_projected",
+    "expectedSourceTier": "station_harmonic",
     "modelFamily": "harmonic",
     "notes": "Lower Gulf benchmark for island/coastal user flow."
   },
@@ -47,7 +47,7 @@
     "zone": "andaman-phuket",
     "expectedStationId": "hydro-36",
     "expectedStationName": "บ่อน้ำร้อน",
-    "expectedSourceTier": "station_projected",
+    "expectedSourceTier": "station_harmonic",
     "modelFamily": "harmonic",
     "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
   }

@@ -1,4 +1,5 @@
 import benchmarkLocations from '../data/forecast-benchmark-thai-coastal.json'
+import hydroStations from '../data/hydro-stations.json'
 import userLocations from '../data/accuracy-user-locations.json'
 import {
   runTideComparisonReport,
@@ -30,23 +31,34 @@ function getDateArgument(): string {
 function getSourcesArgument(): ComparisonSourceId[] {
   const requested = parseArgument('sources')
   if (!requested) {
-    return ['internal', 'worldtides', 'stormglass', 'website']
+    return ['internal', 'validation_fixture', 'worldtides', 'stormglass', 'website']
   }
 
   return requested
     .split(/[\s,]+/)
     .map((value) => value.trim())
     .filter((value): value is ComparisonSourceId =>
-      ['internal', 'worldtides', 'stormglass', 'website'].includes(value),
+      ['internal', 'validation_fixture', 'worldtides', 'stormglass', 'website'].includes(value),
     )
 }
 
+function hasFlag(name: string): boolean {
+  return process.argv.slice(2).includes(`--${name}`)
+}
+
 function buildLocations(): ComparisonLocation[] {
-  return [...benchmarkLocations, ...userLocations].map((location) => ({
+  const requested = parseArgument('locations')
+  const sourceLocations =
+    requested === 'benchmarks'
+      ? [...benchmarkLocations, ...userLocations]
+      : [...hydroStations, ...userLocations]
+
+  return sourceLocations.map((location) => ({
     id: location.id,
     name: location.name,
     lat: location.lat,
     lon: location.lon,
+    stationId: 'expectedStationId' in location ? location.expectedStationId : location.id,
     region: 'region' in location ? location.region : undefined,
     zone: 'zone' in location ? location.zone : undefined,
     notes: 'notes' in location ? location.notes : undefined,
@@ -69,8 +81,18 @@ async function main(): Promise<void> {
   console.log(`Compared ${report.summary.totalLocations} locations for ${report.date}`)
   console.log(`Available comparisons: ${report.summary.availableComparisons}`)
   console.log(`Unavailable comparisons: ${report.summary.unavailableComparisons}`)
+  console.log(`Passed comparisons: ${report.summary.passedComparisons}`)
+  console.log(`Failed comparisons: ${report.summary.failedComparisons}`)
+  console.log(`Unchecked comparisons: ${report.summary.uncheckedComparisons}`)
+  console.log(
+    `Station constants coverage: ${report.summary.stationConstantsCoverage.configuredStations}/${report.summary.stationConstantsCoverage.totalStations}`,
+  )
   console.log(`JSON report: ${artifactPaths.jsonPath}`)
   console.log(`Markdown report: ${artifactPaths.markdownPath}`)
+
+  if (hasFlag('strict') && report.summary.failedComparisons > 0) {
+    process.exitCode = 1
+  }
 }
 
 main().catch((error) => {

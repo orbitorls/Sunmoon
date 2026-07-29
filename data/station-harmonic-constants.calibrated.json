@@ -1,398 +1,463 @@
 [
   {
     "stationId": "hydro-1",
-    "datum": "MSL",
+    "datum": "LLW",
     "epoch": "2000-01-01T00:00:00Z",
-    "levelOffsetMeters": 1.2,
-    "timeOffsetMinutes": 30.9,
+    "levelOffsetMeters": 1.967,
+    "timeOffsetMinutes": 0,
     "qualityScore": 72,
-    "source": "internal harmonic seed; not a tide table",
+    "source": "least-squares fit against Thai Navy 2026 tide table hourly heights",
     "sourceKind": "field_fit",
-    "sourceCitation": "Internal harmonic seed for model validation only; not a daily tide table. Calibration pending review from 5 matched validation events. Pilot calibration: 8 matched validation events, timeDelta 37.9.",
+    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Datum: Lowest Low Water (LLW). Calibrated against 1211 official Thai Navy tide-table fixtures (2026); timing MAE 37.5 min",
     "constituents": [
       {
-        "name": "K1",
-        "amplitude": 0.45,
-        "phase": 120
-      },
-      {
-        "name": "O1",
-        "amplitude": 0.38,
-        "phase": 110
-      },
-      {
-        "name": "P1",
-        "amplitude": 0.15,
-        "phase": 115
-      },
-      {
-        "name": "Q1",
-        "amplitude": 0.08,
-        "phase": 105
-      },
-      {
         "name": "M2",
-        "amplitude": 0.25,
-        "phase": 180
+        "amplitude": 0.49470060483612427,
+        "phase": 166.5629926297936
       },
       {
         "name": "S2",
-        "amplitude": 0.12,
-        "phase": 175
+        "amplitude": 0.24874601307898192,
+        "phase": 230.86111622443894
       },
       {
         "name": "N2",
-        "amplitude": 0.06,
-        "phase": 170
+        "amplitude": 0.06277139089829664,
+        "phase": 142.37143261824133
       },
       {
         "name": "K2",
-        "amplitude": 0.04,
-        "phase": 178
+        "amplitude": 0.10752001710228651,
+        "phase": 200.37500890969807
       },
       {
-        "name": "MF",
-        "amplitude": 0.08,
-        "phase": 0
+        "name": "2N2",
+        "amplitude": 0.040660116542887384,
+        "phase": 120.78230638947423
       },
       {
-        "name": "MM",
-        "amplitude": 0.05,
-        "phase": 0
+        "name": "NU2",
+        "amplitude": 0.017077796260453863,
+        "phase": 125.85402099279543
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.03033765640918833,
+        "phase": 242.80724016389485
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.04624491356383309,
+        "phase": 0.6736855829431647
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.029221975872492305,
+        "phase": 3.795115288949262
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.01725756564015253,
+        "phase": 146.3450468913706
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.5774713005629627,
+        "phase": 87.8573460955165
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.36481932536167844,
+        "phase": 225.02100071244644
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.15169124533168662,
+        "phase": 266.13356866286705
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.06312938821665261,
+        "phase": 210.13521433547302
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.02511564096368721,
+        "phase": 158.48925325284415
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.02106754709855827,
+        "phase": 83.86761936634798
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.046022523328092396,
+        "phase": 121.6202584426278
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.011552947863206127,
+        "phase": 193.49947466093082
       },
       {
         "name": "M4",
-        "amplitude": 0.12,
-        "phase": 90
+        "amplitude": 0.04076700289403311,
+        "phase": 240.57991210386723
       },
       {
         "name": "MS4",
-        "amplitude": 0.06,
-        "phase": 95
+        "amplitude": 0.034326188053778815,
+        "phase": 290.5398188222871
       },
       {
         "name": "MN4",
-        "amplitude": 0.03,
-        "phase": 85
+        "amplitude": 0.013198125839150119,
+        "phase": 219.40640638150074
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.011932590412062212,
+        "phase": 303.24581861311947
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.03938440063861102,
+        "phase": 48.749798428974316
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.013024482735477783,
+        "phase": 174.30692144938234
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.036128645261420775,
+        "phase": 114.44349893902637
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.1919992020030952,
+        "phase": 355.9960683968039
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.031638439828721575,
+        "phase": 95.2725505183023
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.01631020575876481,
+        "phase": 344.22213778754843
       }
     ]
   },
   {
     "stationId": "hydro-19",
-    "datum": "MSL",
+    "datum": "LLW",
     "epoch": "2000-01-01T00:00:00Z",
-    "levelOffsetMeters": 1.2,
-    "timeOffsetMinutes": -46.2,
+    "levelOffsetMeters": 2.38,
+    "timeOffsetMinutes": 1,
     "qualityScore": 72,
-    "source": "internal harmonic seed; not a tide table",
+    "source": "least-squares fit against Thai Navy 2026 tide table hourly heights",
     "sourceKind": "field_fit",
-    "sourceCitation": "Internal harmonic seed for model validation only; not a daily tide table. Calibration pending review from 8 matched validation events. Pilot calibration: 13 matched validation events, timeDelta -15.3.",
+    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Datum: Lowest Low Water (LLW). Calibrated against 1122 official Thai Navy tide-table fixtures (2026); timing MAE 30.1 min",
     "constituents": [
       {
-        "name": "K1",
-        "amplitude": 0.45,
-        "phase": 120
-      },
-      {
-        "name": "O1",
-        "amplitude": 0.38,
-        "phase": 110
-      },
-      {
-        "name": "P1",
-        "amplitude": 0.15,
-        "phase": 115
-      },
-      {
-        "name": "Q1",
-        "amplitude": 0.08,
-        "phase": 105
-      },
-      {
         "name": "M2",
-        "amplitude": 0.25,
-        "phase": 180
+        "amplitude": 0.4994260172837622,
+        "phase": 130.52754320268036
       },
       {
         "name": "S2",
-        "amplitude": 0.12,
-        "phase": 175
+        "amplitude": 0.24316134606845907,
+        "phase": 195.09063031435417
       },
       {
         "name": "N2",
-        "amplitude": 0.06,
-        "phase": 170
+        "amplitude": 0.08803143856114491,
+        "phase": 107.36383649836398
       },
       {
         "name": "K2",
-        "amplitude": 0.04,
-        "phase": 178
+        "amplitude": 0.09378236549423594,
+        "phase": 175.00304082224727
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02936600150068597,
+        "phase": 95.50017983280776
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.01354562148103682,
+        "phase": 84.38834256527446
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.011408365557755373,
+        "phase": 159.98438463013372
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.0348191660049291,
+        "phase": 324.96816411518967
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.023660255830710557,
+        "phase": 320.5631657512461
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.015327068074376693,
+        "phase": 137.47370098313593
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.6539517418365921,
+        "phase": 69.0873176896664
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.42553754373789543,
+        "phase": 208.00986065936334
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.19556989281243967,
+        "phase": 251.83348556194414
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.07633082297977772,
+        "phase": 193.18293208513361
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.02890466651050941,
+        "phase": 110.50323042463799
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.02669899051240847,
+        "phase": 52.23472788592454
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.05198348876826179,
+        "phase": 95.24555901016168
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.016060341842104513,
+        "phase": 176.00926807986104
       },
       {
         "name": "MF",
-        "amplitude": 0.08,
-        "phase": 0
+        "amplitude": 0.017063512840217628,
+        "phase": 25.409510032940545
       },
       {
-        "name": "MM",
-        "amplitude": 0.05,
-        "phase": 0
+        "name": "MSF",
+        "amplitude": 0.018034902630642877,
+        "phase": 256.0533063164407
       },
       {
-        "name": "M4",
-        "amplitude": 0.12,
-        "phase": 90
+        "name": "SA",
+        "amplitude": 0.18983000644314024,
+        "phase": 16.946061331439182
       },
       {
-        "name": "MS4",
-        "amplitude": 0.06,
-        "phase": 95
-      },
-      {
-        "name": "MN4",
-        "amplitude": 0.03,
-        "phase": 85
+        "name": "SSA",
+        "amplitude": 0.04282196007919952,
+        "phase": 345.5012809375573
       }
     ]
   },
   {
     "stationId": "hydro-21",
-    "datum": "MSL",
+    "datum": "LLW",
     "epoch": "2000-01-01T00:00:00Z",
-    "levelOffsetMeters": 1.2,
-    "timeOffsetMinutes": -148,
+    "levelOffsetMeters": 1.717,
+    "timeOffsetMinutes": -2,
     "qualityScore": 72,
-    "source": "internal harmonic seed; not a tide table",
+    "source": "least-squares fit against Thai Navy 2026 tide table hourly heights",
     "sourceKind": "field_fit",
-    "sourceCitation": "Internal harmonic seed for model validation only; not a daily tide table. Calibration pending review from 3 matched validation events. Pilot calibration: 6 matched validation events, timeDelta -30.3.",
+    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Datum: Lowest Low Water (LLW). Calibrated against 830 official Thai Navy tide-table fixtures (2026); timing MAE 38.4 min",
     "constituents": [
       {
-        "name": "K1",
-        "amplitude": 0.55,
-        "phase": 115
-      },
-      {
-        "name": "O1",
-        "amplitude": 0.42,
-        "phase": 105
-      },
-      {
-        "name": "P1",
-        "amplitude": 0.18,
-        "phase": 110
-      },
-      {
-        "name": "Q1",
-        "amplitude": 0.09,
-        "phase": 100
-      },
-      {
         "name": "M2",
-        "amplitude": 0.35,
-        "phase": 185
+        "amplitude": 0.16259279516520464,
+        "phase": 307.9110861479404
       },
       {
         "name": "S2",
-        "amplitude": 0.16,
-        "phase": 180
+        "amplitude": 0.085529089851273,
+        "phase": 21.534980292553882
       },
       {
         "name": "N2",
-        "amplitude": 0.08,
-        "phase": 175
+        "amplitude": 0.02746187604894224,
+        "phase": 272.0683004833608
       },
       {
         "name": "K2",
-        "amplitude": 0.05,
-        "phase": 183
+        "amplitude": 0.03449306754493228,
+        "phase": 17.40545247386342
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.3648425832715676,
+        "phase": 81.35043796209322
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.25590101626511563,
+        "phase": 218.905824388447
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.11497780115572699,
+        "phase": 256.02853462591764
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.04981251683630526,
+        "phase": 203.03618895875843
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.01731982010219672,
+        "phase": 118.86861765820959
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.025308485765111945,
+        "phase": 102.20917459326836
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.010328844627349459,
+        "phase": 209.03590689442265
       },
       {
         "name": "MF",
-        "amplitude": 0.06,
-        "phase": 0
+        "amplitude": 0.010183924586206716,
+        "phase": 30.75281774714182
       },
       {
-        "name": "MM",
-        "amplitude": 0.04,
-        "phase": 0
+        "name": "SA",
+        "amplitude": 0.23849016724876432,
+        "phase": 357.1103841177545
       },
       {
-        "name": "M4",
-        "amplitude": 0.08,
-        "phase": 92
-      },
-      {
-        "name": "MS4",
-        "amplitude": 0.04,
-        "phase": 97
+        "name": "SSA",
+        "amplitude": 0.0719709027785307,
+        "phase": 102.8806281141313
       }
     ]
   },
   {
     "stationId": "hydro-36",
-    "datum": "LAT",
+    "datum": "LLW",
     "epoch": "2000-01-01T00:00:00Z",
-    "levelOffsetMeters": 1.715,
-    "timeOffsetMinutes": 24.2,
+    "levelOffsetMeters": 2.024,
+    "timeOffsetMinutes": 0,
     "qualityScore": 72,
-    "source": "TICON-4 nearest-gauge import (Ko Taphao Noi, Thailand), 59.1km away",
+    "source": "least-squares fit against Thai Navy 2026 tide table hourly heights",
     "sourceKind": "field_fit",
-    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Taphao Noi\" (Thailand) at 59.1km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.715m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess. Pilot calibration: 27 matched validation events, timeDelta 24.2.",
+    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Datum: Lowest Low Water (LLW). Calibrated against 1372 official Thai Navy tide-table fixtures (2026); timing MAE 34.1 min",
     "constituents": [
       {
         "name": "M2",
-        "amplitude": 0.78955141,
-        "phase": 279.422
-      },
-      {
-        "name": "N2",
-        "amplitude": 0.15110754999999998,
-        "phase": 273.962
+        "amplitude": 0.786558767214806,
+        "phase": 297.6037168276777
       },
       {
         "name": "S2",
-        "amplitude": 0.40051626,
-        "phase": 315.777
+        "amplitude": 0.4028187709796483,
+        "phase": 333.08372239461767
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.1531259501025271,
+        "phase": 291.1430995098523
       },
       {
         "name": "K2",
-        "amplitude": 0.11271767,
-        "phase": 310.757
+        "amplitude": 0.11607339383976646,
+        "phase": 328.35398367455167
       },
       {
         "name": "2N2",
-        "amplitude": 0.02120352,
-        "phase": 261.679
-      },
-      {
-        "name": "K1",
-        "amplitude": 0.13072547,
-        "phase": 44.885
-      },
-      {
-        "name": "P1",
-        "amplitude": 0.03856849,
-        "phase": 42.826
-      },
-      {
-        "name": "O1",
-        "amplitude": 0.048403520000000005,
-        "phase": 10.888
-      },
-      {
-        "name": "Q1",
-        "amplitude": 0.00734471,
-        "phase": 315.513
-      },
-      {
-        "name": "M1",
-        "amplitude": 0.0036159,
-        "phase": 315.525
-      },
-      {
-        "name": "M4",
-        "amplitude": 0.00909891,
-        "phase": 171.679
-      },
-      {
-        "name": "MM",
-        "amplitude": 0.00865061,
-        "phase": 190.425
-      },
-      {
-        "name": "MF",
-        "amplitude": 0.013236369999999999,
-        "phase": 192.538
-      },
-      {
-        "name": "SA",
-        "amplitude": 0.07937114,
-        "phase": 318.992
-      },
-      {
-        "name": "SSA",
-        "amplitude": 0.06371497,
-        "phase": 307.294
-      },
-      {
-        "name": "T2",
-        "amplitude": 0.023604470000000002,
-        "phase": 315.949
-      },
-      {
-        "name": "J1",
-        "amplitude": 0.00815759,
-        "phase": 53.671
-      },
-      {
-        "name": "L2",
-        "amplitude": 0.028735919999999998,
-        "phase": 273.394
-      },
-      {
-        "name": "2Q1",
-        "amplitude": 0.0016173799999999999,
-        "phase": 228.26
-      },
-      {
-        "name": "MSF",
-        "amplitude": 0.00313979,
-        "phase": 5.372
-      },
-      {
-        "name": "M3",
-        "amplitude": 0.0031788800000000002,
-        "phase": 265.023
-      },
-      {
-        "name": "MU2",
-        "amplitude": 0.0343554,
-        "phase": 300.566
+        "amplitude": 0.01802070912474028,
+        "phase": 286.4266243087759
       },
       {
         "name": "NU2",
-        "amplitude": 0.02791507,
-        "phase": 269.462
+        "amplitude": 0.02935384594059051,
+        "phase": 286.85894730748134
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.030716178732088952,
+        "phase": 317.0095050121093
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.03793128980382134,
+        "phase": 89.44554189865403
       },
       {
         "name": "LAMBDA2",
-        "amplitude": 0.013924639999999999,
-        "phase": 257.514
+        "amplitude": 0.013151340674023532,
+        "phase": 98.61685799087485
       },
       {
-        "name": "MN4",
-        "amplitude": 0.00325975,
-        "phase": 186.632
+        "name": "T2",
+        "amplitude": 0.022779567136772014,
+        "phase": 339.8700298743172
       },
       {
-        "name": "MS4",
-        "amplitude": 0.01047683,
-        "phase": 233.286
+        "name": "K1",
+        "amplitude": 0.13043266762758154,
+        "phase": 233.2966926011166
       },
       {
-        "name": "M6",
-        "amplitude": 0.00169084,
-        "phase": 17.861
+        "name": "O1",
+        "amplitude": 0.04763465617426196,
+        "phase": 19.577211750978336
       },
       {
-        "name": "M8",
-        "amplitude": 0.00065578,
-        "phase": 164.634
+        "name": "P1",
+        "amplitude": 0.039727985968416014,
+        "phase": 57.59183182803423
       },
       {
         "name": "OO1",
-        "amplitude": 0.00892347,
-        "phase": 59.429
+        "amplitude": 0.013147730096392394,
+        "phase": 239.5428301220433
       },
       {
-        "name": "RHO1",
-        "amplitude": 0.00146756,
-        "phase": 302.078
+        "name": "MM",
+        "amplitude": 0.01003718190724187,
+        "phase": 291.32693672941116
       },
       {
-        "name": "2MS6",
-        "amplitude": 0.00267914,
-        "phase": 32.306
+        "name": "MSF",
+        "amplitude": 0.010454573988584055,
+        "phase": 195.62899395515342
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.08542383528579159,
+        "phase": 213.46058476672644
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.07792027925317788,
+        "phase": 115.25779058201908
       }
     ]
   }

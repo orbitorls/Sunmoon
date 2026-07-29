@@ -1,11 +1,22 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { generatePredictionTimeSeries } from './harmonic-prediction'
+import validationFixtures from '../data/tide-validation-events.json'
+import {
+  getNearestConfiguredStationId,
+  getStationHarmonicDiagnostics,
+  getStationHarmonicPrediction,
+} from './station-harmonic-model'
+import {
+  formatThailandClock,
+  formatThailandTimestamp,
+  getThailandDayBoundsFromIsoDate,
+  roundToDigits,
+} from './thailand-time'
 import { WorldTidesClient } from './worldtides-client'
 
-export type ComparisonSourceId = 'internal' | 'worldtides' | 'stormglass' | 'website'
-export type ComparisonSourceCategory = 'internal' | 'api' | 'website'
+export type ComparisonSourceId = 'internal' | 'validation_fixture' | 'worldtides' | 'stormglass' | 'website'
+export type ComparisonSourceCategory = 'internal' | 'validation' | 'api' | 'website'
 export type DatumConfidence = 'known' | 'assumed' | 'unknown'
 export type ComparisonEventType = 'high' | 'low'
 
@@ -14,6 +25,7 @@ export interface ComparisonLocation {
   name: string
   lat: number
   lon: number
+  stationId?: string
   region?: string
   zone?: string
   notes?: string
@@ -43,6 +55,26 @@ export interface ComparisonSourceSnapshot {
   metadata: Record<string, string | number | boolean | null>
 }
 
+export type ValidationEventSource =
+  | 'official_prediction'
+  | 'app_prediction'
+  | 'field_measurement'
+  | 'manual_reference'
+  | 'community_observation'
+
+export interface ValidationFixtureRecord {
+  locationId: string
+  stationId?: string
+  date: string
+  datum?: string
+  source: ValidationEventSource
+  events: Array<{
+    type: ComparisonEventType
+    time: string
+    level?: number
+  }>
+}
+
 export interface MatchedComparisonEvent {
   baseline: ComparisonEvent
   candidate: ComparisonEvent
@@ -60,18 +92,36 @@ export interface ComparisonMetrics {
   meanAbsoluteTimingErrorMinutes: number | null
   meanTimingBiasMinutes: number | null
   maxAbsoluteTimingErrorMinutes: number | null
+  rmseTimingMinutes: number | null
   meanAbsoluteLevelErrorMeters: number | null
+  meanLevelBiasMeters: number | null
   maxAbsoluteLevelErrorMeters: number | null
+  rmseLevelMeters: number | null
   supportsHeightComparison: boolean
+  accuracyPass: boolean | null
+  thresholdTimingMaeMinutes: number
+  thresholdLevelMaeMeters: number
+  coverageStatus: 'unavailable' | 'no_matches' | 'partial' | 'complete'
   warnings: string[]
 }
 
 export interface SourceComparisonResult {
   source: ComparisonSourceSnapshot
   metrics: ComparisonMetrics
+  calibrationSuggestion: CalibrationSuggestion | null
   matches: MatchedComparisonEvent[]
   unmatchedBaselineEvents: ComparisonEvent[]
   unmatchedCandidateEvents: ComparisonEvent[]
+}
+
+export interface CalibrationSuggestion {
+  stationId: string
+  locationId: string
+  sourceId: ComparisonSourceId
+  matchedEventCount: number
+  timeOffsetMinutesDelta: number | null
+  levelOffsetMetersDelta: number | null
+  note: string
 }
 
 export interface LocationComparisonReport {
@@ -89,6 +139,15 @@ export interface TideComparisonReport {
     totalLocations: number
     availableComparisons: number
     unavailableComparisons: number
+    passedComparisons: number
+    failedComparisons: number
+    uncheckedComparisons: number
+    stationConstantsCoverage: {
+      configuredStations: number
+      totalStations: number
+      missingStations: number
+      invalidStations: number
+    }
   }
 }
 
@@ -99,43 +158,52 @@ export interface RunComparisonOptions {
   maxMatchDeltaMinutes?: number
 }
 
-const THAILAND_OFFSET_MINUTES = 7 * 60
-const DEFAULT_MATCH_WINDOW_MINUTES = 180
+export const DEFAULT_MATCH_WINDOW_MINUTES = 180
+export const DEFAULT_TIMING_MAE_THRESHOLD_MINUTES = 30
+export const DEFAULT_LEVEL_MAE_THRESHOLD_METERS = 0.2
+// RMSE is always >= MAE and penalizes a handful of outliers more heavily, so
+// its threshold is deliberately looser than the MAE one -- it exists to catch
+// a couple of badly-mismatched events hiding behind an otherwise-OK average,
+// not to re-litigate the MAE bound at a stricter value.
+export const DEFAULT_TIMING_RMSE_THRESHOLD_MINUTES = 45
+export const DEFAULT_LEVEL_RMSE_THRESHOLD_METERS = 0.3
+const VALIDATION_EVENT_SOURCES: ValidationEventSource[] = [
+  'official_prediction',
+  'app_prediction',
+  'field_measurement',
+  'manual_reference',
+  'community_observation',
+]
 
-function formatThailandTimestamp(date: Date): string {
-  const thailandDate = new Date(date.getTime() + THAILAND_OFFSET_MINUTES * 60 * 1000)
-  const year = thailandDate.getUTCFullYear()
-  const month = String(thailandDate.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(thailandDate.getUTCDate()).padStart(2, '0')
-  const hours = String(thailandDate.getUTCHours()).padStart(2, '0')
-  const minutes = String(thailandDate.getUTCMinutes()).padStart(2, '0')
-  const seconds = String(thailandDate.getUTCSeconds()).padStart(2, '0')
-
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}+07:00`
-}
-
-function formatThailandClock(date: Date): string {
-  const thailandDate = new Date(date.getTime() + THAILAND_OFFSET_MINUTES * 60 * 1000)
-  const hours = String(thailandDate.getUTCHours()).padStart(2, '0')
-  const minutes = String(thailandDate.getUTCMinutes()).padStart(2, '0')
-
-  return `${hours}:${minutes}`
-}
-
-function getThailandDayBounds(dateInput: string): { date: string; start: Date; end: Date } {
-  const start = new Date(`${dateInput}T00:00:00+07:00`)
-  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000)
-
-  return {
-    date: dateInput,
-    start,
-    end,
+function getSourceLabel(source: ComparisonSourceId): string {
+  switch (source) {
+    case 'internal':
+      return 'Station Harmonic Forecast'
+    case 'validation_fixture':
+      return 'Validation Fixture'
+    case 'worldtides':
+      return 'WorldTides'
+    case 'stormglass':
+      return 'Stormglass'
+    case 'website':
+      return 'Public Tide Website'
   }
 }
 
 function clockMinutes(clockTime: string): number {
   const [hours, minutes] = clockTime.split(':').map(Number)
   return hours * 60 + minutes
+}
+
+export function eventDeltaMinutes(baselineEvent: ComparisonEvent, candidateEvent: ComparisonEvent): number {
+  const baselineTimestamp = Date.parse(baselineEvent.timestamp)
+  const candidateTimestamp = Date.parse(candidateEvent.timestamp)
+
+  if (Number.isFinite(baselineTimestamp) && Number.isFinite(candidateTimestamp)) {
+    return (candidateTimestamp - baselineTimestamp) / (60 * 1000)
+  }
+
+  return clockMinutes(candidateEvent.clockTime) - clockMinutes(baselineEvent.clockTime)
 }
 
 function average(values: number[]): number | null {
@@ -154,45 +222,253 @@ function max(values: number[]): number | null {
   return Math.max(...values)
 }
 
+function rootMeanSquare(values: number[]): number | null {
+  if (values.length === 0) {
+    return null
+  }
+
+  const meanSquare = values.reduce((sum, value) => sum + value * value, 0) / values.length
+  return Math.sqrt(meanSquare)
+}
+
 function round(value: number | null, digits = 3): number | null {
   if (value === null) {
     return null
   }
 
-  return Number(value.toFixed(digits))
+  return roundToDigits(value, digits)
 }
 
+function getCoverageStatus(
+  baselineEventCount: number,
+  matchedEventCount: number,
+  candidateAvailable: boolean,
+): ComparisonMetrics['coverageStatus'] {
+  if (!candidateAvailable) {
+    return 'unavailable'
+  }
+
+  if (matchedEventCount === 0) {
+    return 'no_matches'
+  }
+
+  return matchedEventCount >= baselineEventCount ? 'complete' : 'partial'
+}
+
+function getAccuracyPass(metrics: {
+  matchedEventCount: number
+  meanAbsoluteTimingErrorMinutes: number | null
+  rmseTimingMinutes: number | null
+  meanAbsoluteLevelErrorMeters: number | null
+  rmseLevelMeters: number | null
+  supportsHeightComparison: boolean
+}): boolean | null {
+  if (metrics.matchedEventCount === 0 || metrics.meanAbsoluteTimingErrorMinutes === null) {
+    return null
+  }
+
+  if (metrics.meanAbsoluteTimingErrorMinutes > DEFAULT_TIMING_MAE_THRESHOLD_MINUTES) {
+    return false
+  }
+
+  if (metrics.rmseTimingMinutes !== null && metrics.rmseTimingMinutes > DEFAULT_TIMING_RMSE_THRESHOLD_MINUTES) {
+    return false
+  }
+
+  if (
+    metrics.supportsHeightComparison &&
+    metrics.meanAbsoluteLevelErrorMeters !== null &&
+    metrics.meanAbsoluteLevelErrorMeters > DEFAULT_LEVEL_MAE_THRESHOLD_METERS
+  ) {
+    return false
+  }
+
+  if (
+    metrics.supportsHeightComparison &&
+    metrics.rmseLevelMeters !== null &&
+    metrics.rmseLevelMeters > DEFAULT_LEVEL_RMSE_THRESHOLD_METERS
+  ) {
+    return false
+  }
+
+  return true
+}
+
+function toValidationRecord(value: unknown): ValidationFixtureRecord | null {
+  if (!value || typeof value !== 'object') {
+    return null
+  }
+
+  const record = value as Partial<ValidationFixtureRecord>
+  const source = record.source
+  if (
+    typeof record.locationId !== 'string' ||
+    typeof record.date !== 'string' ||
+    typeof source !== 'string' ||
+    !VALIDATION_EVENT_SOURCES.includes(source as ValidationEventSource) ||
+    !Array.isArray(record.events)
+  ) {
+    return null
+  }
+
+  const events = record.events.filter(
+    (event): event is ValidationFixtureRecord['events'][number] =>
+      event !== null &&
+      typeof event === 'object' &&
+      (event.type === 'high' || event.type === 'low') &&
+      typeof event.time === 'string' &&
+      /^\d{2}:\d{2}$/.test(event.time),
+  )
+
+  if (events.length === 0) {
+    return null
+  }
+
+  return {
+    locationId: record.locationId,
+    stationId: typeof record.stationId === 'string' ? record.stationId : undefined,
+    date: record.date,
+    datum: typeof record.datum === 'string' ? record.datum : undefined,
+    source: source as ValidationEventSource,
+    events,
+  }
+}
+
+function getValidationFixtureRecords(): ValidationFixtureRecord[] {
+  if (!Array.isArray(validationFixtures)) {
+    return []
+  }
+
+  return (validationFixtures as unknown[])
+    .map(toValidationRecord)
+    .filter((record): record is ValidationFixtureRecord => record !== null)
+}
+
+export function buildCalibrationRecommendation(metrics: ComparisonMetrics): string {
+  if (metrics.matchedEventCount === 0 || metrics.meanTimingBiasMinutes === null) {
+    return 'insufficient_matches'
+  }
+
+  const recommendations: string[] = []
+  if (Math.abs(metrics.meanTimingBiasMinutes) >= 10) {
+    recommendations.push(`phase_shift_minutes=${roundToDigits(metrics.meanTimingBiasMinutes, 1)}`)
+  }
+
+  if (metrics.meanAbsoluteLevelErrorMeters !== null && metrics.meanAbsoluteLevelErrorMeters >= 0.1) {
+    recommendations.push(`review_level_offset_mae_m=${roundToDigits(metrics.meanAbsoluteLevelErrorMeters, 3)}`)
+  }
+
+  return recommendations.length > 0 ? recommendations.join('; ') : 'no_change'
+}
+
+export function buildCalibrationSuggestion(
+  location: ComparisonLocation,
+  baseline: ComparisonSourceSnapshot,
+  comparison: Pick<SourceComparisonResult, 'source' | 'metrics'>,
+): CalibrationSuggestion | null {
+  if (
+    comparison.source.sourceId !== 'validation_fixture' ||
+    comparison.metrics.matchedEventCount === 0 ||
+    comparison.metrics.meanTimingBiasMinutes === null
+  ) {
+    return null
+  }
+
+  const stationId = typeof baseline.metadata.stationId === 'string' ? baseline.metadata.stationId : location.stationId
+  if (!stationId) {
+    return null
+  }
+
+  const timeDelta = roundToDigits(comparison.metrics.meanTimingBiasMinutes, 1)
+  const levelDelta =
+    comparison.metrics.supportsHeightComparison && comparison.metrics.meanLevelBiasMeters !== null
+      ? roundToDigits(comparison.metrics.meanLevelBiasMeters, 3)
+      : null
+
+  return {
+    stationId,
+    locationId: location.id,
+    sourceId: comparison.source.sourceId,
+    matchedEventCount: comparison.metrics.matchedEventCount,
+    timeOffsetMinutesDelta: timeDelta,
+    levelOffsetMetersDelta: levelDelta,
+    note:
+      levelDelta === null
+        ? 'Apply time offset only; level offset unavailable because datum/height comparison is unsupported.'
+        : 'Apply these deltas to station harmonic constants only after source data is verified.',
+  }
+}
+
+/**
+ * Derive high/low events from a level series using a prominence (zigzag)
+ * filter rather than a delta-vs-immediate-neighbor gate.
+ *
+ * A fixed delta-vs-immediate-neighbor threshold is unreliable at 30-min
+ * sampling: a real extremum's neighboring deltas shrink toward zero as the
+ * curve flattens near the peak/trough — exactly where a "significant change"
+ * gate rejects the very point it's meant to detect. But a plain
+ * sign-change-of-slope test with no gate at all is too sensitive: shallow-
+ * water overtide constituents (M4/MS4/MN4) add small compound wobbles on top
+ * of the main tide, which register as spurious extra highs/lows every few
+ * hours. `minSwingMeters` requires a candidate extreme to give up at least
+ * that much level before the opposite extreme is confirmed (classic
+ * zigzag/prominence filter), so minor wobbles get absorbed into the
+ * dominant swing instead of reported as their own events.
+ */
 export function deriveExtremesFromSeries(
   series: Array<{ time: Date; level: number }>,
+  minSwingMeters = 0.05,
 ): ComparisonEvent[] {
   const events: ComparisonEvent[] = []
+  if (series.length < 3) {
+    return events
+  }
 
-  for (let index = 1; index < series.length - 1; index++) {
-    const previous = series[index - 1].level
+  let direction: 'up' | 'down' | null = null
+  let candidateIndex = 0
+
+  const pushEvent = (type: ComparisonEventType, index: number) => {
+    const point = series[index]
+    events.push({
+      type,
+      timestamp: formatThailandTimestamp(point.time),
+      clockTime: formatThailandClock(point.time),
+      level: Number(point.level.toFixed(3)),
+      confidence: 68,
+    })
+  }
+
+  for (let index = 1; index < series.length; index++) {
+    const candidateLevel = series[candidateIndex].level
     const current = series[index].level
-    const next = series[index + 1].level
-    const currentTime = series[index].time
 
-    if (current > previous && current > next && (current - previous > 0.05 || current - next > 0.05)) {
-      events.push({
-        type: 'high',
-        timestamp: formatThailandTimestamp(currentTime),
-        clockTime: formatThailandClock(currentTime),
-        level: Number(current.toFixed(3)),
-        confidence: 68,
-      })
-    } else if (
-      current < previous &&
-      current < next &&
-      (previous - current > 0.05 || next - current > 0.05)
-    ) {
-      events.push({
-        type: 'low',
-        timestamp: formatThailandTimestamp(currentTime),
-        clockTime: formatThailandClock(currentTime),
-        level: Number(current.toFixed(3)),
-        confidence: 68,
-      })
+    if (direction === null) {
+      if (current > candidateLevel) {
+        direction = 'up'
+        candidateIndex = index
+      } else if (current < candidateLevel) {
+        direction = 'down'
+        candidateIndex = index
+      }
+      continue
+    }
+
+    if (direction === 'up') {
+      if (current >= candidateLevel) {
+        candidateIndex = index
+      } else if (candidateLevel - current >= minSwingMeters) {
+        pushEvent('high', candidateIndex)
+        direction = 'down'
+        candidateIndex = index
+      }
+    } else {
+      if (current <= candidateLevel) {
+        candidateIndex = index
+      } else if (current - candidateLevel >= minSwingMeters) {
+        pushEvent('low', candidateIndex)
+        direction = 'up'
+        candidateIndex = index
+      }
     }
   }
 
@@ -203,17 +479,41 @@ export async function fetchInternalComparisonSnapshot(
   location: ComparisonLocation,
   dateInput: string,
 ): Promise<ComparisonSourceSnapshot> {
-  const { date, start, end } = getThailandDayBounds(dateInput)
+  const { date, start, end } = getThailandDayBoundsFromIsoDate(dateInput)
   const intervalMinutes = 30
   const paddedStart = new Date(start.getTime() - intervalMinutes * 60 * 1000)
   const paddedEnd = new Date(end.getTime() + intervalMinutes * 60 * 1000)
-  const series = generatePredictionTimeSeries(paddedStart, paddedEnd, location, intervalMinutes)
+  const prediction = getStationHarmonicPrediction(location, paddedStart, paddedEnd, intervalMinutes)
+  if (!prediction || prediction.series.length === 0) {
+    return {
+      sourceId: 'internal',
+      category: 'internal',
+      sourceLabel: getSourceLabel('internal'),
+      location,
+      date,
+      available: false,
+      unavailableReason: 'Station harmonic prediction is unavailable for this location/date',
+      datum: null,
+      datumConfidence: 'unknown',
+      supportsHeightComparison: false,
+      events: [],
+      rawEventCount: 0,
+      metadata: {
+        engine: 'station-harmonic-v1',
+        intervalMinutes,
+        stationId: null,
+        constituents: 0,
+      },
+    }
+  }
+
+  const series = prediction?.series ?? []
   const events = deriveExtremesFromSeries(series).filter((event) => event.timestamp.startsWith(date))
 
   return {
     sourceId: 'internal',
     category: 'internal',
-    sourceLabel: 'Canonical Harmonic Forecast',
+    sourceLabel: getSourceLabel('internal'),
     location,
     date,
     available: true,
@@ -223,9 +523,11 @@ export async function fetchInternalComparisonSnapshot(
     events,
     rawEventCount: series.length,
     metadata: {
-      engine: 'canonical-harmonic-v1',
+      engine: 'station-harmonic-v1',
       intervalMinutes,
-      constituents: 'regional-harmonic',
+      stationId: prediction?.stationId ?? null,
+      constituents: prediction?.constituentsCount ?? 0,
+      dominantConstituentQuarterPeriodMinutes: prediction?.dominantConstituentQuarterPeriodMinutes ?? null,
     },
   }
 }
@@ -235,7 +537,7 @@ export async function fetchWorldTidesComparisonSnapshot(
   dateInput: string,
   apiKey = process.env.WORLDTIDES_API_KEY || process.env.NEXT_PUBLIC_WORLDTIDES_API_KEY || '',
 ): Promise<ComparisonSourceSnapshot> {
-  const { date, start, end } = getThailandDayBounds(dateInput)
+  const { date, start, end } = getThailandDayBoundsFromIsoDate(dateInput)
 
   if (!apiKey) {
     return {
@@ -255,11 +557,16 @@ export async function fetchWorldTidesComparisonSnapshot(
     }
   }
 
-  const client = new WorldTidesClient(apiKey)
+  // WorldTidesClient defaults to datum=MSL on every request (see
+  // worldtides-client.ts), matching the internal model's reference, so the
+  // datum here is pinned rather than provider-defined and height comparison
+  // is safe to enable.
+  const datum = 'MSL'
+  const client = new WorldTidesClient(apiKey, datum)
   const extremes = await client.getExtremesForCoordinates(location.lat, location.lon, start, end)
-  const events = [...extremes.highs, ...extremes.lows]
+  const events: ComparisonEvent[] = [...extremes.highs, ...extremes.lows]
     .sort((left, right) => left.timestamp - right.timestamp)
-    .map((event) => ({
+    .map((event): ComparisonEvent => ({
       type: event.type === 'high' ? 'high' : 'low',
       timestamp: formatThailandTimestamp(new Date(event.timestamp)),
       clockTime: formatThailandClock(new Date(event.timestamp)),
@@ -275,14 +582,15 @@ export async function fetchWorldTidesComparisonSnapshot(
     date,
     available: events.length > 0,
     unavailableReason: events.length > 0 ? undefined : 'WorldTides returned no extremes for the requested window',
-    datum: 'provider-specific',
-    datumConfidence: 'unknown',
-    supportsHeightComparison: false,
+    datum,
+    datumConfidence: 'known',
+    supportsHeightComparison: true,
     events,
     rawEventCount: events.length,
     metadata: {
       provider: 'worldtides',
       requestMode: 'coordinate-extremes',
+      datum,
     },
   }
 }
@@ -300,7 +608,7 @@ export async function fetchStormglassComparisonSnapshot(
   dateInput: string,
   apiKey = process.env.STORMGLASS_API_KEY || '',
 ): Promise<ComparisonSourceSnapshot> {
-  const { date, start, end } = getThailandDayBounds(dateInput)
+  const { date, start, end } = getThailandDayBoundsFromIsoDate(dateInput)
 
   if (!apiKey) {
     return {
@@ -402,6 +710,86 @@ export async function fetchWebsiteComparisonSnapshot(
   }
 }
 
+export async function fetchValidationFixtureSnapshot(
+  location: ComparisonLocation,
+  dateInput: string,
+): Promise<ComparisonSourceSnapshot> {
+  const records = getValidationFixtureRecords().filter(
+    (record) =>
+      record.date === dateInput &&
+      (record.locationId === location.id || (location.stationId !== undefined && record.stationId === location.stationId)),
+  )
+
+  if (records.length === 0) {
+    return {
+      sourceId: 'validation_fixture',
+      category: 'validation',
+      sourceLabel: 'Validation Fixture',
+      location,
+      date: dateInput,
+      available: false,
+      unavailableReason: 'No validation fixture events for this location/date',
+      datum: null,
+      datumConfidence: 'unknown',
+      supportsHeightComparison: false,
+      events: [],
+      rawEventCount: 0,
+      metadata: {
+        validationEventCount: 0,
+      },
+    }
+  }
+
+  const datum = records.find((record) => record.datum)?.datum ?? null
+  const events: ComparisonEvent[] = records.flatMap((record) =>
+    record.events.map((event): ComparisonEvent => {
+      const hasLevel = typeof event.level === 'number' && Number.isFinite(event.level)
+      return {
+        type: event.type,
+        timestamp: `${record.date}T${event.time}:00+07:00`,
+        clockTime: event.time,
+        level: hasLevel ? Number(event.level?.toFixed(3)) : null,
+        confidence: record.source === 'field_measurement' ? 100 : 95,
+      }
+    }),
+  )
+
+  return {
+    sourceId: 'validation_fixture',
+    category: 'validation',
+    sourceLabel: 'Validation Fixture',
+    location,
+    date: dateInput,
+    available: events.length > 0,
+    unavailableReason: events.length > 0 ? undefined : 'No validation fixture events for this location/date',
+    datum,
+    datumConfidence: datum === null ? 'unknown' : 'known',
+    supportsHeightComparison: datum !== null && events.every((event) => event.level !== null),
+    events,
+    rawEventCount: events.length,
+    metadata: {
+      validationEventCount: events.length,
+    },
+  }
+}
+
+function getPlausibleMatchWindowMinutes(
+  baseline: ComparisonSourceSnapshot,
+  maxMatchDeltaMinutes: number,
+): number {
+  const quarterPeriodMinutes = baseline.metadata.dominantConstituentQuarterPeriodMinutes
+  // Cap the requested window at a quarter of the dominant constituent's
+  // period: matching an event any further out than that risks pairing a
+  // high/low with the wrong tidal cycle (the previous or next one) instead
+  // of flagging it unmatched, which would silently launder a wrong-cycle
+  // pairing into the timing-bias average.
+  if (typeof quarterPeriodMinutes !== 'number' || !Number.isFinite(quarterPeriodMinutes)) {
+    return maxMatchDeltaMinutes
+  }
+
+  return Math.min(maxMatchDeltaMinutes, quarterPeriodMinutes)
+}
+
 export function compareSnapshots(
   baseline: ComparisonSourceSnapshot,
   candidate: ComparisonSourceSnapshot,
@@ -411,6 +799,7 @@ export function compareSnapshots(
   const unmatchedBaselineEvents: ComparisonEvent[] = []
   const remainingCandidateEvents = [...candidate.events]
   const warnings: string[] = []
+  const effectiveMatchWindowMinutes = getPlausibleMatchWindowMinutes(baseline, maxMatchDeltaMinutes)
 
   for (const baselineEvent of baseline.events) {
     let bestIndex = -1
@@ -422,9 +811,9 @@ export function compareSnapshots(
         continue
       }
 
-      const delta = clockMinutes(candidateEvent.clockTime) - clockMinutes(baselineEvent.clockTime)
+      const delta = eventDeltaMinutes(baselineEvent, candidateEvent)
       const absoluteDelta = Math.abs(delta)
-      if (absoluteDelta <= maxMatchDeltaMinutes && absoluteDelta < bestDelta) {
+      if (absoluteDelta <= effectiveMatchWindowMinutes && absoluteDelta < bestDelta) {
         bestIndex = index
         bestDelta = absoluteDelta
       }
@@ -436,7 +825,7 @@ export function compareSnapshots(
     }
 
     const matchedCandidate = remainingCandidateEvents.splice(bestIndex, 1)[0]
-    const timingDeltaMinutes = clockMinutes(matchedCandidate.clockTime) - clockMinutes(baselineEvent.clockTime)
+    const timingDeltaMinutes = eventDeltaMinutes(baselineEvent, matchedCandidate)
     const levelDeltaMeters =
       baseline.supportsHeightComparison &&
       candidate.supportsHeightComparison &&
@@ -459,6 +848,12 @@ export function compareSnapshots(
     warnings.push(candidate.unavailableReason)
   }
 
+  if (effectiveMatchWindowMinutes < maxMatchDeltaMinutes) {
+    warnings.push(
+      `Match window tightened to ${roundToDigits(effectiveMatchWindowMinutes, 1)} min (quarter of dominant constituent period) to avoid wrong-cycle matches`,
+    )
+  }
+
   if (!(baseline.supportsHeightComparison && candidate.supportsHeightComparison)) {
     warnings.push('Height metrics are suppressed because datum alignment is unknown or unsupported')
   }
@@ -468,25 +863,110 @@ export function compareSnapshots(
   const levelErrors = matches
     .map((match) => match.absoluteLevelDeltaMeters)
     .filter((value): value is number => value !== null)
+  const levelBiases = matches
+    .map((match) => match.levelDeltaMeters)
+    .filter((value): value is number => value !== null)
+
+  const supportsHeightComparison = baseline.supportsHeightComparison && candidate.supportsHeightComparison
+  const metricsBase = {
+    baselineEventCount: baseline.events.length,
+    candidateEventCount: candidate.events.length,
+    matchedEventCount: matches.length,
+    eventCoverage: baseline.events.length === 0 ? 0 : Number((matches.length / baseline.events.length).toFixed(3)),
+    meanAbsoluteTimingErrorMinutes: round(average(timingErrors), 2),
+    meanTimingBiasMinutes: round(average(timingBiases), 2),
+    maxAbsoluteTimingErrorMinutes: round(max(timingErrors), 2),
+    rmseTimingMinutes: round(rootMeanSquare(timingErrors), 2),
+    meanAbsoluteLevelErrorMeters: round(average(levelErrors), 3),
+    meanLevelBiasMeters: round(average(levelBiases), 3),
+    maxAbsoluteLevelErrorMeters: round(max(levelErrors), 3),
+    rmseLevelMeters: round(rootMeanSquare(levelErrors), 3),
+    supportsHeightComparison,
+  }
 
   return {
     source: candidate,
+    calibrationSuggestion: null,
     matches,
     unmatchedBaselineEvents,
     unmatchedCandidateEvents: remainingCandidateEvents,
     metrics: {
-      baselineEventCount: baseline.events.length,
-      candidateEventCount: candidate.events.length,
-      matchedEventCount: matches.length,
-      eventCoverage: baseline.events.length === 0 ? 0 : Number((matches.length / baseline.events.length).toFixed(3)),
-      meanAbsoluteTimingErrorMinutes: round(average(timingErrors), 2),
-      meanTimingBiasMinutes: round(average(timingBiases), 2),
-      maxAbsoluteTimingErrorMinutes: round(max(timingErrors), 2),
-      meanAbsoluteLevelErrorMeters: round(average(levelErrors), 3),
-      maxAbsoluteLevelErrorMeters: round(max(levelErrors), 3),
-      supportsHeightComparison: baseline.supportsHeightComparison && candidate.supportsHeightComparison,
+      ...metricsBase,
+      accuracyPass: getAccuracyPass(metricsBase),
+      thresholdTimingMaeMinutes: DEFAULT_TIMING_MAE_THRESHOLD_MINUTES,
+      thresholdLevelMaeMeters: DEFAULT_LEVEL_MAE_THRESHOLD_METERS,
+      coverageStatus: getCoverageStatus(baseline.events.length, matches.length, candidate.available),
       warnings,
     },
+  }
+}
+
+export interface StationMeasuredAccuracy {
+  stationId: string
+  date: string
+  matchedEventCount: number
+  meanAbsoluteTimingErrorMinutes: number
+  rmseTimingMinutes: number
+  meanAbsoluteLevelErrorMeters: number | null
+  rmseLevelMeters: number | null
+}
+
+/**
+ * The most recent validation-fixture comparison available for the station
+ * nearest to `location`, i.e. how far off the internal harmonic baseline
+ * actually measured against a real reference the last time we had one. This
+ * is the only "measured" accuracy this repo has data for -- it is used as a
+ * proxy for provider confidence (see lib/tide-service.ts) rather than
+ * fabricating a per-provider ground truth we don't have.
+ */
+export async function getMostRecentStationMeasuredAccuracy(
+  location: { lat: number; lon: number },
+): Promise<StationMeasuredAccuracy | null> {
+  const stationId = getNearestConfiguredStationId(location)
+  if (!stationId) {
+    return null
+  }
+
+  const mostRecentDate = getValidationFixtureRecords()
+    .filter((record) => record.stationId === stationId)
+    .map((record) => record.date)
+    .sort()
+    .pop()
+  if (!mostRecentDate) {
+    return null
+  }
+
+  const comparisonLocation: ComparisonLocation = {
+    id: stationId,
+    name: stationId,
+    lat: location.lat,
+    lon: location.lon,
+    stationId,
+  }
+
+  const baseline = await fetchInternalComparisonSnapshot(comparisonLocation, mostRecentDate)
+  const candidate = await fetchValidationFixtureSnapshot(comparisonLocation, mostRecentDate)
+  if (!baseline.available || !candidate.available) {
+    return null
+  }
+
+  const { metrics } = compareSnapshots(baseline, candidate)
+  if (
+    metrics.matchedEventCount === 0 ||
+    metrics.meanAbsoluteTimingErrorMinutes === null ||
+    metrics.rmseTimingMinutes === null
+  ) {
+    return null
+  }
+
+  return {
+    stationId,
+    date: mostRecentDate,
+    matchedEventCount: metrics.matchedEventCount,
+    meanAbsoluteTimingErrorMinutes: metrics.meanAbsoluteTimingErrorMinutes,
+    rmseTimingMinutes: metrics.rmseTimingMinutes,
+    meanAbsoluteLevelErrorMeters: metrics.meanAbsoluteLevelErrorMeters,
+    rmseLevelMeters: metrics.rmseLevelMeters,
   }
 }
 
@@ -498,6 +978,8 @@ async function fetchSnapshotForSource(
   switch (source) {
     case 'internal':
       return fetchInternalComparisonSnapshot(location, date)
+    case 'validation_fixture':
+      return fetchValidationFixtureSnapshot(location, date)
     case 'worldtides':
       return fetchWorldTidesComparisonSnapshot(location, date)
     case 'stormglass':
@@ -507,12 +989,55 @@ async function fetchSnapshotForSource(
   }
 }
 
+function buildUnavailableComparison(
+  location: ComparisonLocation,
+  date: string,
+  source: ComparisonSourceId,
+  reason: string,
+): SourceComparisonResult {
+  return compareSnapshots(
+    {
+      sourceId: 'internal',
+      category: 'internal',
+      sourceLabel: getSourceLabel('internal'),
+      location,
+      date,
+      available: false,
+      unavailableReason: reason,
+      datum: null,
+      datumConfidence: 'unknown',
+      supportsHeightComparison: false,
+      events: [],
+      rawEventCount: 0,
+      metadata: {},
+    },
+    {
+      sourceId: source,
+      category: source === 'validation_fixture' ? 'validation' : source === 'website' ? 'website' : 'api',
+      sourceLabel: getSourceLabel(source),
+      location,
+      date,
+      available: false,
+      unavailableReason: reason,
+      datum: null,
+      datumConfidence: 'unknown',
+      supportsHeightComparison: false,
+      events: [],
+      rawEventCount: 0,
+      metadata: {},
+    },
+  )
+}
+
 export async function runTideComparisonReport(
   options: RunComparisonOptions,
 ): Promise<TideComparisonReport> {
   const locations: LocationComparisonReport[] = []
   let availableComparisons = 0
   let unavailableComparisons = 0
+  let passedComparisons = 0
+  let failedComparisons = 0
+  let uncheckedComparisons = 0
 
   for (const location of options.locations) {
     const baseline = await fetchInternalComparisonSnapshot(location, options.date)
@@ -523,17 +1048,41 @@ export async function runTideComparisonReport(
         continue
       }
 
+      if (!baseline.available) {
+        unavailableComparisons += 1
+        uncheckedComparisons += 1
+        comparisons.push(
+          buildUnavailableComparison(
+            location,
+            options.date,
+            sourceId,
+            baseline.unavailableReason ?? 'Internal baseline is unavailable',
+          ),
+        )
+        continue
+      }
+
       const snapshot = await fetchSnapshotForSource(location, options.date, sourceId)
       const comparison = compareSnapshots(
         baseline,
         snapshot,
         options.maxMatchDeltaMinutes ?? DEFAULT_MATCH_WINDOW_MINUTES,
       )
+      comparison.source.metadata.calibrationRecommendation = buildCalibrationRecommendation(comparison.metrics)
+      comparison.calibrationSuggestion = buildCalibrationSuggestion(location, baseline, comparison)
 
       if (snapshot.available) {
         availableComparisons += 1
       } else {
         unavailableComparisons += 1
+      }
+
+      if (comparison.metrics.accuracyPass === true) {
+        passedComparisons += 1
+      } else if (comparison.metrics.accuracyPass === false) {
+        failedComparisons += 1
+      } else {
+        uncheckedComparisons += 1
       }
 
       comparisons.push(comparison)
@@ -546,6 +1095,8 @@ export async function runTideComparisonReport(
     })
   }
 
+  const stationDiagnostics = getStationHarmonicDiagnostics()
+
   return {
     generatedAt: new Date().toISOString(),
     date: options.date,
@@ -555,6 +1106,15 @@ export async function runTideComparisonReport(
       totalLocations: options.locations.length,
       availableComparisons,
       unavailableComparisons,
+      passedComparisons,
+      failedComparisons,
+      uncheckedComparisons,
+      stationConstantsCoverage: {
+        configuredStations: stationDiagnostics.configuredStations,
+        totalStations: stationDiagnostics.totalStations,
+        missingStations: stationDiagnostics.missingStationIds.length,
+        invalidStations: stationDiagnostics.invalidStationIds.length,
+      },
     },
   }
 }
@@ -569,6 +1129,12 @@ export function renderComparisonMarkdown(report: TideComparisonReport): string {
   lines.push(`- Locations: ${report.summary.totalLocations}`)
   lines.push(`- Available comparisons: ${report.summary.availableComparisons}`)
   lines.push(`- Unavailable comparisons: ${report.summary.unavailableComparisons}`)
+  lines.push(`- Passed comparisons: ${report.summary.passedComparisons}`)
+  lines.push(`- Failed comparisons: ${report.summary.failedComparisons}`)
+  lines.push(`- Unchecked comparisons: ${report.summary.uncheckedComparisons}`)
+  lines.push(
+    `- Station constants coverage: ${report.summary.stationConstantsCoverage.configuredStations}/${report.summary.stationConstantsCoverage.totalStations}`,
+  )
   lines.push('')
 
   for (const locationReport of report.locations) {
@@ -580,13 +1146,22 @@ export function renderComparisonMarkdown(report: TideComparisonReport): string {
     }
     lines.push(`- Baseline events: ${locationReport.baseline.events.length}`)
     lines.push('')
-    lines.push('| Source | Available | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |')
-    lines.push('|---|---:|---:|---:|---:|---|')
+    lines.push('| Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |')
+    lines.push('|---|---:|---:|---:|---:|---:|---|')
 
     for (const comparison of locationReport.comparisons) {
-      const warnings = comparison.metrics.warnings.join('; ') || '-'
+      const calibrationRecommendation = comparison.source.metadata.calibrationRecommendation
+      const notes = [
+        comparison.metrics.warnings.join('; '),
+        typeof calibrationRecommendation === 'string' ? `calibration: ${calibrationRecommendation}` : '',
+        comparison.calibrationSuggestion
+          ? `suggested constants delta: timeOffsetMinutes ${comparison.calibrationSuggestion.timeOffsetMinutesDelta}, levelOffsetMeters ${comparison.calibrationSuggestion.levelOffsetMetersDelta ?? '-'}`
+          : '',
+      ].filter(Boolean)
+      const passLabel =
+        comparison.metrics.accuracyPass === null ? '-' : comparison.metrics.accuracyPass ? 'yes' : 'no'
       lines.push(
-        `| ${comparison.source.sourceLabel} | ${comparison.source.available ? 'yes' : 'no'} | ${comparison.metrics.eventCoverage} | ${comparison.metrics.meanAbsoluteTimingErrorMinutes ?? '-'} | ${comparison.metrics.meanAbsoluteLevelErrorMeters ?? '-'} | ${warnings} |`,
+        `| ${comparison.source.sourceLabel} | ${comparison.source.available ? 'yes' : 'no'} | ${passLabel} | ${comparison.metrics.coverageStatus} (${comparison.metrics.eventCoverage}) | ${comparison.metrics.meanAbsoluteTimingErrorMinutes ?? '-'} | ${comparison.metrics.meanAbsoluteLevelErrorMeters ?? '-'} | ${notes.join('; ') || '-'} |`,
       )
     }
 

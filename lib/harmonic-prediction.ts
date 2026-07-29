@@ -692,6 +692,14 @@ export function calculateNodalCorrection(
 
 /**
  * Predict water level at specific time using harmonic analysis
+ *
+ * NOTE: this is NOT on the live forecast path -- lib/tide-service.ts now
+ * builds the degraded "harmonic" fallback tier's series/extrema through
+ * lib/harmonic-tide-core.ts, whose calculateEquilibriumArgument computes the
+ * true Doodson-argument V (continuous across days). calculateConstituentArgument
+ * below still wraps tau to 0-24h, so V (and therefore this function's output)
+ * jumps discontinuously once per lunar day. It is kept only because
+ * lib/sunmoon-system.ts still calls it; do not wire new callers to it.
  */
 export function predictWaterLevel(
   date: Date,
@@ -773,31 +781,4 @@ function calculateConstituentArgument(
   }
   
   return V % 360
-}
-
-/**
- * Generate time series prediction
- */
-export function generatePredictionTimeSeries(
-  startDate: Date,
-  endDate: Date,
-  location: LocationData,
-  intervalMinutes: number = 10
-): Array<{ time: Date; level: number }> {
-  const constituents = getLocationConstituents(location)
-  const series: Array<{ time: Date; level: number }> = []
-  
-  let currentTime = new Date(startDate)
-  
-  while (currentTime <= endDate) {
-    const level = predictWaterLevel(currentTime, location, constituents)
-    series.push({
-      time: new Date(currentTime),
-      level: Number.parseFloat(level.toFixed(3))
-    })
-    
-    currentTime = new Date(currentTime.getTime() + intervalMinutes * 60 * 1000)
-  }
-  
-  return series
 }

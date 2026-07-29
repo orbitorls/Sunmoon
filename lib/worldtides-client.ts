@@ -27,7 +27,9 @@ export interface WorldTidesExtremes {
 }
 
 type WorldTidesExtremesApiResponse = {
-  extremes?: Array<{ timestamp: number; height: number; type: string }>
+  // WorldTides v3 extremes carry the Unix timestamp in `dt` (seconds), plus a
+  // human-readable `date` string. There is no `timestamp` field.
+  extremes?: Array<{ dt: number; date?: string; height: number; type: string }>
 }
 
 type WorldTidesStationApiResponse = {
@@ -35,7 +37,9 @@ type WorldTidesStationApiResponse = {
 }
 
 type WorldTidesHeightsApiResponse = {
-  heights?: Array<{ timestamp: number; height: number }>
+  // Same `dt`-not-`timestamp` shape as extremes (verified against the live
+  // v3 API: {"dt":..,"date":"...","height":..}).
+  heights?: Array<{ dt: number; date?: string; height: number }>
 }
 
 /**
@@ -44,13 +48,20 @@ type WorldTidesHeightsApiResponse = {
  */
 export class WorldTidesClient {
   private apiKey: string
+  // WorldTides v3 returns heights against whatever vertical reference the
+  // request pins via `datum` (e.g. MSL or CD) -- without it the reference is
+  // provider-defined and not safe to compare against our MSL-referenced
+  // internal model. Every request goes through buildUrl, so pinning it there
+  // covers every call site in one place.
+  private datum: string
   private baseUrl = 'https://www.worldtides.info/api/v3'
   private requestCount = 0
   private lastRequest = 0
   private requestDelay = 100 // ms between requests (rate limiting)
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, datum = 'MSL') {
     this.apiKey = apiKey
+    this.datum = datum
   }
 
   isConfigured(): boolean {
@@ -59,6 +70,7 @@ export class WorldTidesClient {
 
   private buildUrl(path: string, params: Record<string, string | number | boolean>): string {
     const searchParams = new URLSearchParams()
+    searchParams.set('datum', this.datum)
 
     for (const [key, value] of Object.entries(params)) {
       searchParams.set(key, String(value))
@@ -68,7 +80,11 @@ export class WorldTidesClient {
       searchParams.set('key', this.apiKey)
     }
 
-    return `${this.baseUrl}/${path}?${searchParams.toString()}`
+    // WorldTides v3's coordinate-based query form (path === '') is the base
+    // endpoint itself, e.g. `.../v3?extremes&lat=...` — a trailing slash
+    // (`.../v3/?...`) 404s. Sub-resources like `stationlist` do take a slash.
+    const suffix = path ? `/${path}` : ''
+    return `${this.baseUrl}${suffix}?${searchParams.toString()}`
   }
 
   /**
@@ -148,7 +164,7 @@ export class WorldTidesClient {
       if (!data.heights) return []
 
       return data.heights.map(h => ({
-        timestamp: h.timestamp * 1000, // Convert to ms
+        timestamp: h.dt * 1000, // Convert to ms
         height: h.height,
         confidence: 95,
       }))
@@ -197,7 +213,7 @@ export class WorldTidesClient {
 
       for (const extreme of data.extremes) {
         const pred: WorldTidesPrediction = {
-          timestamp: extreme.timestamp * 1000,
+          timestamp: extreme.dt * 1000,
           height: extreme.height,
           type: extreme.type === 'High' ? 'high' : 'low',
           confidence: 95,
@@ -257,7 +273,7 @@ export class WorldTidesClient {
 
       for (const extreme of data.extremes) {
         const prediction: WorldTidesPrediction = {
-          timestamp: extreme.timestamp * 1000,
+          timestamp: extreme.dt * 1000,
           height: extreme.height,
           type: extreme.type === 'High' ? 'high' : 'low',
           confidence: 95,
@@ -274,6 +290,63 @@ export class WorldTidesClient {
     } catch (error) {
       console.error('WorldTides coordinate extremes fetch failed:', error)
       return { highs: [], lows: [] }
+    }
+  }
+
+  /**
+   * Get a continuous water-level series for raw coordinates (not a
+   * WorldTides station id). Used to fit constituent amplitude/phase against
+   * a real reference curve -- verified against the live v3 API to return up
+   * to 60 days in a single call at 30-min steps (no chunking needed at that
+   * scale; a much longer request may need chunking, which is out of scope
+   * here since 60 days already resolves everything except the K1/P1 and
+   * K2/S2 pairs, which are inferred rather than fit directly).
+   */
+  async getHeightsForCoordinates(
+    lat: number,
+    lon: number,
+    startDate: Date,
+    endDate: Date,
+    stepSeconds = 1800,
+  ): Promise<WorldTidesPrediction[]> {
+    try {
+      if (!this.isConfigured()) {
+        return []
+      }
+
+      await this.rateLimitCheck()
+
+      const start = Math.floor(startDate.getTime() / 1000)
+      const length = Math.max(0, Math.floor((endDate.getTime() - startDate.getTime()) / 1000))
+
+      const response = await fetch(this.buildUrl('', {
+        heights: true,
+        lat,
+        lon,
+        start,
+        length,
+        step: stepSeconds,
+      }))
+
+      if (!response.ok) {
+        console.warn('WorldTides coordinate heights failed:', response.statusText)
+        return []
+      }
+
+      const data = await response.json() as WorldTidesHeightsApiResponse
+
+      if (!data.heights) {
+        return []
+      }
+
+      return data.heights.map((h) => ({
+        timestamp: h.dt * 1000,
+        height: h.height,
+        confidence: 95,
+      }))
+    } catch (error) {
+      console.error('WorldTides coordinate heights fetch failed:', error)
+      return []
     }
   }
 

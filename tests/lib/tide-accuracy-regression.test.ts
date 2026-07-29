@@ -44,7 +44,7 @@ describe('pilot station accuracy regression', () => {
       const mae = totalError / count
       // Threshold is intentionally high until manual fixtures from official Thai Navy
       // tide tables are added (Task 7). Lower to 15 once hydro-1/19/21 have real data.
-      expect(mae).toBeLessThanOrEqual(300)
+      expect(mae).toBeLessThanOrEqual(40)
     })
   }
 })

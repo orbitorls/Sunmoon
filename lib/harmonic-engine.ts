@@ -6,6 +6,14 @@
  *
  * Method: Harmonic tide prediction using constituent synthesis
  * accuracy: ±0.08m for water height, ±5 min for time prediction
+ *
+ * NOTE: this engine is NOT on the live forecast path (lib/tide-service.ts
+ * calls lib/harmonic-tide-core.ts for the station-configured stations). It
+ * still backs confidence-bands.ts, slope-alerts.ts, hydro-service.ts, and the
+ * legacy tide-prediction-api.ts, plus older accuracy test scripts, so it
+ * hasn't been removed — but any prediction-accuracy work should target
+ * harmonic-tide-core.ts first. Consolidating the two engines is tracked as
+ * follow-up work, not done here to keep this fix's diff scoped.
  */
 
 import type { LocationData } from "./tide-service";
@@ -16,6 +24,7 @@ import {
   CONSTITUENT_STATS,
 } from "./constituents";
 import { calculateAstronomicalArguments } from "./ephemerides";
+import { roundToDigits, toThailandInstant } from "./thailand-time";
 
 // Enhanced constituent definitions for Thai waters
 const THAI_COASTAL_CONSTITUENTS = [
@@ -281,16 +290,14 @@ export function predictTideLevel(
   const subRegion = getSubRegion(location, region);
   const tideMeans = getRegionalMeanTideRange(region, location.lat);
   const meanSeaLevel = (tideMeans.meanHighWater + tideMeans.meanLowWater) / 2;
+  const instant = toThailandInstant(date, timeOfDay);
 
-  // Convert date/time to hours since epoch
-  const epochDate = new Date(2000, 0, 1, 0, 0, 0); // J2000 epoch
-  const totalMs = date.getTime() - epochDate.getTime();
-  const totalHoursSinceEpoch = totalMs / (1000 * 60 * 60);
-  const hourOfDay = timeOfDay.hour + timeOfDay.minute / 60;
-  const totalHours = totalHoursSinceEpoch + hourOfDay;
+  // Hours since J2000 UTC epoch for harmonic synthesis
+  const epochDate = new Date(Date.UTC(2000, 0, 1, 0, 0, 0));
+  const totalHours = (instant.getTime() - epochDate.getTime()) / (1000 * 60 * 60);
 
-  // Calculate nodal corrections (shared across constituents)
-  const nodalCorrections = calculateNodalCorrections(date);
+  // Calculate nodal corrections at the prediction instant
+  const nodalCorrections = calculateNodalCorrections(instant);
 
   // Get regional data
   const regionalData = THAI_REGIONAL_DATA[region][subRegion];
@@ -352,7 +359,7 @@ export function predictTideLevel(
     time: `${timeOfDay.hour.toString().padStart(2, "0")}:${timeOfDay.minute
       .toString()
       .padStart(2, "0")}`,
-    level: Number.parseFloat(tideLevel.toFixed(2)),
+    level: roundToDigits(tideLevel, 2),
     constituent: maxConstituent.name,
     confidence: Math.min(
       95,
@@ -470,18 +477,15 @@ export function generateGraphData(
 
   for (let hour = 0; hour < 24; hour++) {
     for (let minute = 0; minute < 60; minute += intervalMinutes) {
-      const time = new Date(date);
-      time.setHours(hour, minute, 0, 0);
-
+      const instant = toThailandInstant(date, { hour, minute });
       const prediction = predictTideLevel(date, location, { hour, minute });
-      const isPrediction = time > now;
 
       graphData.push({
         time: `${hour.toString().padStart(2, "0")}:${minute
           .toString()
           .padStart(2, "0")}`,
         level: prediction.level,
-        prediction: isPrediction,
+        prediction: instant.getTime() > now.getTime(),
       });
     }
   }
