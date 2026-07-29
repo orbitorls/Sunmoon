@@ -1,0 +1,51 @@
+# Tide Comparison Report
+
+- Date: 2026-07-18
+- Generated: 2026-07-29T16:33:09.076Z
+- Locations: 4
+- Available comparisons: 4
+- Unavailable comparisons: 0
+- Passed comparisons: 1
+- Failed comparisons: 3
+- Unchecked comparisons: 0
+- Station constants coverage: 4/38
+
+## Bangkok Inner Gulf
+
+- Coordinates: 13.702817, 100.58025236193
+- Zone: upper-gulf
+- Baseline events: 2
+
+| Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |
+|---|---:|---:|---:|---:|---:|---|
+| Validation Fixture | yes | no | complete (1) | 70.5 | - | Height metrics are suppressed because datum alignment is unknown or unsupported; calibration: phase_shift_minutes=69.5; suggested constants delta: timeOffsetMinutes 69.5, levelOffsetMeters - |
+
+## Ko Si Chang
+
+- Coordinates: 13.1599381, 100.8096189
+- Zone: middle-gulf
+- Baseline events: 2
+
+| Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |
+|---|---:|---:|---:|---:|---:|---|
+| Validation Fixture | yes | no | complete (1) | 48.5 | - | Height metrics are suppressed because datum alignment is unknown or unsupported; calibration: phase_shift_minutes=-19.5; suggested constants delta: timeOffsetMinutes -19.5, levelOffsetMeters - |
+
+## Koh Samui
+
+- Coordinates: 9.50139445, 99.9956192732
+- Zone: lower-gulf
+- Baseline events: 2
+
+| Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |
+|---|---:|---:|---:|---:|---:|---|
+| Validation Fixture | yes | no | partial (0.5) | 96 | - | Height metrics are suppressed because datum alignment is unknown or unsupported; calibration: phase_shift_minutes=-96; suggested constants delta: timeOffsetMinutes -96, levelOffsetMeters - |
+
+## Phuket Andaman
+
+- Coordinates: 8.047222, 98.915833
+- Zone: andaman-phuket
+- Baseline events: 4
+
+| Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |
+|---|---:|---:|---:|---:|---:|---|
+| Validation Fixture | yes | yes | complete (1) | 12.75 | - | Height metrics are suppressed because datum alignment is unknown or unsupported; calibration: phase_shift_minutes=10.8; suggested constants delta: timeOffsetMinutes 10.8, levelOffsetMeters - |

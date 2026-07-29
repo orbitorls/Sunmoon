@@ -1,0 +1,961 @@
+{
+  "generatedAt": "2026-07-29T16:33:10.569Z",
+  "date": "2026-08-15",
+  "locations": [
+    {
+      "location": {
+        "id": "benchmark-upper-gulf-bangkok",
+        "name": "Bangkok Inner Gulf",
+        "lat": 13.702817,
+        "lon": 100.58025236193,
+        "stationId": "hydro-1",
+        "region": "gulf",
+        "zone": "upper-gulf",
+        "notes": "Upper Gulf reference point for dense estuary behavior."
+      },
+      "baseline": {
+        "sourceId": "internal",
+        "category": "internal",
+        "sourceLabel": "Station Harmonic Forecast",
+        "location": {
+          "id": "benchmark-upper-gulf-bangkok",
+          "name": "Bangkok Inner Gulf",
+          "lat": 13.702817,
+          "lon": 100.58025236193,
+          "stationId": "hydro-1",
+          "region": "gulf",
+          "zone": "upper-gulf",
+          "notes": "Upper Gulf reference point for dense estuary behavior."
+        },
+        "date": "2026-08-15",
+        "available": true,
+        "datum": "MSL",
+        "datumConfidence": "known",
+        "supportsHeightComparison": true,
+        "events": [
+          {
+            "type": "low",
+            "timestamp": "2026-08-15T06:30:00+07:00",
+            "clockTime": "06:30",
+            "level": 0.719,
+            "confidence": 68
+          },
+          {
+            "type": "high",
+            "timestamp": "2026-08-15T08:00:00+07:00",
+            "clockTime": "08:00",
+            "level": 0.783,
+            "confidence": 68
+          },
+          {
+            "type": "low",
+            "timestamp": "2026-08-15T12:00:00+07:00",
+            "clockTime": "12:00",
+            "level": 0.117,
+            "confidence": 68
+          },
+          {
+            "type": "high",
+            "timestamp": "2026-08-15T21:00:00+07:00",
+            "clockTime": "21:00",
+            "level": 2.747,
+            "confidence": 68
+          }
+        ],
+        "rawEventCount": 51,
+        "metadata": {
+          "engine": "station-harmonic-v1",
+          "intervalMinutes": 30,
+          "stationId": "hydro-1",
+          "constituents": 13,
+          "dominantConstituentQuarterPeriodMinutes": 359.017044839487
+        }
+      },
+      "comparisons": [
+        {
+          "source": {
+            "sourceId": "validation_fixture",
+            "category": "validation",
+            "sourceLabel": "Validation Fixture",
+            "location": {
+              "id": "benchmark-upper-gulf-bangkok",
+              "name": "Bangkok Inner Gulf",
+              "lat": 13.702817,
+              "lon": 100.58025236193,
+              "stationId": "hydro-1",
+              "region": "gulf",
+              "zone": "upper-gulf",
+              "notes": "Upper Gulf reference point for dense estuary behavior."
+            },
+            "date": "2026-08-15",
+            "available": true,
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [
+              {
+                "type": "low",
+                "timestamp": "2026-08-15T03:40:00+07:00",
+                "clockTime": "03:40",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "high",
+                "timestamp": "2026-08-15T08:38:00+07:00",
+                "clockTime": "08:38",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "low",
+                "timestamp": "2026-08-15T14:49:00+07:00",
+                "clockTime": "14:49",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "high",
+                "timestamp": "2026-08-15T21:37:00+07:00",
+                "clockTime": "21:37",
+                "level": null,
+                "confidence": 95
+              }
+            ],
+            "rawEventCount": 4,
+            "metadata": {
+              "validationEventCount": 4,
+              "calibrationRecommendation": "phase_shift_minutes=18.5"
+            }
+          },
+          "calibrationSuggestion": {
+            "stationId": "hydro-1",
+            "locationId": "benchmark-upper-gulf-bangkok",
+            "sourceId": "validation_fixture",
+            "matchedEventCount": 4,
+            "timeOffsetMinutesDelta": 18.5,
+            "levelOffsetMetersDelta": null,
+            "note": "Apply time offset only; level offset unavailable because datum/height comparison is unsupported."
+          },
+          "matches": [
+            {
+              "baseline": {
+                "type": "low",
+                "timestamp": "2026-08-15T06:30:00+07:00",
+                "clockTime": "06:30",
+                "level": 0.719,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "low",
+                "timestamp": "2026-08-15T03:40:00+07:00",
+                "clockTime": "03:40",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": -170,
+              "absoluteTimingDeltaMinutes": 170,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            },
+            {
+              "baseline": {
+                "type": "high",
+                "timestamp": "2026-08-15T08:00:00+07:00",
+                "clockTime": "08:00",
+                "level": 0.783,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "high",
+                "timestamp": "2026-08-15T08:38:00+07:00",
+                "clockTime": "08:38",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": 38,
+              "absoluteTimingDeltaMinutes": 38,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            },
+            {
+              "baseline": {
+                "type": "low",
+                "timestamp": "2026-08-15T12:00:00+07:00",
+                "clockTime": "12:00",
+                "level": 0.117,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "low",
+                "timestamp": "2026-08-15T14:49:00+07:00",
+                "clockTime": "14:49",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": 169,
+              "absoluteTimingDeltaMinutes": 169,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            },
+            {
+              "baseline": {
+                "type": "high",
+                "timestamp": "2026-08-15T21:00:00+07:00",
+                "clockTime": "21:00",
+                "level": 2.747,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "high",
+                "timestamp": "2026-08-15T21:37:00+07:00",
+                "clockTime": "21:37",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": 37,
+              "absoluteTimingDeltaMinutes": 37,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            }
+          ],
+          "unmatchedBaselineEvents": [],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 4,
+            "candidateEventCount": 4,
+            "matchedEventCount": 4,
+            "eventCoverage": 1,
+            "meanAbsoluteTimingErrorMinutes": 103.5,
+            "meanTimingBiasMinutes": 18.5,
+            "maxAbsoluteTimingErrorMinutes": 170,
+            "rmseTimingMinutes": 122.75,
+            "meanAbsoluteLevelErrorMeters": null,
+            "meanLevelBiasMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "rmseLevelMeters": null,
+            "supportsHeightComparison": false,
+            "accuracyPass": false,
+            "thresholdTimingMaeMinutes": 30,
+            "thresholdLevelMaeMeters": 0.2,
+            "coverageStatus": "complete",
+            "warnings": [
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "location": {
+        "id": "benchmark-middle-gulf-ko-sichang",
+        "name": "Ko Si Chang",
+        "lat": 13.1599381,
+        "lon": 100.8096189,
+        "stationId": "hydro-19",
+        "region": "gulf",
+        "zone": "middle-gulf",
+        "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
+      },
+      "baseline": {
+        "sourceId": "internal",
+        "category": "internal",
+        "sourceLabel": "Station Harmonic Forecast",
+        "location": {
+          "id": "benchmark-middle-gulf-ko-sichang",
+          "name": "Ko Si Chang",
+          "lat": 13.1599381,
+          "lon": 100.8096189,
+          "stationId": "hydro-19",
+          "region": "gulf",
+          "zone": "middle-gulf",
+          "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
+        },
+        "date": "2026-08-15",
+        "available": true,
+        "datum": "MSL",
+        "datumConfidence": "known",
+        "supportsHeightComparison": true,
+        "events": [
+          {
+            "type": "low",
+            "timestamp": "2026-08-15T06:00:00+07:00",
+            "clockTime": "06:00",
+            "level": 0.719,
+            "confidence": 68
+          },
+          {
+            "type": "high",
+            "timestamp": "2026-08-15T08:00:00+07:00",
+            "clockTime": "08:00",
+            "level": 0.782,
+            "confidence": 68
+          },
+          {
+            "type": "low",
+            "timestamp": "2026-08-15T11:30:00+07:00",
+            "clockTime": "11:30",
+            "level": 0.119,
+            "confidence": 68
+          },
+          {
+            "type": "high",
+            "timestamp": "2026-08-15T20:30:00+07:00",
+            "clockTime": "20:30",
+            "level": 2.745,
+            "confidence": 68
+          }
+        ],
+        "rawEventCount": 51,
+        "metadata": {
+          "engine": "station-harmonic-v1",
+          "intervalMinutes": 30,
+          "stationId": "hydro-19",
+          "constituents": 13,
+          "dominantConstituentQuarterPeriodMinutes": 359.017044839487
+        }
+      },
+      "comparisons": [
+        {
+          "source": {
+            "sourceId": "validation_fixture",
+            "category": "validation",
+            "sourceLabel": "Validation Fixture",
+            "location": {
+              "id": "benchmark-middle-gulf-ko-sichang",
+              "name": "Ko Si Chang",
+              "lat": 13.1599381,
+              "lon": 100.8096189,
+              "stationId": "hydro-19",
+              "region": "gulf",
+              "zone": "middle-gulf",
+              "notes": "Middle Gulf benchmark with mixed semidiurnal/diurnal behavior."
+            },
+            "date": "2026-08-15",
+            "available": true,
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [
+              {
+                "type": "low",
+                "timestamp": "2026-08-15T01:01:00+07:00",
+                "clockTime": "01:01",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "high",
+                "timestamp": "2026-08-15T05:57:00+07:00",
+                "clockTime": "05:57",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "low",
+                "timestamp": "2026-08-15T12:35:00+07:00",
+                "clockTime": "12:35",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "high",
+                "timestamp": "2026-08-15T19:32:00+07:00",
+                "clockTime": "19:32",
+                "level": null,
+                "confidence": 95
+              }
+            ],
+            "rawEventCount": 4,
+            "metadata": {
+              "validationEventCount": 4,
+              "calibrationRecommendation": "phase_shift_minutes=-38.7"
+            }
+          },
+          "calibrationSuggestion": {
+            "stationId": "hydro-19",
+            "locationId": "benchmark-middle-gulf-ko-sichang",
+            "sourceId": "validation_fixture",
+            "matchedEventCount": 3,
+            "timeOffsetMinutesDelta": -38.7,
+            "levelOffsetMetersDelta": null,
+            "note": "Apply time offset only; level offset unavailable because datum/height comparison is unsupported."
+          },
+          "matches": [
+            {
+              "baseline": {
+                "type": "high",
+                "timestamp": "2026-08-15T08:00:00+07:00",
+                "clockTime": "08:00",
+                "level": 0.782,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "high",
+                "timestamp": "2026-08-15T05:57:00+07:00",
+                "clockTime": "05:57",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": -123,
+              "absoluteTimingDeltaMinutes": 123,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            },
+            {
+              "baseline": {
+                "type": "low",
+                "timestamp": "2026-08-15T11:30:00+07:00",
+                "clockTime": "11:30",
+                "level": 0.119,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "low",
+                "timestamp": "2026-08-15T12:35:00+07:00",
+                "clockTime": "12:35",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": 65,
+              "absoluteTimingDeltaMinutes": 65,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            },
+            {
+              "baseline": {
+                "type": "high",
+                "timestamp": "2026-08-15T20:30:00+07:00",
+                "clockTime": "20:30",
+                "level": 2.745,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "high",
+                "timestamp": "2026-08-15T19:32:00+07:00",
+                "clockTime": "19:32",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": -58,
+              "absoluteTimingDeltaMinutes": 58,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            }
+          ],
+          "unmatchedBaselineEvents": [
+            {
+              "type": "low",
+              "timestamp": "2026-08-15T06:00:00+07:00",
+              "clockTime": "06:00",
+              "level": 0.719,
+              "confidence": 68
+            }
+          ],
+          "unmatchedCandidateEvents": [
+            {
+              "type": "low",
+              "timestamp": "2026-08-15T01:01:00+07:00",
+              "clockTime": "01:01",
+              "level": null,
+              "confidence": 95
+            }
+          ],
+          "metrics": {
+            "baselineEventCount": 4,
+            "candidateEventCount": 4,
+            "matchedEventCount": 3,
+            "eventCoverage": 0.75,
+            "meanAbsoluteTimingErrorMinutes": 82,
+            "meanTimingBiasMinutes": -38.67,
+            "maxAbsoluteTimingErrorMinutes": 123,
+            "rmseTimingMinutes": 87.02,
+            "meanAbsoluteLevelErrorMeters": null,
+            "meanLevelBiasMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "rmseLevelMeters": null,
+            "supportsHeightComparison": false,
+            "accuracyPass": false,
+            "thresholdTimingMaeMinutes": 30,
+            "thresholdLevelMaeMeters": 0.2,
+            "coverageStatus": "partial",
+            "warnings": [
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "location": {
+        "id": "benchmark-lower-gulf-samui",
+        "name": "Koh Samui",
+        "lat": 9.50139445,
+        "lon": 99.9956192732,
+        "stationId": "hydro-21",
+        "region": "gulf",
+        "zone": "lower-gulf",
+        "notes": "Lower Gulf benchmark for island/coastal user flow."
+      },
+      "baseline": {
+        "sourceId": "internal",
+        "category": "internal",
+        "sourceLabel": "Station Harmonic Forecast",
+        "location": {
+          "id": "benchmark-lower-gulf-samui",
+          "name": "Koh Samui",
+          "lat": 9.50139445,
+          "lon": 99.9956192732,
+          "stationId": "hydro-21",
+          "region": "gulf",
+          "zone": "lower-gulf",
+          "notes": "Lower Gulf benchmark for island/coastal user flow."
+        },
+        "date": "2026-08-15",
+        "available": true,
+        "datum": "MSL",
+        "datumConfidence": "known",
+        "supportsHeightComparison": true,
+        "events": [
+          {
+            "type": "low",
+            "timestamp": "2026-08-15T04:00:00+07:00",
+            "clockTime": "04:00",
+            "level": 0.642,
+            "confidence": 68
+          },
+          {
+            "type": "high",
+            "timestamp": "2026-08-15T06:00:00+07:00",
+            "clockTime": "06:00",
+            "level": 0.702,
+            "confidence": 68
+          },
+          {
+            "type": "low",
+            "timestamp": "2026-08-15T10:30:00+07:00",
+            "clockTime": "10:30",
+            "level": 0.025,
+            "confidence": 68
+          },
+          {
+            "type": "high",
+            "timestamp": "2026-08-15T19:00:00+07:00",
+            "clockTime": "19:00",
+            "level": 3.004,
+            "confidence": 68
+          }
+        ],
+        "rawEventCount": 51,
+        "metadata": {
+          "engine": "station-harmonic-v1",
+          "intervalMinutes": 30,
+          "stationId": "hydro-21",
+          "constituents": 12,
+          "dominantConstituentQuarterPeriodMinutes": 359.017044839487
+        }
+      },
+      "comparisons": [
+        {
+          "source": {
+            "sourceId": "validation_fixture",
+            "category": "validation",
+            "sourceLabel": "Validation Fixture",
+            "location": {
+              "id": "benchmark-lower-gulf-samui",
+              "name": "Koh Samui",
+              "lat": 9.50139445,
+              "lon": 99.9956192732,
+              "stationId": "hydro-21",
+              "region": "gulf",
+              "zone": "lower-gulf",
+              "notes": "Lower Gulf benchmark for island/coastal user flow."
+            },
+            "date": "2026-08-15",
+            "available": true,
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [
+              {
+                "type": "high",
+                "timestamp": "2026-08-15T00:23:00+07:00",
+                "clockTime": "00:23",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "low",
+                "timestamp": "2026-08-15T08:13:00+07:00",
+                "clockTime": "08:13",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "high",
+                "timestamp": "2026-08-15T13:52:00+07:00",
+                "clockTime": "13:52",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "low",
+                "timestamp": "2026-08-15T17:37:00+07:00",
+                "clockTime": "17:37",
+                "level": null,
+                "confidence": 95
+              }
+            ],
+            "rawEventCount": 4,
+            "metadata": {
+              "validationEventCount": 4,
+              "calibrationRecommendation": "phase_shift_minutes=-137"
+            }
+          },
+          "calibrationSuggestion": {
+            "stationId": "hydro-21",
+            "locationId": "benchmark-lower-gulf-samui",
+            "sourceId": "validation_fixture",
+            "matchedEventCount": 1,
+            "timeOffsetMinutesDelta": -137,
+            "levelOffsetMetersDelta": null,
+            "note": "Apply time offset only; level offset unavailable because datum/height comparison is unsupported."
+          },
+          "matches": [
+            {
+              "baseline": {
+                "type": "low",
+                "timestamp": "2026-08-15T10:30:00+07:00",
+                "clockTime": "10:30",
+                "level": 0.025,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "low",
+                "timestamp": "2026-08-15T08:13:00+07:00",
+                "clockTime": "08:13",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": -137,
+              "absoluteTimingDeltaMinutes": 137,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            }
+          ],
+          "unmatchedBaselineEvents": [
+            {
+              "type": "low",
+              "timestamp": "2026-08-15T04:00:00+07:00",
+              "clockTime": "04:00",
+              "level": 0.642,
+              "confidence": 68
+            },
+            {
+              "type": "high",
+              "timestamp": "2026-08-15T06:00:00+07:00",
+              "clockTime": "06:00",
+              "level": 0.702,
+              "confidence": 68
+            },
+            {
+              "type": "high",
+              "timestamp": "2026-08-15T19:00:00+07:00",
+              "clockTime": "19:00",
+              "level": 3.004,
+              "confidence": 68
+            }
+          ],
+          "unmatchedCandidateEvents": [
+            {
+              "type": "high",
+              "timestamp": "2026-08-15T00:23:00+07:00",
+              "clockTime": "00:23",
+              "level": null,
+              "confidence": 95
+            },
+            {
+              "type": "high",
+              "timestamp": "2026-08-15T13:52:00+07:00",
+              "clockTime": "13:52",
+              "level": null,
+              "confidence": 95
+            },
+            {
+              "type": "low",
+              "timestamp": "2026-08-15T17:37:00+07:00",
+              "clockTime": "17:37",
+              "level": null,
+              "confidence": 95
+            }
+          ],
+          "metrics": {
+            "baselineEventCount": 4,
+            "candidateEventCount": 4,
+            "matchedEventCount": 1,
+            "eventCoverage": 0.25,
+            "meanAbsoluteTimingErrorMinutes": 137,
+            "meanTimingBiasMinutes": -137,
+            "maxAbsoluteTimingErrorMinutes": 137,
+            "rmseTimingMinutes": 137,
+            "meanAbsoluteLevelErrorMeters": null,
+            "meanLevelBiasMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "rmseLevelMeters": null,
+            "supportsHeightComparison": false,
+            "accuracyPass": false,
+            "thresholdTimingMaeMinutes": 30,
+            "thresholdLevelMaeMeters": 0.2,
+            "coverageStatus": "partial",
+            "warnings": [
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "location": {
+        "id": "benchmark-andaman-phuket",
+        "name": "Phuket Andaman",
+        "lat": 8.047222,
+        "lon": 98.915833,
+        "stationId": "hydro-36",
+        "region": "andaman",
+        "zone": "andaman-phuket",
+        "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
+      },
+      "baseline": {
+        "sourceId": "internal",
+        "category": "internal",
+        "sourceLabel": "Station Harmonic Forecast",
+        "location": {
+          "id": "benchmark-andaman-phuket",
+          "name": "Phuket Andaman",
+          "lat": 8.047222,
+          "lon": 98.915833,
+          "stationId": "hydro-36",
+          "region": "andaman",
+          "zone": "andaman-phuket",
+          "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
+        },
+        "date": "2026-08-15",
+        "available": true,
+        "datum": "MSL",
+        "datumConfidence": "known",
+        "supportsHeightComparison": true,
+        "events": [
+          {
+            "type": "low",
+            "timestamp": "2026-08-15T05:30:00+07:00",
+            "clockTime": "05:30",
+            "level": 0.237,
+            "confidence": 68
+          },
+          {
+            "type": "high",
+            "timestamp": "2026-08-15T11:30:00+07:00",
+            "clockTime": "11:30",
+            "level": 3.141,
+            "confidence": 68
+          },
+          {
+            "type": "low",
+            "timestamp": "2026-08-15T18:00:00+07:00",
+            "clockTime": "18:00",
+            "level": 0.713,
+            "confidence": 68
+          },
+          {
+            "type": "high",
+            "timestamp": "2026-08-15T23:30:00+07:00",
+            "clockTime": "23:30",
+            "level": 2.934,
+            "confidence": 68
+          }
+        ],
+        "rawEventCount": 51,
+        "metadata": {
+          "engine": "station-harmonic-v1",
+          "intervalMinutes": 30,
+          "stationId": "hydro-36",
+          "constituents": 31,
+          "dominantConstituentQuarterPeriodMinutes": 186.30901830666204
+        }
+      },
+      "comparisons": [
+        {
+          "source": {
+            "sourceId": "validation_fixture",
+            "category": "validation",
+            "sourceLabel": "Validation Fixture",
+            "location": {
+              "id": "benchmark-andaman-phuket",
+              "name": "Phuket Andaman",
+              "lat": 8.047222,
+              "lon": 98.915833,
+              "stationId": "hydro-36",
+              "region": "andaman",
+              "zone": "andaman-phuket",
+              "notes": "Andaman benchmark for semidiurnal-dominant coastal behavior."
+            },
+            "date": "2026-08-15",
+            "available": true,
+            "datum": null,
+            "datumConfidence": "unknown",
+            "supportsHeightComparison": false,
+            "events": [
+              {
+                "type": "low",
+                "timestamp": "2026-08-15T05:35:00+07:00",
+                "clockTime": "05:35",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "high",
+                "timestamp": "2026-08-15T11:41:00+07:00",
+                "clockTime": "11:41",
+                "level": null,
+                "confidence": 95
+              },
+              {
+                "type": "low",
+                "timestamp": "2026-08-15T17:52:00+07:00",
+                "clockTime": "17:52",
+                "level": null,
+                "confidence": 95
+              }
+            ],
+            "rawEventCount": 3,
+            "metadata": {
+              "validationEventCount": 3,
+              "calibrationRecommendation": "no_change"
+            }
+          },
+          "calibrationSuggestion": {
+            "stationId": "hydro-36",
+            "locationId": "benchmark-andaman-phuket",
+            "sourceId": "validation_fixture",
+            "matchedEventCount": 3,
+            "timeOffsetMinutesDelta": 2.7,
+            "levelOffsetMetersDelta": null,
+            "note": "Apply time offset only; level offset unavailable because datum/height comparison is unsupported."
+          },
+          "matches": [
+            {
+              "baseline": {
+                "type": "low",
+                "timestamp": "2026-08-15T05:30:00+07:00",
+                "clockTime": "05:30",
+                "level": 0.237,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "low",
+                "timestamp": "2026-08-15T05:35:00+07:00",
+                "clockTime": "05:35",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": 5,
+              "absoluteTimingDeltaMinutes": 5,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            },
+            {
+              "baseline": {
+                "type": "high",
+                "timestamp": "2026-08-15T11:30:00+07:00",
+                "clockTime": "11:30",
+                "level": 3.141,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "high",
+                "timestamp": "2026-08-15T11:41:00+07:00",
+                "clockTime": "11:41",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": 11,
+              "absoluteTimingDeltaMinutes": 11,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            },
+            {
+              "baseline": {
+                "type": "low",
+                "timestamp": "2026-08-15T18:00:00+07:00",
+                "clockTime": "18:00",
+                "level": 0.713,
+                "confidence": 68
+              },
+              "candidate": {
+                "type": "low",
+                "timestamp": "2026-08-15T17:52:00+07:00",
+                "clockTime": "17:52",
+                "level": null,
+                "confidence": 95
+              },
+              "timingDeltaMinutes": -8,
+              "absoluteTimingDeltaMinutes": 8,
+              "levelDeltaMeters": null,
+              "absoluteLevelDeltaMeters": null
+            }
+          ],
+          "unmatchedBaselineEvents": [
+            {
+              "type": "high",
+              "timestamp": "2026-08-15T23:30:00+07:00",
+              "clockTime": "23:30",
+              "level": 2.934,
+              "confidence": 68
+            }
+          ],
+          "unmatchedCandidateEvents": [],
+          "metrics": {
+            "baselineEventCount": 4,
+            "candidateEventCount": 3,
+            "matchedEventCount": 3,
+            "eventCoverage": 0.75,
+            "meanAbsoluteTimingErrorMinutes": 8,
+            "meanTimingBiasMinutes": 2.67,
+            "maxAbsoluteTimingErrorMinutes": 11,
+            "rmseTimingMinutes": 8.37,
+            "meanAbsoluteLevelErrorMeters": null,
+            "meanLevelBiasMeters": null,
+            "maxAbsoluteLevelErrorMeters": null,
+            "rmseLevelMeters": null,
+            "supportsHeightComparison": false,
+            "accuracyPass": true,
+            "thresholdTimingMaeMinutes": 30,
+            "thresholdLevelMaeMeters": 0.2,
+            "coverageStatus": "partial",
+            "warnings": [
+              "Height metrics are suppressed because datum alignment is unknown or unsupported"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "sourcesRequested": [
+    "internal",
+    "validation_fixture"
+  ],
+  "summary": {
+    "totalLocations": 4,
+    "availableComparisons": 4,
+    "unavailableComparisons": 0,
+    "passedComparisons": 1,
+    "failedComparisons": 3,
+    "uncheckedComparisons": 0,
+    "stationConstantsCoverage": {
+      "configuredStations": 4,
+      "totalStations": 38,
+      "missingStations": 34,
+      "invalidStations": 0
+    }
+  }
+}
