@@ -108,6 +108,7 @@ export type TideData = {
 export type { WeatherData } from "@/lib/domain/weather-blend";
 
 export { calculateLunarPhase };
+export { getForecast } from "@/lib/domain/forecast-facade";
 
 type TideEventType = TideEvent["type"];
 
