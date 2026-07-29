@@ -18,13 +18,13 @@ import {
   toThailandDayStart,
 } from "./thailand-time";
 import {
-  deriveExtremesFromSeries,
   eventDeltaMinutes,
   getMostRecentStationMeasuredAccuracy,
   type ComparisonEvent,
   type StationMeasuredAccuracy,
 } from "./tide-comparison";
 import { calculateLunarPhase } from "@/lib/domain/lunar-phase";
+import { predictTideEvents } from "@/lib/domain/tide-prediction";
 
 export type LocationData = {
   lat: number;
@@ -356,11 +356,6 @@ function toClockString(value: Date): string {
 // contributions around zero.
 const CANONICAL_MSL_METERS = 1.2;
 
-// Extrema are detected from a finer-grained series than the hourly display
-// graph so a real high/low isn't missed between two hourly samples (mirrors
-// the 30-min interval lib/tide-comparison.ts uses for the same purpose).
-const CANONICAL_EXTREMA_INTERVAL_MINUTES = 30;
-
 function toHarmonicCoreConstituents(
   constituents: Array<{ name: string; amplitude: number; phase: number }>,
 ): TideConstituent[] {
@@ -407,19 +402,6 @@ function deriveCanonicalGraphData(
   }));
 }
 
-function toTideEventFromComparisonEvent(event: ComparisonEvent): TideEvent {
-  return {
-    time: event.clockTime,
-    level: event.level ?? 0,
-    type: event.type,
-    prediction: new Date(event.timestamp).getTime() > Date.now(),
-  };
-}
-
-function deriveCanonicalHarmonicEvents(location: LocationData, date: Date): TideEvent[] {
-  const series = deriveCanonicalSeries(location, date, CANONICAL_EXTREMA_INTERVAL_MINUTES);
-  return sortTideEvents(deriveExtremesFromSeries(series).map(toTideEventFromComparisonEvent));
-}
 
 // A provider extreme is only usable if it roughly agrees with the
 // always-computed canonical harmonic baseline. Reuses the same
@@ -558,7 +540,7 @@ async function fetchRealTideData(
             .filter((event): event is TideEvent => event !== null);
           const plausibleEvents = filterPlausibleProviderEvents(
             events,
-            deriveCanonicalHarmonicEvents(location, date),
+            await predictTideEvents(location, date),
           );
           if (plausibleEvents.length > 0) {
             const { qualityScore, measuredAccuracy } = await getProviderQualityInfo(location, 84);
@@ -602,7 +584,7 @@ async function fetchRealTideData(
             .filter((event): event is TideEvent => event !== null);
           const plausibleEvents = filterPlausibleProviderEvents(
             events,
-            deriveCanonicalHarmonicEvents(location, date),
+            await predictTideEvents(location, date),
           );
           if (plausibleEvents.length > 0) {
             const { qualityScore, measuredAccuracy } = await getProviderQualityInfo(location, 80);
@@ -809,10 +791,10 @@ export async function getTideData(
 
     const tideInput = await fetchRealTideData(location, date);
     const graphData = tideInput.graphData ?? deriveCanonicalGraphData(location, date);
-    const tideEvents =
+    const tideEvents: TideEvent[] =
       tideInput.events.length > 0
         ? tideInput.events
-        : deriveCanonicalHarmonicEvents(location, date);
+        : await predictTideEvents(location, date);
 
     const currentTime =
       time ||
