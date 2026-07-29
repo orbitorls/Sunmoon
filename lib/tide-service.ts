@@ -1,40 +1,30 @@
 import {
-  generatePredictionTimeSeries,
+  getLocationConstituents,
 } from "./harmonic-prediction";
-import { fetchHydroTideData } from "./hydro-service";
-import moonEventSource from "@/data/authoritative-moons.json";
-
-type MoonEvent = {
-  type: "new" | "full";
-  date: string;
-};
-
-const authoritativeMoonEvents: MoonEvent[] = Array.isArray(moonEventSource)
-  ? moonEventSource
-    .map((event) => ({ type: event?.type, date: event?.date }))
-    .filter((event): event is MoonEvent => {
-      if (event?.type !== "new" && event?.type !== "full") {
-        return false;
-      }
-      if (typeof event.date !== "string") {
-        return false;
-      }
-      const asDate = new Date(event.date);
-      return !Number.isNaN(asDate.getTime());
-    })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  : [];
-
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
-const THAILAND_TZ_OFFSET_MS = 7 * 60 * 60 * 1000;
-
-function toThailandDayStart(date: Date): number {
-  return (
-    Math.floor((date.getTime() + THAILAND_TZ_OFFSET_MS) / MS_PER_DAY) *
-    MS_PER_DAY -
-    THAILAND_TZ_OFFSET_MS
-  );
-}
+import {
+  CONSTITUENTS_DATABASE,
+  createPredictionSeries,
+  type TideConstituent,
+} from "./harmonic-tide-core";
+import {
+  getStationHarmonicDayPrediction,
+  getStationHarmonicUnavailable,
+} from "./station-harmonic-model";
+import {
+  formatThailandClock,
+  getThailandClockParts,
+  getThailandDayBounds,
+  roundToDigits,
+  toThailandDayStart,
+} from "./thailand-time";
+import {
+  eventDeltaMinutes,
+  getMostRecentStationMeasuredAccuracy,
+  type ComparisonEvent,
+  type StationMeasuredAccuracy,
+} from "./tide-comparison";
+import { calculateLunarPhase } from "@/lib/domain/lunar-phase";
+import { predictTideEvents } from "@/lib/domain/tide-prediction";
 
 export type LocationData = {
   lat: number;
@@ -46,10 +36,11 @@ export type ApiStatus = "loading" | "success" | "error" | "offline" | "timeout";
 export type SourceTier =
   | "observed"
   | "provider"
+  | "station_harmonic"
   | "station_projected"
   | "harmonic"
   | "synthetic";
-export type ConfidenceMethod = "empirical" | "provider" | "none";
+export type ConfidenceMethod = "empirical" | "provider" | "model" | "none";
 
 export type TideEvent = {
   time: string; // HH:MM format
@@ -106,180 +97,18 @@ export type TideData = {
   modelVersion?: string;
   stationId?: string;
   stationDistanceKm?: number;
+  // Real measured accuracy of the internal harmonic baseline against the
+  // most recent validation fixture for the nearest station, when one
+  // exists (see getMostRecentStationMeasuredAccuracy in tide-comparison.ts).
+  // Used as a proxy for provider confidence too -- this repo has no
+  // per-provider ground truth.
+  measuredAccuracy?: StationMeasuredAccuracy | null;
 };
 
-export type WeatherData = {
-  main: {
-    temp: number;
-    feels_like: number;
-    humidity: number;
-    pressure: number;
-  };
-  weather: Array<{
-    description: string;
-    icon: string;
-  }>;
-  wind: {
-    speed: number;
-    deg: number;
-  };
-  name: string;
-};
+export type { WeatherData } from "@/lib/domain/weather-blend";
 
-/**
- * Calculate accurate lunar phase for Thai lunar calendar.
- *
- * The function first prefers authoritative pre-computed events (local TZ aware)
- * and falls back to astronomy-engine or a simple synodic approximation.
- */
-export async function calculateLunarPhase(
-  date: Date,
-): Promise<{ isWaxingMoon: boolean; lunarPhaseKham: number }> {
-  const targetDayStart = toThailandDayStart(date);
-
-  if (authoritativeMoonEvents.length > 0) {
-    try {
-      let previousEvent: MoonEvent | null = null;
-      let previousNewStart: number | null = null;
-      let previousFullStart: number | null = null;
-      let nextNewStart: number | null = null;
-      let nextFullStart: number | null = null;
-
-      for (const event of authoritativeMoonEvents) {
-        const eventDate = new Date(event.date);
-        if (Number.isNaN(eventDate.getTime())) {
-          continue;
-        }
-        const eventDayStart = toThailandDayStart(eventDate);
-
-        if (eventDayStart <= targetDayStart) {
-          previousEvent = event;
-          if (event.type === "new") {
-            previousNewStart = eventDayStart;
-          }
-          if (event.type === "full") {
-            previousFullStart = eventDayStart;
-          }
-        } else {
-          if (event.type === "new" && nextNewStart === null) {
-            nextNewStart = eventDayStart;
-          }
-          if (event.type === "full" && nextFullStart === null) {
-            nextFullStart = eventDayStart;
-          }
-          if (nextNewStart !== null && nextFullStart !== null) {
-            break;
-          }
-        }
-      }
-
-      if (!previousEvent) {
-        throw new Error("insufficient_authoritative_data");
-      }
-
-      const waxingSpanDays =
-        nextFullStart !== null && previousNewStart !== null
-          ? Math.min(
-            15,
-            Math.max(
-              14,
-              Math.floor((nextFullStart - previousNewStart) / MS_PER_DAY),
-            ),
-          )
-          : 15;
-
-      const waningSpanDays =
-        previousFullStart !== null && nextNewStart !== null
-          ? Math.min(
-            15,
-            Math.max(
-              14,
-              Math.floor((nextNewStart - previousFullStart) / MS_PER_DAY),
-            ),
-          )
-          : 15;
-
-      const isWaxingMoon = previousEvent.type === "new";
-      let lunarPhaseKham: number;
-
-      if (isWaxingMoon && previousNewStart !== null) {
-        const daysSinceNew = Math.floor(
-          (targetDayStart - previousNewStart) / MS_PER_DAY,
-        );
-        lunarPhaseKham = Math.min(waxingSpanDays, Math.max(1, daysSinceNew));
-      } else if (!isWaxingMoon && previousFullStart !== null) {
-        const daysSinceFull = Math.floor(
-          (targetDayStart - previousFullStart) / MS_PER_DAY,
-        );
-        lunarPhaseKham = Math.min(waningSpanDays, Math.max(1, daysSinceFull));
-      } else {
-        throw new Error("insufficient_authoritative_data");
-      }
-
-      return { isWaxingMoon, lunarPhaseKham };
-    } catch (error) {
-      console.warn(
-        "Falling back to astronomy-engine lunar calculation:",
-        error,
-      );
-    }
-  }
-
-  try {
-    const AE = await import("astronomy-engine");
-    const time = AE.MakeTime(date);
-    const previousNew = AE.SearchMoonPhase(0, time, -30);
-    const previousFull = AE.SearchMoonPhase(180, time, -30);
-    const synodicMonth = 29.530588853;
-
-    if (!previousNew || !previousFull) {
-      return computeSynodicFallback(date, synodicMonth);
-    }
-
-    const previousNewDate =
-      previousNew.date instanceof Date
-        ? previousNew.date
-        : new Date(previousNew.date);
-    const previousFullDate =
-      previousFull.date instanceof Date
-        ? previousFull.date
-        : new Date(previousFull.date);
-
-    const eventLocalIndex = toThailandDayStart(date);
-    const newLocalIndex = toThailandDayStart(previousNewDate);
-    const fullLocalIndex = toThailandDayStart(previousFullDate);
-    const daysSinceNewLocal = Math.floor(
-      (eventLocalIndex - newLocalIndex) / MS_PER_DAY,
-    );
-    const daysSinceFullLocal = Math.floor(
-      (eventLocalIndex - fullLocalIndex) / MS_PER_DAY,
-    );
-    const isWaxingMoon = daysSinceNewLocal >= 0 && daysSinceNewLocal <= 14;
-    const lunarPhaseKham = isWaxingMoon
-      ? Math.min(15, Math.max(1, daysSinceNewLocal + 1))
-      : Math.min(15, Math.max(1, daysSinceFullLocal));
-
-    return { isWaxingMoon, lunarPhaseKham };
-  } catch (error) {
-    console.warn("Falling back to synodic-month lunar calculation:", error);
-    return computeSynodicFallback(date);
-  }
-}
-
-function computeSynodicFallback(
-  date: Date,
-  synodicMonth = 29.530588853,
-): { isWaxingMoon: boolean; lunarPhaseKham: number } {
-  const julianDate = date.getTime() / MS_PER_DAY + 2440587.5;
-  const age =
-    (((julianDate - 2451550.1) % synodicMonth) + synodicMonth) % synodicMonth;
-  const isWaxingMoon = age <= synodicMonth / 2;
-  const rawKham = isWaxingMoon
-    ? Math.round(age)
-    : Math.round(synodicMonth - age);
-  const lunarPhaseKham = Math.min(15, Math.max(1, rawKham));
-  return { isWaxingMoon, lunarPhaseKham };
-}
+export { calculateLunarPhase };
+export { getForecast } from "@/lib/domain/forecast-facade";
 
 type TideEventType = TideEvent["type"];
 
@@ -334,14 +163,10 @@ function toTideEventFromWorldTides(
     return null;
   }
   // Convert UTC to Thailand time (UTC+7)
-  const thailandOffsetMs = 7 * 60 * 60 * 1000;
-  const thailandDate = new Date(eventDate.getTime() + thailandOffsetMs);
-  const hours = thailandDate.getUTCHours().toString().padStart(2, '0');
-  const minutes = thailandDate.getUTCMinutes().toString().padStart(2, '0');
-  const time = `${hours}:${minutes}`;
+  const time = formatThailandClock(eventDate);
   return {
     time,
-    level: Number.parseFloat(extreme.height.toFixed(2)),
+    level: roundToDigits(extreme.height, 2),
     type: normaliseTideType(extreme.type),
   };
 }
@@ -356,19 +181,14 @@ function toTideEventFromStormglass(
   if (Number.isNaN(eventDate.getTime())) {
     return null;
   }
-  // Convert UTC to Thailand time (UTC+7)
-  const thailandOffsetMs = 7 * 60 * 60 * 1000;
-  const thailandDate = new Date(eventDate.getTime() + thailandOffsetMs);
-  const hours = thailandDate.getUTCHours().toString().padStart(2, '0');
-  const minutes = thailandDate.getUTCMinutes().toString().padStart(2, '0');
-  const time = `${hours}:${minutes}`;
+  const time = formatThailandClock(eventDate);
   const type =
     typeof extreme.type === "string"
       ? normaliseTideType(extreme.type)
       : inferTypeFromNeighbors();
   return {
     time,
-    level: Number.parseFloat(extreme.height.toFixed(2)),
+    level: roundToDigits(extreme.height, 2),
     type,
   };
 }
@@ -393,55 +213,7 @@ function sortTideEvents(events: TideEvent[]): TideEvent[] {
   });
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object";
-}
 
-type OpenWeatherApiResponse = {
-  main?: {
-    temp?: number;
-    feels_like?: number;
-    humidity?: number;
-    pressure?: number;
-  };
-  weather?: Array<{
-    description?: string;
-    icon?: string;
-  }>;
-  wind?: {
-    speed?: number;
-    deg?: number;
-  };
-  name?: string;
-};
-
-function isOpenWeatherApiResponse(
-  value: unknown,
-): value is OpenWeatherApiResponse {
-  if (!isRecord(value)) {
-    return false;
-  }
-
-  const { main, weather, wind } = value as {
-    main?: unknown;
-    weather?: unknown;
-    wind?: unknown;
-  };
-
-  if (main !== undefined && !isRecord(main)) {
-    return false;
-  }
-
-  if (weather !== undefined && !Array.isArray(weather)) {
-    return false;
-  }
-
-  if (wind !== undefined && !isRecord(wind)) {
-    return false;
-  }
-
-  return true;
-}
 
 /**
  * Determine tide status based on lunar phase
@@ -466,6 +238,7 @@ function calculateTideStatus(lunarPhaseKham: number): "น้ำเป็น" | 
  * Fetch real tide data from WorldTides API or use harmonic prediction as fallback
  */
 const FORECAST_MODEL_VERSION = "canonical-harmonic-v1";
+const STATION_HARMONIC_MODEL_VERSION = "station-harmonic-v1";
 
 type TideSourceMetadata = {
   source: string;
@@ -476,17 +249,25 @@ type TideSourceMetadata = {
   degraded: boolean;
   degradedReason?: string;
   isObserved: boolean;
+  modelVersion: string;
   stationId?: string;
   distanceKm?: number;
+  datum?: string;
+  measuredAccuracy?: StationMeasuredAccuracy | null;
 };
 
 type TideInputResult = {
   events: TideEvent[];
+  graphData?: WaterLevelGraphData[];
   metadata: TideSourceMetadata;
 };
 
 function getWaterLevelReference(metadata: TideSourceMetadata): string {
   switch (metadata.sourceTier) {
+    case "station_harmonic":
+      return metadata.stationId
+        ? `สถานี ${metadata.stationId} คำนวณด้วย harmonic constants รายสถานี`
+        : "คำนวณด้วย harmonic constants รายสถานี";
     case "station_projected":
       return metadata.stationId
         ? `สถานีใกล้เคียง ${metadata.stationId} ร่วมกับโมเดลคาดการณ์ภายใน`
@@ -502,10 +283,48 @@ function getWaterLevelReference(metadata: TideSourceMetadata): string {
 }
 
 function toClockString(value: Date): string {
-  return `${value.getHours().toString().padStart(2, "0")}:${value
-    .getMinutes()
-    .toString()
-    .padStart(2, "0")}`;
+  return formatThailandClock(value);
+}
+
+// Mean sea level baseline for the generic regional fallback tier (no
+// per-station offset is available here). Matches the constant
+// lib/harmonic-prediction.ts's old engine used -- lib/harmonic-tide-core.ts's
+// predictTideLevel has no baseline of its own, it only sums constituent
+// contributions around zero.
+const CANONICAL_MSL_METERS = 1.2;
+
+function toHarmonicCoreConstituents(
+  constituents: Array<{ name: string; amplitude: number; phase: number }>,
+): TideConstituent[] {
+  return constituents
+    .map((constituent) => {
+      const definition = CONSTITUENTS_DATABASE[constituent.name.toUpperCase()];
+      if (!definition) {
+        return null;
+      }
+      return {
+        name: constituent.name.toUpperCase(),
+        speed: definition.speed,
+        amplitude: constituent.amplitude,
+        phase: constituent.phase,
+        description: definition.description,
+      };
+    })
+    .filter((item): item is TideConstituent => item !== null);
+}
+
+function deriveCanonicalSeries(
+  location: LocationData,
+  date: Date,
+  intervalMinutes: number,
+): Array<{ time: Date; level: number }> {
+  const { start } = getThailandDayBounds(date);
+  const end = new Date(start.getTime() + (23 * 60 + 59) * 60 * 1000);
+  const constituents = toHarmonicCoreConstituents(getLocationConstituents(location));
+
+  return createPredictionSeries(start, end, constituents, intervalMinutes, location.lon).map(
+    (point) => ({ time: point.time, level: point.level + CANONICAL_MSL_METERS }),
+  );
 }
 
 function deriveCanonicalGraphData(
@@ -513,73 +332,127 @@ function deriveCanonicalGraphData(
   date: Date,
   intervalMinutes = 60,
 ): WaterLevelGraphData[] {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(date);
-  end.setHours(23, 59, 0, 0);
-
-  return generatePredictionTimeSeries(start, end, location, intervalMinutes).map(
-    (point) => ({
-      time: toClockString(point.time),
-      level: Number.parseFloat(point.level.toFixed(2)),
-      prediction: point.time.getTime() > Date.now(),
-    }),
-  );
+  return deriveCanonicalSeries(location, date, intervalMinutes).map((point) => ({
+    time: toClockString(point.time),
+    level: roundToDigits(point.level, 2),
+    prediction: point.time.getTime() > Date.now(),
+  }));
 }
 
-function deriveExtremesFromGraphData(graphData: WaterLevelGraphData[]): TideEvent[] {
-  const events: TideEvent[] = [];
 
-  for (let i = 1; i < graphData.length - 1; i++) {
-    const prev = graphData[i - 1].level;
-    const current = graphData[i].level;
-    const next = graphData[i + 1].level;
+// A provider extreme is only usable if it roughly agrees with the
+// always-computed canonical harmonic baseline. Reuses the same
+// eventDeltaMinutes matching logic lib/tide-comparison.ts uses offline
+// (comparing by clockTime since a TideEvent carries no ISO timestamp) so a
+// provider timing bug or wrong-cycle event can't silently pass through as a
+// forecast.
+// ponytail: single fixed bound borrowed from the offline default match
+// window, not a per-station quarter-period bound -- tighten if a provider
+// starts leaking near-miss wrong-cycle events past this.
+const PROVIDER_SANITY_BOUND_MINUTES = 180;
 
-    if (current >= prev && current > next) {
-      events.push({
-        time: graphData[i].time,
-        level: current,
-        type: "high",
-        prediction: graphData[i].prediction,
-      });
-    } else if (current <= prev && current < next) {
-      events.push({
-        time: graphData[i].time,
-        level: current,
-        type: "low",
-        prediction: graphData[i].prediction,
-      });
+function toComparisonEventForSanityCheck(event: TideEvent): ComparisonEvent {
+  return {
+    type: event.type,
+    timestamp: "",
+    clockTime: event.time,
+    level: event.level,
+    confidence: null,
+  };
+}
+
+function isPlausibleAgainstBaseline(event: TideEvent, baselineEvents: TideEvent[]): boolean {
+  return baselineEvents.some((baselineEvent) => {
+    if (baselineEvent.type !== event.type) {
+      return false;
     }
-  }
+    const delta = Math.abs(
+      eventDeltaMinutes(
+        toComparisonEventForSanityCheck(baselineEvent),
+        toComparisonEventForSanityCheck(event),
+      ),
+    );
+    return delta <= PROVIDER_SANITY_BOUND_MINUTES;
+  });
+}
 
-  return sortTideEvents(events);
+function filterPlausibleProviderEvents(events: TideEvent[], baselineEvents: TideEvent[]): TideEvent[] {
+  if (baselineEvents.length === 0) {
+    return events;
+  }
+  return events.filter((event) => isPlausibleAgainstBaseline(event, baselineEvents));
+}
+
+// IHO S-44-style banding: order-1 tidal-prediction tolerance is roughly
+// +/-15-25 min timing, so measured error inside that band keeps the
+// provider's usual confidence ceiling, and each rougher band steps it down.
+// Falls back to the ceiling itself when no measured comparison exists for
+// the nearest station -- this repo only has measured accuracy for the
+// internal harmonic baseline (see getMostRecentStationMeasuredAccuracy), not
+// per-provider ground truth, so a missing measurement must not be treated as
+// a bad one.
+// ponytail: coarse 4-band step function, not a continuous IHO curve --
+// refine only if the confidence score needs finer resolution than these steps.
+function bandQualityScoreFromMeasuredAccuracy(accuracy: StationMeasuredAccuracy, ceiling: number): number {
+  const timingErrorMinutes = Math.max(accuracy.rmseTimingMinutes, accuracy.meanAbsoluteTimingErrorMinutes);
+  if (timingErrorMinutes <= 15) {
+    return ceiling;
+  }
+  if (timingErrorMinutes <= 30) {
+    return Math.min(ceiling, 75);
+  }
+  if (timingErrorMinutes <= 60) {
+    return Math.min(ceiling, 55);
+  }
+  return Math.min(ceiling, 35);
+}
+
+async function getProviderQualityInfo(
+  location: LocationData,
+  ceiling: number,
+): Promise<{ qualityScore: number; measuredAccuracy: StationMeasuredAccuracy | null }> {
+  const accuracy = await getMostRecentStationMeasuredAccuracy(location);
+  return {
+    qualityScore: accuracy ? bandQualityScoreFromMeasuredAccuracy(accuracy, ceiling) : ceiling,
+    measuredAccuracy: accuracy,
+  };
 }
 
 async function fetchRealTideData(
   location: LocationData,
   date: Date,
 ): Promise<TideInputResult> {
-  try {
-    const stationProjectedData = await fetchHydroTideData(date, location.lat, location.lon);
-    if (stationProjectedData && stationProjectedData.events.length > 0) {
-      return {
-        events: sortTideEvents(stationProjectedData.events),
-        metadata: {
-          source: stationProjectedData.source,
-          sourceTier: "station_projected",
-          sourceLabel: `สถานีใกล้เคียง ${stationProjectedData.stationName}`,
-          confidenceMethod: "empirical",
-          qualityScore: 78,
-          degraded: false,
-          isObserved: false,
-          stationId: stationProjectedData.stationId,
-          distanceKm: stationProjectedData.distanceKm,
-        },
-      };
-    }
-  } catch (error) {
-    console.warn("Failed to fetch station-projected tide data:", error);
+  const stationHarmonic = getStationHarmonicDayPrediction(location, date);
+  if (stationHarmonic && stationHarmonic.events.length > 0) {
+    return {
+      events: sortTideEvents(stationHarmonic.events),
+      graphData: stationHarmonic.series.map((point) => ({
+        time: toClockString(point.time),
+        level: roundToDigits(point.level, 2),
+        prediction: point.time.getTime() > Date.now(),
+      })),
+      metadata: {
+        source: "Station Harmonic Model",
+        sourceTier: "station_harmonic",
+        sourceLabel: `สถานี ${stationHarmonic.stationName}`,
+        confidenceMethod: "model",
+        // qualityScore is already gated on real-fit provenance (sourceKind
+        // "field_fit" + a non-placeholder citation) inside
+        // getStationHarmonicPrediction -- a station without a real fit can
+        // never report a higher score here than the "Canonical Harmonic
+        // Model" fallback tier below.
+        qualityScore: stationHarmonic.qualityScore,
+        degraded: false,
+        isObserved: false,
+        modelVersion: STATION_HARMONIC_MODEL_VERSION,
+        stationId: stationHarmonic.stationId,
+        distanceKm: stationHarmonic.distanceKm,
+        datum: stationHarmonic.datum,
+      },
+    };
   }
+
+  const stationUnavailable = getStationHarmonicUnavailable(location);
 
   let worldTidesApiKey: string | undefined;
   let stormglassApiKey: string | undefined;
@@ -591,10 +464,9 @@ async function fetchRealTideData(
 
   if (worldTidesApiKey) {
     try {
-      const startDate = new Date(date);
-      startDate.setHours(0, 0, 0, 0);
-      const start = Math.floor(startDate.getTime() / 1000);
-      const url = `https://www.worldtides.info/api/v3?extremes&lat=${location.lat}&lon=${location.lon}&start=${start}&length=86400&key=${worldTidesApiKey}`;
+      const { start } = getThailandDayBounds(date);
+      const startUnix = Math.floor(start.getTime() / 1000);
+      const url = `https://www.worldtides.info/api/v3?extremes&lat=${location.lat}&lon=${location.lon}&start=${startUnix}&length=86400&key=${worldTidesApiKey}`;
       const response = await fetch(url, { cache: "force-cache" });
 
       if (response.ok) {
@@ -603,17 +475,24 @@ async function fetchRealTideData(
           const events = payload.extremes
             .map(toTideEventFromWorldTides)
             .filter((event): event is TideEvent => event !== null);
-          if (events.length > 0) {
+          const plausibleEvents = filterPlausibleProviderEvents(
+            events,
+            await predictTideEvents(location, date),
+          );
+          if (plausibleEvents.length > 0) {
+            const { qualityScore, measuredAccuracy } = await getProviderQualityInfo(location, 84);
             return {
-              events: sortTideEvents(events),
+              events: sortTideEvents(plausibleEvents),
               metadata: {
                 source: "WorldTides API",
                 sourceTier: "provider",
                 sourceLabel: "WorldTides",
                 confidenceMethod: "provider",
-                qualityScore: 84,
+                qualityScore,
                 degraded: false,
                 isObserved: false,
+                modelVersion: FORECAST_MODEL_VERSION,
+                measuredAccuracy,
               },
             };
           }
@@ -626,11 +505,9 @@ async function fetchRealTideData(
 
   if (!worldTidesApiKey && stormglassApiKey) {
     try {
-      const startDate = new Date(date);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(date);
-      endDate.setHours(23, 59, 59, 999);
-      const url = `https://api.stormglass.io/v2/tide/extremes/point?lat=${location.lat}&lng=${location.lon}&start=${startDate.toISOString()}&end=${endDate.toISOString()}`;
+      const { start, end } = getThailandDayBounds(date);
+      const endInclusive = new Date(end.getTime() - 1);
+      const url = `https://api.stormglass.io/v2/tide/extremes/point?lat=${location.lat}&lng=${location.lon}&start=${start.toISOString()}&end=${endInclusive.toISOString()}`;
       const response = await fetch(url, {
         headers: { Authorization: stormglassApiKey },
         cache: "force-cache",
@@ -642,17 +519,24 @@ async function fetchRealTideData(
           const events = payload.data
             .map(toTideEventFromStormglass)
             .filter((event): event is TideEvent => event !== null);
-          if (events.length > 0) {
+          const plausibleEvents = filterPlausibleProviderEvents(
+            events,
+            await predictTideEvents(location, date),
+          );
+          if (plausibleEvents.length > 0) {
+            const { qualityScore, measuredAccuracy } = await getProviderQualityInfo(location, 80);
             return {
-              events: sortTideEvents(events),
+              events: sortTideEvents(plausibleEvents),
               metadata: {
                 source: "Stormglass API",
                 sourceTier: "provider",
                 sourceLabel: "Stormglass",
                 confidenceMethod: "provider",
-                qualityScore: 80,
+                qualityScore,
                 degraded: false,
                 isObserved: false,
+                modelVersion: FORECAST_MODEL_VERSION,
+                measuredAccuracy,
               },
             };
           }
@@ -663,6 +547,7 @@ async function fetchRealTideData(
     }
   }
 
+  const fallbackQuality = await getProviderQualityInfo(location, 68);
   return {
     events: [],
     metadata: {
@@ -670,10 +555,16 @@ async function fetchRealTideData(
       sourceTier: "harmonic",
       sourceLabel: "โมเดล harmonic ภายใน",
       confidenceMethod: "none",
-      qualityScore: 68,
+      qualityScore: fallbackQuality.qualityScore,
       degraded: true,
-      degradedReason: "ไม่มี provider หรือ station feed ที่พร้อมใช้ จึงใช้โมเดลภายใน",
+      degradedReason: stationUnavailable?.reason === "station_too_far"
+        ? `สถานี harmonic ที่ตั้งค่าไว้ใกล้ที่สุดอยู่ไกล ${stationUnavailable.distanceKm} กม. จึงใช้โมเดลภูมิภาคภายใน`
+        : "ไม่มี station harmonic constants หรือ provider ที่พร้อมใช้ จึงใช้โมเดลภูมิภาคภายใน",
       isObserved: false,
+      modelVersion: FORECAST_MODEL_VERSION,
+      stationId: stationUnavailable?.nearestStationId,
+      distanceKm: stationUnavailable?.distanceKm,
+      measuredAccuracy: fallbackQuality.measuredAccuracy,
     },
   };
 }
@@ -690,7 +581,7 @@ function getSurroundingTideEvents(
   let prevEvent: TideEvent | null = null;
   let nextEvent: TideEvent | null = null;
 
-  let currentMinutes = currentTime.hour * 60 + currentTime.minute;
+  const currentMinutes = currentTime.hour * 60 + currentTime.minute;
 
   for (let i = 0; i < tideEvents.length; i++) {
     const event = tideEvents[i];
@@ -795,6 +686,13 @@ function getApiStatus(
     };
   }
 
+  if (metadata.sourceTier === "station_harmonic") {
+    return {
+      status: "success",
+      message: "ใช้ harmonic constants รายสถานี",
+    };
+  }
+
   if (metadata.sourceTier === "station_projected") {
     return {
       status: "success",
@@ -829,16 +727,16 @@ export async function getTideData(
     const tideStatus = calculateTideStatus(lunarPhaseKham);
 
     const tideInput = await fetchRealTideData(location, date);
-    const graphData = deriveCanonicalGraphData(location, date);
-    const harmonicEvents = deriveExtremesFromGraphData(graphData);
-    const tideEvents =
-      tideInput.events.length > 0 ? tideInput.events : harmonicEvents;
+    const graphData = tideInput.graphData ?? deriveCanonicalGraphData(location, date);
+    const tideEvents: TideEvent[] =
+      tideInput.events.length > 0
+        ? tideInput.events
+        : await predictTideEvents(location, date);
 
     const currentTime =
       time ||
       (() => {
-        const now = new Date();
-        return { hour: now.getHours(), minute: now.getMinutes() };
+        return getThailandClockParts(new Date());
       })();
 
     const interpolated = calculateCurrentWaterLevel(graphData, currentTime);
@@ -898,9 +796,10 @@ export async function getTideData(
       confidenceMethod: tideInput.metadata.confidenceMethod,
       degraded: tideInput.metadata.degraded,
       degradedReason: tideInput.metadata.degradedReason,
-      modelVersion: FORECAST_MODEL_VERSION,
+      modelVersion: tideInput.metadata.modelVersion,
       stationId: tideInput.metadata.stationId,
       stationDistanceKm: tideInput.metadata.distanceKm,
+      measuredAccuracy: tideInput.metadata.measuredAccuracy ?? null,
     };
   } catch (error) {
     console.error("Error in getTideData:", error);
@@ -908,91 +807,4 @@ export async function getTideData(
   }
 }
 
-// This function simulates fetching weather data from OpenWeatherMap.
-// In a real application, this would call the OpenWeatherMap API.
-export async function getWeatherData(
-  location: LocationData,
-): Promise<WeatherData> {
-  // Try to get real weather data from OpenWeatherMap API
-  const apiKey = process.env.OPENWEATHER_API_KEY;
-  if (apiKey) {
-    try {
-      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric&lang=th`;
-      const requestOptions: RequestInit & { next: { revalidate: number } } = {
-        cache: "default",
-        next: { revalidate: 3600 },
-      };
-
-      const response = await fetch(url, requestOptions);
-
-      if (response.ok) {
-        const payload: unknown = await response.json();
-        if (isOpenWeatherApiResponse(payload)) {
-          const main = payload.main ?? {};
-          const weatherArray = Array.isArray(payload.weather)
-            ? payload.weather
-            : [];
-          const wind = payload.wind ?? {};
-          const primaryWeather =
-            weatherArray.find(
-              (entry): entry is { description?: string; icon?: string } =>
-                typeof entry === "object" && entry !== null,
-            ) ?? {};
-
-          return {
-            main: {
-              temp:
-                typeof main.temp === "number"
-                  ? Number.parseFloat(main.temp.toFixed(1))
-                  : 0,
-              feels_like:
-                typeof main.feels_like === "number"
-                  ? Number.parseFloat(main.feels_like.toFixed(1))
-                  : 0,
-              humidity:
-                typeof main.humidity === "number"
-                  ? Math.round(main.humidity)
-                  : 0,
-              pressure:
-                typeof main.pressure === "number"
-                  ? Math.round(main.pressure)
-                  : 0,
-            },
-            weather: [
-              {
-                description:
-                  typeof primaryWeather.description === "string"
-                    ? primaryWeather.description
-                    : "ไม่ทราบ",
-                icon:
-                  typeof primaryWeather.icon === "string"
-                    ? primaryWeather.icon
-                    : "01d",
-              },
-            ],
-            wind: {
-              speed:
-                typeof wind.speed === "number"
-                  ? Number.parseFloat(wind.speed.toFixed(1))
-                  : 0,
-              deg: typeof wind.deg === "number" ? wind.deg : 0,
-            },
-            name:
-              typeof payload.name === "string" && payload.name.trim()
-                ? payload.name
-                : location.name,
-          };
-        }
-      }
-    } catch (error) {
-      console.error("OpenWeatherMap API error:", error);
-    }
-  }
-
-  // No fallback - throw error if API fails or key is missing
-  const errorMessage = apiKey
-    ? "OpenWeatherMap API failed - unable to fetch real weather data"
-    : "OPENWEATHER_API_KEY is not configured - please add it to .env";
-  console.error(errorMessage);
-  throw new Error(errorMessage);
-}
+export { getWeatherBlend, getWeatherBlend as getWeatherData } from "@/lib/domain/weather-blend";
