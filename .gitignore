@@ -27,7 +27,14 @@ yarn-error.log*
 
 # Temporary build/debug artifacts generated during data import/fitting
 /tmp-*
+/lint-report.txt
 *.log
 # Intermediate fit output; promoted file (station-harmonic-constants.json) is committed
 /data/station-harmonic-constants.fitted.json
+
+# deepwork local state
+.slim/deepwork/
+
+# TypeScript incremental build info
+/tsconfig.tsbuildinfo
 
