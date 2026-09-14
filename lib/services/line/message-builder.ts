@@ -1,5 +1,7 @@
 import type { ForecastResult } from "@/lib/services/forecast"
 import type { LocationData } from "@/lib/tide-service"
+import type { DisasterAnalysis } from "@/lib/disaster-analysis"
+import { getRiskLevelText } from "@/lib/disaster-analysis"
 import type { LineMessage } from "./types"
 
 const LINE_MAX_TEXT_LENGTH = 5000
@@ -64,6 +66,35 @@ export function buildWeatherMessages(
   messages.push({ type: "text", text: tip })
 
   return messages
+}
+
+/**
+ * Build a disaster-alert LINE message using the analysis's own specific
+ * headline (time + level + wind) plus the top advance warning, if any.
+ * Only formats data analyzeDisasterRisk already computed.
+ */
+export function buildDisasterAlertMessages(
+  location: LocationData,
+  analysis: DisasterAnalysis,
+): LineMessage[] {
+  const lines: string[] = [
+    `🚨 แจ้งเตือนภัยชายฝั่ง – ${location.name}`,
+    `ระดับความเสี่ยง: ${getRiskLevelText(analysis.riskLevel)} (${analysis.overallRating}/100)`,
+  ]
+
+  if (analysis.headline) {
+    lines.push("", analysis.headline)
+  }
+
+  const topWarning = analysis.advanceWarnings[0]
+  if (topWarning) {
+    lines.push("", `⏱ ${topWarning.message}`)
+    if (topWarning.actionRequired.length > 0) {
+      lines.push(...topWarning.actionRequired.map((action) => `• ${action}`))
+    }
+  }
+
+  return [{ type: "text", text: clampText(lines.join("\n")) }]
 }
 
 function clampText(text: string): string {

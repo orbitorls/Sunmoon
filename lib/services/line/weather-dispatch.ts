@@ -1,10 +1,15 @@
 import type { LocationData } from "@/lib/tide-service"
 import { fetchForecast } from "@/lib/services/forecast"
+import { analyzeDisasterRisk } from "@/lib/disaster-analysis"
 import { broadcast, multicast, push } from "./client"
 import { getDefaultLineLocation } from "./config"
-import { buildWeatherMessages } from "./message-builder"
+import { buildWeatherMessages, buildDisasterAlertMessages } from "./message-builder"
 import { addSubscriber, listSubscribers } from "./subscriber-store"
 import type { LineMessage } from "./types"
+
+// ระดับความเสี่ยงที่จะถือว่า "มีนัยสำคัญพอจะดัน LINE alert" ใช้ threshold เดียวกับ
+// analyzeDisasterRisk (riskLevel high/high = adjustedRisk >= 50) ไม่สร้าง threshold ใหม่
+const DISASTER_PUSH_RISK_LEVELS = new Set(["high", "critical"])
 
 const MULTICAST_LIMIT = 500
 
@@ -26,6 +31,13 @@ export async function dispatchWeatherUpdate(options: WeatherDispatchOptions = {}
   const location = options.location ?? getDefaultLineLocation()
   const forecast = await fetchForecast(location)
   const messages = buildWeatherMessages(location, forecast)
+
+  if (forecast.tideData && forecast.weatherData) {
+    const analysis = analyzeDisasterRisk(forecast.tideData, forecast.weatherData, new Date(), location.name)
+    if (DISASTER_PUSH_RISK_LEVELS.has(analysis.riskLevel)) {
+      messages.push(...buildDisasterAlertMessages(location, analysis))
+    }
+  }
 
   if (options.broadcast) {
     await broadcast(messages)
