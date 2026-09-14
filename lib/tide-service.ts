@@ -108,7 +108,6 @@ export type TideData = {
 export type { WeatherData } from "@/lib/domain/weather-blend";
 
 export { calculateLunarPhase };
-export { getForecast } from "@/lib/domain/forecast-facade";
 
 type TideEventType = TideEvent["type"];
 
@@ -395,6 +394,7 @@ function filterPlausibleProviderEvents(events: TideEvent[], baselineEvents: Tide
 // refine only if the confidence score needs finer resolution than these steps.
 function bandQualityScoreFromMeasuredAccuracy(accuracy: StationMeasuredAccuracy, ceiling: number): number {
   const timingErrorMinutes = Math.max(accuracy.rmseTimingMinutes, accuracy.meanAbsoluteTimingErrorMinutes);
+  // Align with getTimingAccuracyBand: ≤15 keep ceiling, ≤30 mid, ≤60 low, else floor.
   if (timingErrorMinutes <= 15) {
     return ceiling;
   }
@@ -424,6 +424,10 @@ async function fetchRealTideData(
 ): Promise<TideInputResult> {
   const stationHarmonic = getStationHarmonicDayPrediction(location, date);
   if (stationHarmonic && stationHarmonic.events.length > 0) {
+    const { qualityScore, measuredAccuracy } = await getProviderQualityInfo(
+      location,
+      stationHarmonic.qualityScore ?? 70,
+    );
     return {
       events: sortTideEvents(stationHarmonic.events),
       graphData: stationHarmonic.series.map((point) => ({
@@ -436,18 +440,16 @@ async function fetchRealTideData(
         sourceTier: "station_harmonic",
         sourceLabel: `สถานี ${stationHarmonic.stationName}`,
         confidenceMethod: "model",
-        // qualityScore is already gated on real-fit provenance (sourceKind
-        // "field_fit" + a non-placeholder citation) inside
-        // getStationHarmonicPrediction -- a station without a real fit can
-        // never report a higher score here than the "Canonical Harmonic
-        // Model" fallback tier below.
-        qualityScore: stationHarmonic.qualityScore,
+        // qualityScore is provenance-gated inside getStationHarmonicPrediction,
+        // then further banded by measured timing MAE when validation fixtures exist.
+        qualityScore,
         degraded: false,
         isObserved: false,
         modelVersion: STATION_HARMONIC_MODEL_VERSION,
         stationId: stationHarmonic.stationId,
         distanceKm: stationHarmonic.distanceKm,
         datum: stationHarmonic.datum,
+        measuredAccuracy,
       },
     };
   }
