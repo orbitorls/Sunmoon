@@ -84,10 +84,18 @@ function predictDayEvents(
   }
 
   const epoch = parseEpoch(constant.epoch)
-  const extremes = findHighLowTides(start, end, constituents, 10, station.lon, epoch)
+  // Match lib/station-harmonic-model.ts: shift the synthesis window by
+  // -timeOffsetMinutes, then add the offset back onto reported event times.
+  const timeOffsetMinutes = Number.isFinite(constant.timeOffsetMinutes)
+    ? constant.timeOffsetMinutes ?? 0
+    : 0
+  const shiftedStart = new Date(start.getTime() - timeOffsetMinutes * 60 * 1000)
+  const shiftedEnd = new Date(end.getTime() - timeOffsetMinutes * 60 * 1000)
+  const extremes = findHighLowTides(shiftedStart, shiftedEnd, constituents, 5, station.lon, epoch)
 
   return extremes.map((event) => {
-    const minutes = Math.round((event.time.getTime() - start.getTime()) / (60 * 1000))
+    const actualTime = new Date(event.time.getTime() + timeOffsetMinutes * 60 * 1000)
+    const minutes = Math.round((actualTime.getTime() - start.getTime()) / (60 * 1000))
     return {
       minutes,
       level: event.level,
@@ -118,6 +126,9 @@ function scoreOffset(
 
       let best = Infinity
       for (const p of sameType) {
+        // When predictions already embed timeOffsetMinutes (runtime-aligned
+        // predictDayEvents), pass offset=0. During the offset search, predictions
+        // are built with timeOffsetMinutes=0 and offset is applied here.
         const predictedMinutes = p.minutes + offset
         const dist = dayMinutesDistance(obs.minutes, predictedMinutes)
         if (dist < best) {
@@ -199,6 +210,90 @@ function computeLevelOffset(
   return count > 0 ? total / count : null
 }
 
+function rebuildPredictedByDate(
+  constant: StationConstant,
+  station: HydroStation,
+  fixtures: ValidationFixture[],
+): Map<string, PredictedEvent[]> {
+  const predictedByDate = new Map<string, PredictedEvent[]>()
+  for (const fixture of fixtures) {
+    const events = predictDayEvents(constant, station, fixture.date)
+    if (events && events.length > 0) {
+      predictedByDate.set(fixture.date, events)
+    }
+  }
+  return predictedByDate
+}
+
+const PHASE_REFINE_NAMES = ['M2', 'S2', 'N2', 'K1', 'O1', 'M4', 'MS4', 'MN4', 'M6']
+
+/**
+ * Coordinate-descent phase nudge for major / shallow-water constituents.
+ * Candidate phases are accepted only when full-set MAE improves (subsample
+ * search proposes; full set decides) to avoid overfitting a day subsample.
+ */
+function refineConstituentPhases(
+  constant: StationConstant,
+  station: HydroStation,
+  fixtures: ValidationFixture[],
+  observedEvents: FixtureEvents[],
+  timeOffset: number,
+): { mae: number; adjusted: string[] } {
+  const sampleFixtures = fixtures.filter((_, index) => index % 6 === 0)
+  const sampleObserved = observedEvents.filter((_, index) => index % 6 === 0)
+  let fullPredicted = rebuildPredictedByDate(constant, station, fixtures)
+  let { mae: bestFullMae } = scoreOffset(observedEvents, fullPredicted, timeOffset)
+  const adjusted: string[] = []
+
+  for (let pass = 0; pass < 2; pass++) {
+    for (const name of PHASE_REFINE_NAMES) {
+      const constituent = constant.constituents.find((item) => item.name === name)
+      if (!constituent) {
+        continue
+      }
+
+      const originalPhase = constituent.phase
+      let samplePredicted = rebuildPredictedByDate(constant, station, sampleFixtures)
+      let { mae: sampleMae } = scoreOffset(sampleObserved, samplePredicted, timeOffset)
+      let proposedPhase = originalPhase
+
+      for (const delta of [-8, -6, -4, -2, -1, 1, 2, 4, 6, 8]) {
+        constituent.phase = (originalPhase + delta + 360) % 360
+        samplePredicted = rebuildPredictedByDate(constant, station, sampleFixtures)
+        const { mae } = scoreOffset(sampleObserved, samplePredicted, timeOffset)
+        if (mae < sampleMae - 0.05) {
+          sampleMae = mae
+          proposedPhase = constituent.phase
+        }
+      }
+
+      // Fine search around the subsample proposal
+      const fineCenter = proposedPhase
+      for (const delta of [-1.5, -0.5, 0.5, 1.5]) {
+        constituent.phase = (fineCenter + delta + 360) % 360
+        samplePredicted = rebuildPredictedByDate(constant, station, sampleFixtures)
+        const { mae } = scoreOffset(sampleObserved, samplePredicted, timeOffset)
+        if (mae < sampleMae - 0.05) {
+          sampleMae = mae
+          proposedPhase = constituent.phase
+        }
+      }
+
+      constituent.phase = proposedPhase
+      fullPredicted = rebuildPredictedByDate(constant, station, fixtures)
+      const { mae: fullMae } = scoreOffset(observedEvents, fullPredicted, timeOffset)
+      if (fullMae < bestFullMae - 0.05) {
+        bestFullMae = fullMae
+        adjusted.push(`${name}:${originalPhase.toFixed(1)}→${proposedPhase.toFixed(1)}`)
+      } else {
+        constituent.phase = originalPhase
+      }
+    }
+  }
+
+  return { mae: bestFullMae, adjusted }
+}
+
 async function main() {
   const fixturesByStation = new Map<string, ValidationFixture[]>()
   for (const fixture of validationFixtures) {
@@ -218,6 +313,7 @@ async function main() {
     levelOffsetMeters: number
     maeMinutes: number
     matchedEvents: number
+    phaseAdjustments: string
   }> = []
 
   for (let i = 0; i < calibrated.length; i++) {
@@ -233,18 +329,14 @@ async function main() {
       date: fixture.date,
       observed: fixture.events.map((event) => ({
         minutes: clockMinutes(event.time),
-        type: event.type,
+        type: event.type as "high" | "low",
         level: event.level ?? 0,
       })),
     }))
 
-    const predictedByDate = new Map<string, PredictedEvent[]>()
-    for (const fixture of fixtures) {
-      const events = predictDayEvents(constant, station, fixture.date)
-      if (events && events.length > 0) {
-        predictedByDate.set(fixture.date, events)
-      }
-    }
+    // Offset search must start from an unshifted synthesis (timeOffsetMinutes=0).
+    constant.timeOffsetMinutes = 0
+    let predictedByDate = rebuildPredictedByDate(constant, station, fixtures)
 
     const totalEventCount = observedEvents.reduce((sum, f) => sum + f.observed.length, 0)
     if (totalEventCount < MIN_MATCHED_EVENTS) {
@@ -252,22 +344,33 @@ async function main() {
       continue
     }
 
-    const { offset, mae } = findBestTimeOffset(observedEvents, predictedByDate)
-    const levelOffset = computeLevelOffset(observedEvents, predictedByDate, offset)
+    const { offset, mae: offsetMae } = findBestTimeOffset(observedEvents, predictedByDate)
+    console.log(`${constant.stationId}: offset ${offset} min → MAE ${roundToOne(offsetMae)} (pre-phase)`)
 
+    // Embed the offset into predictions the same way runtime does, then refine
+    // phases against offset=0 scoring on those shifted predictions.
     constant.timeOffsetMinutes = roundToOne(offset)
+    const { adjusted } = refineConstituentPhases(constant, station, fixtures, observedEvents, 0)
+    predictedByDate = rebuildPredictedByDate(constant, station, fixtures)
+    const { mae: finalMae } = scoreOffset(observedEvents, predictedByDate, 0)
+    const levelOffset = computeLevelOffset(observedEvents, predictedByDate, 0)
+
     if (levelOffset !== null) {
       constant.levelOffsetMeters = roundToThree(levelOffset)
       constant.datum = 'LLW'
     }
-    constant.sourceCitation = `${constant.sourceCitation ?? ''} Calibrated against ${totalEventCount} official Thai Navy tide-table fixtures (2026); timing MAE ${roundToOne(mae)} min`.trim()
+    const phaseNote =
+      adjusted.length > 0 ? ` Phase refined (${adjusted.join(', ')}).` : ''
+    constant.sourceCitation =
+      `${constant.sourceCitation ?? ''} Calibrated against ${totalEventCount} official Thai Navy tide-table fixtures (2026); timing MAE ${roundToOne(finalMae)} min.${phaseNote}`.trim()
 
     results.push({
       stationId: constant.stationId,
       timeOffsetMinutes: constant.timeOffsetMinutes,
       levelOffsetMeters: constant.levelOffsetMeters,
-      maeMinutes: roundToOne(mae),
+      maeMinutes: roundToOne(finalMae),
       matchedEvents: totalEventCount,
+      phaseAdjustments: adjusted.join('; ') || '(none)',
     })
   }
 
