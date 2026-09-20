@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
-import { tideControlManager } from "@/lib/controls"
+import { tideControlManager } from "@/lib/ui/controls"
 import { StatCard } from "@/components/StatCard"
 
 interface TideStatusHeroProps {

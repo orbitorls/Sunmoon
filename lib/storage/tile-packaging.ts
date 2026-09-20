@@ -1,6 +1,6 @@
 import { TileData, ConstituentData } from './tile-storage'
-import { getEphemeridesMetadata } from './ephemerides'
-import { TIDAL_CONSTITUENTS } from './harmonic'
+import { getEphemeridesMetadata } from '../harmonic/ephemerides'
+import { TIDAL_CONSTITUENTS } from '../harmonic'
 
 export interface TilePackage {
   tile: TileData
@@ -196,7 +196,7 @@ export async function verifyTileIntegrity(tile: TileData, payload: Uint8Array): 
  * Decompress payload to tile JSON string.
  *
  * Uses the native DecompressionStream where available (mirrors the pattern in
- * lib/indexed-db.ts) and falls back to pako on older browsers. The format is
+ * lib/storage/indexed-db.ts) and falls back to pako on older browsers. The format is
  * `deflate` (zlib-wrapped), which is exactly what pako's `deflate`/`inflate`
  * use, so payloads stay byte-compatible across server and client and with any
  * tiles produced before this swap. pako is imported lazily so it stays out of
@@ -288,7 +288,7 @@ export async function calculateChecksum(data: BinaryLike): Promise<string> {
 
 /**
  * Compress a string using the native CompressionStream where available
- * (mirrors the pattern in lib/indexed-db.ts) and falls back to pako on older
+ * (mirrors the pattern in lib/storage/indexed-db.ts) and falls back to pako on older
  * browsers. Uses the zlib-wrapped `deflate` format, matching pako's `deflate`
  * output so payloads remain readable by every existing consumer. pako is
  * imported lazily so it stays out of the main client bundle unless the

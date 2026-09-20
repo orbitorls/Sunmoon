@@ -6,7 +6,7 @@ import {
   predictTideLevel,
   type TideConstituent,
 } from '../lib/harmonic'
-import { calculateAstronomicalArguments } from '../lib/ephemerides'
+import { calculateAstronomicalArguments } from '../lib/harmonic/ephemerides'
 
 const constituent: TideConstituent = {
   name: 'M2',

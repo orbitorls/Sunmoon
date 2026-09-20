@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AlertTriangle, MapPin, TrendingDown, TrendingUp, Waves } from "lucide-react";
 import { TideData } from "@/lib/domain/types";
-import { tideControlManager } from "@/lib/controls";
+import { tideControlManager } from "@/lib/ui/controls";
 import { cn } from "@/lib/utils";
 import {
   compareWaterLevel,
@@ -15,7 +15,7 @@ import {
   getPredictionDeviationColor,
   type WaterLevelComparison,
   type PredictionDeviation,
-} from "@/lib/water-level-comparison";
+} from "@/lib/comparison/water-level-comparison";
 
 // recharts is heavy — load the chart canvas only in the browser, keeping
 // recharts out of the main client bundle (mirrors the map components).

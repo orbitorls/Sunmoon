@@ -13,8 +13,8 @@ import {
   CONSTITUENTS_DATABASE,
   createPredictionSeries,
   type TideConstituent,
-} from "./harmonic/core";
-import { getLocationConstituents } from "./harmonic/constituent-catalog";
+} from "../harmonic/core";
+import { getLocationConstituents } from "../harmonic/constituent-catalog";
 import {
   formatThailandClock,
   getThailandDayBounds,
@@ -25,12 +25,12 @@ import {
   getMostRecentStationMeasuredAccuracy,
   type ComparisonEvent,
   type StationMeasuredAccuracy,
-} from "./comparison";
+} from "../comparison";
 import type {
   LocationData,
   TideEvent,
   WaterLevelGraphData,
-} from "./domain/types";
+} from "./types";
 
 type TideEventType = TideEvent["type"];
 

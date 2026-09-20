@@ -37,7 +37,7 @@ import {
     type HistoricalEvent,
     type EventType,
     type Severity,
-} from "@/lib/historical-data-service";
+} from "@/lib/services/historical-data-service";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RealTimeDisasterPanel } from "@/components/RealTimeDisasterPanel";

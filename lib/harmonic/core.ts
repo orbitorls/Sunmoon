@@ -7,8 +7,8 @@
  * - Foreman, M. G. G. (1977). Manual for Tidal Heights Analysis and Prediction.
  */
 
-import { calculateAstronomicalArguments, type AstronomicalArguments } from '../ephemerides'
-export { calculateAstronomicalArguments } from '../ephemerides'
+import { calculateAstronomicalArguments, type AstronomicalArguments } from './ephemerides'
+export { calculateAstronomicalArguments } from './ephemerides'
 
 const DEFAULT_HARMONIC_EPOCH = new Date('2000-01-01T00:00:00Z')
 

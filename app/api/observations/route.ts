@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import hydroStations from '@/data/hydro-stations.json'
-import { accumulateCalibrationSuggestion, buildCommunityCalibrationReview, store } from '@/lib/community-observations'
+import { accumulateCalibrationSuggestion, buildCommunityCalibrationReview, store } from '@/lib/services/community-observations'
 import { calculateDistance } from '@/lib/domain/geo'
 
 const MAX_STATION_DISTANCE_KM = 5

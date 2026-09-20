@@ -4,7 +4,7 @@
  * Enables the app to work offline with cached data
  */
 
-import { formatBytes } from "./storage/core";
+import { formatBytes } from "./core";
 
 export interface CacheEntry<T> {
   data: T;

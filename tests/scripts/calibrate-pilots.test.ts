@@ -1,4 +1,4 @@
-import { applyCalibrationSuggestions } from '../../lib/tide-calibration-apply'
+import { applyCalibrationSuggestions } from '../../lib/comparison/tide-calibration-apply'
 import { type TideComparisonReport } from '../../lib/comparison'
 
 describe('applyCalibrationSuggestions', () => {

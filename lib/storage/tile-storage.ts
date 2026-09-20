@@ -3,7 +3,7 @@
  * Manages tile data storage with LRU eviction and quota management
  */
 
-import { sha256Hex } from './storage/core'
+import { sha256Hex } from './core'
 
 const DB_NAME = 'SunmoonTileCache'
 const DB_VERSION = 1

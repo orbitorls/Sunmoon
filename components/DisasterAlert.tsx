@@ -27,7 +27,7 @@ import {
     type RiskLevel,
     getRiskLevelText,
 } from "@/lib/domain/disaster-analysis";
-import { findSimilarEventByLevel, formatEventDateThai } from "@/lib/historical-data-service";
+import { findSimilarEventByLevel, formatEventDateThai } from "@/lib/services/historical-data-service";
 import { AdvanceWarningsSection } from "./disaster/AdvanceWarningsSection";
 import { DisasterCard } from "./disaster/DisasterCard";
 import { FloodPredictionSection } from "./disaster/FloodPredictionSection";

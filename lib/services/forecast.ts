@@ -1,7 +1,7 @@
 import { getTideData } from "@/lib/domain/forecast-facade";
 import { getWeatherBlend as getWeatherData } from "@/lib/domain/weather-blend";
 import type { LocationData, TideData, WeatherData } from "@/lib/domain/types";
-import { getThailandClockParts } from "@/lib/thailand-time"
+import { getThailandClockParts } from "@/lib/domain/thailand-time"
 
 export type ForecastResult = {
   weatherData: WeatherData | null

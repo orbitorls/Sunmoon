@@ -31,7 +31,7 @@ import ThemeToggle from "./ThemeToggle";
 import ForecastTodayPanel from "./forecast-today-panel";
 
 import { useForecastData } from "@/hooks/use-forecast-data";
-import { initializeOfflineStorage } from "@/lib/offline-storage";
+import { initializeOfflineStorage } from "@/lib/storage/offline-storage";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useDisasterAnalysis } from "@/hooks/use-disaster-analysis";
 import { useLocationContext } from "@/hooks/use-location-context";

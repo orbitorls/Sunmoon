@@ -4,7 +4,7 @@
  */
 
 import historicalData from '@/data/historical-events.json';
-import { calculateDistance } from './domain/geo';
+import { calculateDistance } from '../domain/geo';
 
 // Types
 export type EventType = 'flood' | 'storm_surge' | 'high_tide' | 'erosion';

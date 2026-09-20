@@ -5,8 +5,8 @@ import {
   findNearestPier,
   type NearestPier,
 } from "@/lib/domain/geo";
-import { getElevation } from "@/lib/elevation-service";
-import { compareWaterLevel, type WaterLevelComparison } from "@/lib/water-level-comparison";
+import { getElevation } from "@/lib/services/elevation-service";
+import { compareWaterLevel, type WaterLevelComparison } from "@/lib/comparison/water-level-comparison";
 import type { LocationData, TideData } from "@/lib/domain/types";
 
 export type LocationContext = {

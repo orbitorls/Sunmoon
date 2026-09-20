@@ -1,5 +1,5 @@
 import validationEvents from '../data/tide-validation-events.json'
-import { MIN_MATCHED_EVENTS_FOR_CALIBRATION } from '../lib/tide-calibration-apply'
+import { MIN_MATCHED_EVENTS_FOR_CALIBRATION } from '../lib/comparison/tide-calibration-apply'
 
 type ValidationRecord = {
   locationId: string
@@ -37,7 +37,7 @@ describe('tide-validation-events fixture integrity', () => {
   })
 
   it('gives every station enough matched events to clear the documented minimum', () => {
-    // The threshold lives in lib/tide-calibration-apply.ts (>=1 lunar month of
+    // The threshold lives in lib/comparison/tide-calibration-apply.ts (>=1 lunar month of
     // matched high/low pairs). Assert it against the fixture itself, so the
     // guard cannot drift from the data that actually feeds calibration.
     const matchedByStation = new Map<string, number>()

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { indexedDB } from '@/lib/indexed-db'
+import { indexedDB } from '@/lib/storage/indexed-db'
 
 /**
  * API endpoint to get a specific cached tile

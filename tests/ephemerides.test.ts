@@ -3,7 +3,7 @@ import {
   calculateLocalMeanLunarTime,
   dateToJulianDay,
   getDeltaTSeconds,
-} from '../lib/ephemerides'
+} from '../lib/harmonic/ephemerides'
 
 describe('ephemerides delta-T placement', () => {
   // Regression test: delta-T (TT - UT1) must NOT be added to tau (a civil UT

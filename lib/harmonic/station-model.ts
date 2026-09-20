@@ -11,7 +11,7 @@ import {
   formatThailandTimestamp,
   getThailandDayBounds,
   roundToDigits,
-} from "../thailand-time";
+} from "../domain/thailand-time";
 import { calculateDistance } from "../domain/geo";
 
 const MAX_STATION_DISTANCE_KM = 150;

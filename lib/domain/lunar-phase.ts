@@ -1,5 +1,5 @@
 import moonEventSource from "@/data/authoritative-moons.json";
-import { toThailandDayStart } from "@/lib/thailand-time";
+import { toThailandDayStart } from "@/lib/domain/thailand-time";
 
 type MoonEvent = {
   type: "new" | "full";

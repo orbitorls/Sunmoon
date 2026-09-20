@@ -7,8 +7,8 @@ import {
   decompressToString,
   verifyManifestSignature,
   verifyTileIntegrity,
-} from '../lib/tile-packaging'
-import type { ConstituentData } from '../lib/tile-storage'
+} from '../lib/storage/tile-packaging'
+import type { ConstituentData } from '../lib/storage/tile-storage'
 
 const BBOX: [number, number, number, number] = [13.1, 100.8, 13.2, 100.9]
 const CENTROID: [number, number] = [13.15, 100.82]

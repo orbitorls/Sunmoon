@@ -14,9 +14,9 @@
  */
 
 export * from "./core";
-export * from "../offline-storage";
-export * from "../tile-storage";
+export * from "./offline-storage";
+export * from "./tile-storage";
 // indexed-db exports a `TileData` type that collides with tile-storage's;
-// tile-storage's wins here and indexed-db's remains at "@/lib/indexed-db".
-export type { JsonValue, StorageStats } from "../indexed-db";
-export { IndexedDBManager, indexedDB, TileStorage } from "../indexed-db";
+// tile-storage's wins here and indexed-db's remains at "@/lib/storage/indexed-db".
+export type { JsonValue, StorageStats } from "./indexed-db";
+export { IndexedDBManager, indexedDB, TileStorage } from "./indexed-db";

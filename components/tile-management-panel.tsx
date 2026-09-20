@@ -17,14 +17,14 @@ import {
   AlertCircle,
   RefreshCw
 } from 'lucide-react'
-import { tileStorage, TileData } from '@/lib/tile-storage'
+import { tileStorage, TileData } from '@/lib/storage/tile-storage'
 import { formatBytes } from '@/lib/storage/core'
 import {
   createTilePackage,
   generateSampleTiles,
   getGulfOfThailandConstituents,
   getAndamanSeaConstituents
-} from '@/lib/tile-packaging'
+} from '@/lib/storage/tile-packaging'
 
 export function TileManagementPanel() {
   const [tiles, setTiles] = useState<TileData[]>([])

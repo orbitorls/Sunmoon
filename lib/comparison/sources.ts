@@ -12,8 +12,8 @@ import {
   formatThailandClock,
   formatThailandTimestamp,
   getThailandDayBoundsFromIsoDate,
-} from '../thailand-time'
-import { WorldTidesClient } from '../worldtides-client'
+} from '../domain/thailand-time'
+import { WorldTidesClient } from '../services/worldtides-client'
 import {
   VALIDATION_EVENT_SOURCES,
   getSourceLabel,

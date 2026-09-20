@@ -15,7 +15,7 @@ import {
   runTideComparisonReport,
   type ComparisonSourceSnapshot,
 } from '../lib/comparison'
-import { WorldTidesClient } from '../lib/worldtides-client'
+import { WorldTidesClient } from '../lib/services/worldtides-client'
 
 describe('tide comparison', () => {
   afterEach(() => {

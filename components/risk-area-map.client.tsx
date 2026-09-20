@@ -7,9 +7,9 @@ import {
     getSeverityColor,
     type RiskZone,
     type HistoricalEvent,
-} from "@/lib/historical-data-service";
+} from "@/lib/services/historical-data-service";
 import { cn } from "@/lib/utils";
-import type { ThaiWaterLevel } from "@/lib/thaiwater-service";
+import type { ThaiWaterLevel } from "@/lib/services/thaiwater-service";
 
 // Custom SVG Overlay for Risk Zones
 // Pigeon Map passes these props to children: width, height, latLngToPixel, pixelToLatLng

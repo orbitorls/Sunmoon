@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer'
 import { NextRequest, NextResponse } from 'next/server'
-import { createTilePackage } from '@/lib/tile-packaging'
+import { createTilePackage } from '@/lib/storage/tile-packaging'
 import { getLocationConstituents } from '@/lib/harmonic'
 
 /**

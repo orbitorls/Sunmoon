@@ -1,4 +1,4 @@
-import { WorldTidesClient } from '../lib/worldtides-client'
+import { WorldTidesClient } from '../lib/services/worldtides-client'
 
 describe('WorldTidesClient datum handling', () => {
   afterEach(() => {

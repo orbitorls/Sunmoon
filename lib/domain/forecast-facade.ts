@@ -4,7 +4,7 @@
  * calibration offsets and unit/datum conversion (via the modules it composes).
  *
  * Shared types live in lib/domain/types.ts. Provider/event/quality helpers
- * were extracted to lib/tide-events.ts.
+ * were extracted to lib/domain/tide-events.ts.
  */
 
 import {
@@ -15,7 +15,7 @@ import {
   getThailandClockParts,
   getThailandDayBounds,
   roundToDigits,
-} from "../thailand-time";
+} from "./thailand-time";
 import type { StationMeasuredAccuracy } from "../comparison";
 import { calculateLunarPhase } from "./lunar-phase";
 import { predictTideEvents } from "./tide-prediction";
@@ -39,7 +39,7 @@ import {
   toClockString,
   toTideEventFromStormglass,
   toTideEventFromWorldTides,
-} from "../tide-events";
+} from "./tide-events";
 
 type TideSourceMetadata = {
   source: string;

@@ -4,7 +4,7 @@ import {
   createTilePackage,
   decompressToString,
   verifyManifestSignature,
-} from '../lib/tile-packaging'
+} from '../lib/storage/tile-packaging'
 
 const AMPLITUDES: Record<string, number> = { M2: 0.95, S2: 0.28, K1: 0.35, O1: 0.21 }
 

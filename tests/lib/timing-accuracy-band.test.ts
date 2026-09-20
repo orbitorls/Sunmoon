@@ -1,4 +1,4 @@
-import { getTimingAccuracyBand, timingAccuracyBandLabel } from '../../lib/timing-accuracy-band'
+import { getTimingAccuracyBand, timingAccuracyBandLabel } from '../../lib/comparison/timing-accuracy-band'
 
 describe('timing accuracy band', () => {
   it('maps MAE to within / near / outside target bands', () => {

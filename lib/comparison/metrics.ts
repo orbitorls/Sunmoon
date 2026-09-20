@@ -8,7 +8,7 @@
  */
 
 import { getNearestConfiguredStationId } from '../harmonic'
-import { roundToDigits } from '../thailand-time'
+import { roundToDigits } from '../domain/thailand-time'
 import {
   DEFAULT_LEVEL_MAE_THRESHOLD_METERS,
   DEFAULT_LEVEL_RMSE_THRESHOLD_METERS,

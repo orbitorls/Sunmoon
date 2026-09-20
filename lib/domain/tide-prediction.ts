@@ -5,7 +5,7 @@ import {
 } from "@/lib/harmonic";
 import { getLocationConstituents } from "@/lib/harmonic";
 import { getStationHarmonicDayPrediction } from "@/lib/harmonic";
-import { getThailandDayBounds, roundToDigits } from "@/lib/thailand-time";
+import { getThailandDayBounds, roundToDigits } from "@/lib/domain/thailand-time";
 import { deriveExtremesFromSeries } from "@/lib/comparison";
 
 export type TideEvent = {

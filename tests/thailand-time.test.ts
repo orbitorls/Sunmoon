@@ -7,7 +7,7 @@ import {
   roundToDigits,
   toThailandDayStart,
   toThailandInstant,
-} from '../lib/thailand-time'
+} from '../lib/domain/thailand-time'
 
 describe('thailand-time helpers', () => {
   it('formats UTC instants as ICT clock times', () => {
@@ -47,7 +47,7 @@ describe('thailand-time helpers', () => {
 
 describe('controls timezone formatting', () => {
   it('does not double-apply ICT offset when formatting Thai time', () => {
-    const { tideControlManager } = require('../lib/controls') as typeof import('../lib/controls')
+    const { tideControlManager } = require('../lib/ui/controls') as typeof import('../lib/ui/controls')
     tideControlManager.updateSetting('timezone', 'thai')
 
     const sample = new Date('2025-03-24T05:00:00.000Z')

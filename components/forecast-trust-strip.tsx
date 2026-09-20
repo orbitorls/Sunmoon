@@ -7,7 +7,7 @@ import {
   getTimingAccuracyBand,
   timingAccuracyBandLabel,
   type TimingAccuracyBand,
-} from "@/lib/timing-accuracy-band";
+} from "@/lib/comparison/timing-accuracy-band";
 import { Clock, Database, ShieldAlert, ShieldCheck } from "lucide-react";
 
 type ForecastTrustStripProps = {

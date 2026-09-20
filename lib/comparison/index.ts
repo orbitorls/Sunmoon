@@ -62,5 +62,5 @@ export {
   writeComparisonArtifacts,
 } from './report'
 
-export type { TimingAccuracyBand } from '../timing-accuracy-band'
-export { getTimingAccuracyBand, timingAccuracyBandLabel } from '../timing-accuracy-band'
+export type { TimingAccuracyBand } from './timing-accuracy-band'
+export { getTimingAccuracyBand, timingAccuracyBandLabel } from './timing-accuracy-band'

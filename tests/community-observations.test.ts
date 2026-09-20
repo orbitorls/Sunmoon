@@ -1,5 +1,5 @@
-import { accumulateCalibrationSuggestion, buildCommunityCalibrationReview, store, type CommunityObservation } from '../lib/community-observations'
-import { applyCalibrationSuggestions, MIN_MATCHED_EVENTS_FOR_CALIBRATION } from '../lib/tide-calibration-apply'
+import { accumulateCalibrationSuggestion, buildCommunityCalibrationReview, store, type CommunityObservation } from '../lib/services/community-observations'
+import { applyCalibrationSuggestions, MIN_MATCHED_EVENTS_FOR_CALIBRATION } from '../lib/comparison/tide-calibration-apply'
 import { fetchInternalComparisonSnapshot, type ComparisonLocation } from '../lib/comparison'
 import stationConstants from '../data/station-harmonic-constants.json'
 import hydroStations from '../data/hydro-stations.json'

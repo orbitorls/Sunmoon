@@ -31,9 +31,9 @@ import {
     getSeverityColor,
     type RiskZone,
     type HistoricalEvent,
-} from "@/lib/historical-data-service";
+} from "@/lib/services/historical-data-service";
 import { cn } from "@/lib/utils";
-import { getRealTimeWaterLevels, type ThaiWaterLevel } from "@/lib/thaiwater-service";
+import { getRealTimeWaterLevels, type ThaiWaterLevel } from "@/lib/services/thaiwater-service";
 
 // pigeon-maps is heavy — load the map canvas only when this component mounts.
 const RiskAreaMapInner = dynamic(() => import("./risk-area-map.client"), {

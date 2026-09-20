@@ -8,9 +8,9 @@
  */
 
 import type { LocationData } from '@/lib/domain/types'
-import { calculateAstronomicalArguments, type AstronomicalArguments } from '../ephemerides'
-export type { AstronomicalArguments } from '../ephemerides'
-export { getEphemeridesMetadata, getDeltaTSeconds, getLeapSecondOffset } from '../ephemerides'
+import { calculateAstronomicalArguments, type AstronomicalArguments } from './ephemerides'
+export type { AstronomicalArguments } from './ephemerides'
+export { getEphemeridesMetadata, getDeltaTSeconds, getLeapSecondOffset } from './ephemerides'
 
 // Re-export LocationData for convenience
 export type { LocationData }

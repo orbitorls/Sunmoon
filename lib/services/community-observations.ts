@@ -9,9 +9,9 @@
  * station-harmonic-constants.json -- that stays a reviewed, offline action
  * via scripts/apply-tide-calibration.ts.
  */
-import hydroStations from '../data/hydro-stations.json'
-import { redisCache } from './redis-cache'
-import { MIN_MATCHED_EVENTS_FOR_CALIBRATION } from './tide-calibration-apply'
+import hydroStations from '../../data/hydro-stations.json'
+import { redisCache } from '../infra/redis-cache'
+import { MIN_MATCHED_EVENTS_FOR_CALIBRATION } from '../comparison/tide-calibration-apply'
 import {
   buildCalibrationSuggestion,
   compareSnapshots,
@@ -22,7 +22,7 @@ import {
   type LocationComparisonReport,
   type TideComparisonReport,
   type ValidationFixtureRecord,
-} from './comparison'
+} from '../comparison'
 
 export interface CommunityObservation {
   stationId: string

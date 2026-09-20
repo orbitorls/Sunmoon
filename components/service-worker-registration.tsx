@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { swManager } from '@/lib/sw-registration';
+import { swManager } from '@/lib/infra/sw-registration';
 
 export function ServiceWorkerRegistration() {
   const [swStatus, setSwStatus] = useState<'idle' | 'registering' | 'active' | 'failed'>('registering');
@@ -38,7 +38,7 @@ export function ServiceWorkerRegistration() {
 
     const initIndexedDB = async () => {
       try {
-        const { indexedDB } = await import('@/lib/indexed-db');
+        const { indexedDB } = await import('@/lib/storage/indexed-db');
         await indexedDB.init();
         console.log('[SW] IndexedDB initialized successfully');
       } catch (error) {
