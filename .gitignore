@@ -39,3 +39,16 @@ yarn-error.log*
 # Next.js build output (machine-specific, regenerate on build)
 /.next/
 
+# Agent / AI tool local state (not project source)
+.workflow/
+.omc/
+.openclaude/
+.idea/
+
+# Editor + backup + generated-report artifacts
+*.bak
+/test-*.js
+/test-*.mjs
+/test-*.ps1
+/test-*.sh
+
