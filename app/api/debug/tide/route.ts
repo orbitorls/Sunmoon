@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getTideData } from '@/lib/tide-service'
+import { getTideData } from '@/lib/domain/forecast-facade'
 
 export async function GET(req: NextRequest) {
   try {

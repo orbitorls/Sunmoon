@@ -14,7 +14,7 @@ import {
   fetchWorldTidesComparisonSnapshot,
   runTideComparisonReport,
   type ComparisonSourceSnapshot,
-} from '../lib/tide-comparison'
+} from '../lib/comparison'
 import { WorldTidesClient } from '../lib/worldtides-client'
 
 describe('tide comparison', () => {
@@ -262,8 +262,8 @@ describe('tide comparison', () => {
 
   it('keeps validation fixtures out of runtime tide prediction paths', () => {
     const runtimeFiles = [
-      'lib/tide-service.ts',
-      'lib/station-harmonic-model.ts',
+      'lib/domain/forecast-facade.ts',
+      'lib/harmonic/station-model.ts',
       'app/api/predict-tide/route.ts',
       'app/api/hydro-tide/route.ts',
     ]

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { analyzeDisasterRisk, type DisasterAnalysis } from "@/lib/disaster-analysis";
-import type { TideData, WeatherData, LocationData } from "@/lib/tide-service";
+import { analyzeDisasterRisk, type DisasterAnalysis } from "@/lib/domain/disaster-analysis";
+import type { TideData, WeatherData, LocationData } from "@/lib/domain/types";
 
 export function useDisasterAnalysis(
   tideData: TideData,

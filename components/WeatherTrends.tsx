@@ -14,7 +14,7 @@ import {
     Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { WeatherData } from "@/lib/tide-service";
+import type { WeatherData } from "@/lib/domain/types";
 
 interface WeatherTrendsProps {
     weatherData: WeatherData;

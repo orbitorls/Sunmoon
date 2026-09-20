@@ -1,16 +1,26 @@
-jest.mock("../lib/hydro-service", () => ({
-  fetchHydroTideData: jest.fn(),
+jest.mock("../lib/harmonic/station-model", () => ({
+  getStationHarmonicDayPrediction: jest.fn(),
+  getStationHarmonicUnavailable: jest.fn(),
+  getNearestConfiguredStationId: jest.fn(() => null),
 }));
 
 import benchmarkLocations from "../data/forecast-benchmark-thai-coastal.json";
-import { fetchHydroTideData } from "../lib/hydro-service";
-import { getTideData } from "../lib/tide-service";
+import {
+  getStationHarmonicDayPrediction,
+  getStationHarmonicUnavailable,
+} from "../lib/harmonic/station-model";
+import { getTideData } from "../lib/domain/forecast-facade";
 
 type BenchmarkLocation = (typeof benchmarkLocations)[number];
 
-const mockedFetchHydroTideData = fetchHydroTideData as jest.MockedFunction<
-  typeof fetchHydroTideData
->;
+const mockedGetStationHarmonicDayPrediction =
+  getStationHarmonicDayPrediction as jest.MockedFunction<
+    typeof getStationHarmonicDayPrediction
+  >;
+const mockedGetStationHarmonicUnavailable =
+  getStationHarmonicUnavailable as jest.MockedFunction<
+    typeof getStationHarmonicUnavailable
+  >;
 
 function cloneEnv(keys: string[]): Record<string, string | undefined> {
   return Object.fromEntries(keys.map((key) => [key, process.env[key]]));
@@ -41,7 +51,10 @@ describe("forecast degraded regression", () => {
       delete process.env[key];
     }
 
-    mockedFetchHydroTideData.mockResolvedValue(null);
+    mockedGetStationHarmonicDayPrediction.mockReturnValue(null);
+    mockedGetStationHarmonicUnavailable.mockReturnValue({
+      reason: "no_configured_station",
+    });
   });
 
   afterEach(() => {
@@ -67,7 +80,6 @@ describe("forecast degraded regression", () => {
         },
       );
 
-      expect(mockedFetchHydroTideData).toHaveBeenCalled();
       expect(randomSpy).not.toHaveBeenCalled();
       expect(tideData).toMatchObject({
         apiStatus: "offline",
@@ -78,7 +90,7 @@ describe("forecast degraded regression", () => {
         degraded: true,
         modelVersion: "canonical-harmonic-v1",
       });
-      expect(tideData.degradedReason).toContain("โมเดลภายใน");
+      expect(tideData.degradedReason).toContain("โมเดลภูมิภาคภายใน");
       expect(tideData.dataSource).toBe("Canonical Harmonic Model");
       expect(tideData.isFromCache).toBeUndefined();
       expect(tideData.stationId).toBeUndefined();

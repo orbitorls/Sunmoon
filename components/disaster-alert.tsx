@@ -47,10 +47,12 @@ import {
     getWarningLevelText,
     getWarningLevelColor,
     getFloodTypeText,
-} from "@/lib/disaster-analysis";
+} from "@/lib/domain/disaster-analysis";
+import { findSimilarEventByLevel, formatEventDateThai } from "@/lib/historical-data-service";
 
 type DisasterAlertProps = {
     analysis: DisasterAnalysis | null;
+    location?: { lat: number; lon: number };
     className?: string;
 };
 
@@ -581,6 +583,7 @@ function HistoricalContextSection({ context }: { context: HistoricalContext | nu
 
 export default function DisasterAlert({
     analysis,
+    location,
     className,
 }: DisasterAlertProps) {
     const [showFactors, setShowFactors] = useState(false);
@@ -591,6 +594,12 @@ export default function DisasterAlert({
 
     const riskBg = getRiskBgGradient(analysis.riskLevel);
     const hasDisasters = analysis.disasters.length > 0;
+
+    // จุดนี้เคยท่วมที่ระดับใกล้กันหรือไม่ (nearest-level match กับข้อมูลประวัติศาสตร์)
+    const referenceLevel = analysis.riskTimeline[0]?.tideLevel ?? null;
+    const similarPastEvent = location && referenceLevel !== null
+        ? findSimilarEventByLevel(location.lat, location.lon, referenceLevel)
+        : null;
 
     return (
         <Card
@@ -643,6 +652,26 @@ export default function DisasterAlert({
             </CardHeader>
 
             <CardContent className="space-y-6">
+                {/* ประโยคสรุปเฉพาะเจาะจง: เวลา + ระดับน้ำ + ลม */}
+                {analysis.headline && (
+                    <div className="flex items-start gap-2 rounded-xl border-2 border-red-300 dark:border-red-800 bg-red-100/80 dark:bg-red-950/50 p-4">
+                        <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        <p className="font-bold text-red-900 dark:text-red-200 leading-relaxed">
+                            {analysis.headline}
+                        </p>
+                    </div>
+                )}
+
+                {/* เหตุการณ์คล้ายกันในอดีตที่ระดับใกล้เคียง */}
+                {similarPastEvent && (
+                    <div className="flex items-start gap-2 rounded-xl border border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/30 p-3 text-sm text-purple-800 dark:text-purple-300">
+                        <History className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                        <span>
+                            จุดนี้เคยท่วม {formatEventDateThai(similarPastEvent.date)} ที่ระดับใกล้กัน ({similarPastEvent.maxWaterLevel.toFixed(1)} ม.)
+                        </span>
+                    </div>
+                )}
+
                 {/* การเตือนล่วงหน้า - แสดงก่อนถ้ามี */}
                 <AdvanceWarningsSection warnings={analysis.advanceWarnings} />
 

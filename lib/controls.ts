@@ -226,10 +226,7 @@ export class TideControlManager {
     const use24Hour = options?.use24Hour ?? this.controls.use24Hour;
     const showTimezone = options?.showTimezone ?? false;
     
-    // Get time in target timezone
-    const adjustedDate = this.adjustTimeForTimezone(date, timezone);
-    
-    // Format time
+    // Get time in target timezone via Intl (avoid manual offset — prevents double conversion)
     const timeOptions: Intl.DateTimeFormatOptions = {
       hour: '2-digit',
       minute: '2-digit',
@@ -237,7 +234,7 @@ export class TideControlManager {
       timeZone: this.getTimezoneId(timezone)
     };
     
-    let timeString = adjustedDate.toLocaleTimeString('en-US', timeOptions);
+    let timeString = date.toLocaleTimeString('en-US', timeOptions);
     
     // Add timezone abbreviation if requested
     if (showTimezone) {
@@ -260,10 +257,7 @@ export class TideControlManager {
     const timezone = options?.timezone || this.controls.timezone;
     const showTimezone = options?.showTimezone ?? false;
     
-    // Get date in target timezone
-    const adjustedDate = this.adjustTimeForTimezone(date, timezone);
-    
-    // Format based on selected format
+    // Format date in target timezone via Intl
     const formatOptions: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: '2-digit',
@@ -271,7 +265,7 @@ export class TideControlManager {
       timeZone: this.getTimezoneId(timezone)
     };
     
-    let dateString = adjustedDate.toLocaleDateString('en-US', formatOptions);
+    let dateString = date.toLocaleDateString('en-US', formatOptions);
     
     // Reformat based on custom format
     if (format === 'dd/mm/yyyy') {
@@ -307,8 +301,8 @@ export class TideControlManager {
       datum: {
         'MSL': { en: 'Mean Sea Level', th: 'ระดับน้ำทะเลเฉลี่ยว' },
         'CD': { en: 'Chart Datum', th: 'ฐานอ้างอิงแผนที่ (กรมอุทกศาสตร์)' },
-        'LAT': { en: 'Lowest Astronomical Tide', th: 'ระดับน้ำขึ้นสูงสุดทางดาราศาสตร์' },
-        'HAT': { en: 'Highest Astronomical Tide', th: 'ระดับน้ำลงต่ำสุดทางดาราศาสตร์' },
+        'LAT': { en: 'Lowest Astronomical Tide', th: 'ระดับน้ำลงต่ำสุดทางดาราศาสตร์' },
+        'HAT': { en: 'Highest Astronomical Tide', th: 'ระดับน้ำขึ้นสูงสุดทางดาราศาสตร์' },
         'MHHW': { en: 'Mean Higher High Water', th: 'ระดับน้ำขึ้นสูงสุดเฉลี่ยว' },
         'MHW': { en: 'Mean High Water', th: 'ระดับน้ำขึ้นสูงเฉลี่ยว' },
         'MTL': { en: 'Mean Tide Level', th: 'ระดับน้ำเฉลี่ยว' },
@@ -417,27 +411,13 @@ export class TideControlManager {
   }
   
   /**
-   * Adjust time for timezone
-   */
-  private adjustTimeForTimezone(date: Date, timezone: TimezoneDisplay): Date {
-    if (timezone === 'local') {
-      return new Date(date);
-    }
-    
-    const adjusted = new Date(date);
-    const offsetHours = this.getTimezoneOffset(timezone);
-    adjusted.setHours(adjusted.getHours() + offsetHours);
-    
-    return adjusted;
-  }
-  
-  /**
    * Get timezone ID for Intl formatting
    */
   private getTimezoneId(timezone: TimezoneDisplay): string {
     switch (timezone) {
       case 'utc': return 'UTC';
       case 'thai': return 'Asia/Bangkok';
+      case 'local':
       case 'auto': return Intl.DateTimeFormat().resolvedOptions().timeZone;
       default: return 'UTC';
     }
@@ -452,21 +432,6 @@ export class TideControlManager {
       case 'thai': return 'ICT';
       case 'auto': return 'Local';
       default: return timezone;
-    }
-  }
-  
-  /**
-   * Get timezone offset in hours
-   */
-  private getTimezoneOffset(timezone: TimezoneDisplay): number {
-    switch (timezone) {
-      case 'utc': return 0;
-      case 'thai': return 7;
-      case 'auto': {
-        const localOffset = new Date().getTimezoneOffset() / -60;
-        return localOffset;
-      }
-      default: return 0;
     }
   }
   

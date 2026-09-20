@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-29T17:13:47.447Z",
+  "generatedAt": "2026-07-30T17:45:13.296Z",
   "date": "2026-08-15",
   "locations": [
     {
@@ -37,28 +37,28 @@
             "type": "low",
             "timestamp": "2026-08-15T02:30:00+07:00",
             "clockTime": "02:30",
-            "level": 1.558,
+            "level": 1.584,
             "confidence": 68
           },
           {
             "type": "high",
             "timestamp": "2026-08-15T07:00:00+07:00",
             "clockTime": "07:00",
-            "level": 2.36,
+            "level": 2.385,
             "confidence": 68
           },
           {
             "type": "low",
-            "timestamp": "2026-08-15T14:30:00+07:00",
-            "clockTime": "14:30",
-            "level": 0.426,
+            "timestamp": "2026-08-15T14:00:00+07:00",
+            "clockTime": "14:00",
+            "level": 0.411,
             "confidence": 68
           },
           {
             "type": "high",
             "timestamp": "2026-08-15T21:00:00+07:00",
             "clockTime": "21:00",
-            "level": 2.922,
+            "level": 2.934,
             "confidence": 68
           }
         ],
@@ -133,8 +133,8 @@
             "locationId": "benchmark-upper-gulf-bangkok",
             "sourceId": "validation_fixture",
             "matchedEventCount": 4,
-            "timeOffsetMinutesDelta": -2.5,
-            "levelOffsetMetersDelta": 0.038,
+            "timeOffsetMinutesDelta": 5,
+            "levelOffsetMetersDelta": 0.027,
             "note": "Apply these deltas to station harmonic constants only after source data is verified."
           },
           "matches": [
@@ -143,7 +143,7 @@
                 "type": "low",
                 "timestamp": "2026-08-15T02:30:00+07:00",
                 "clockTime": "02:30",
-                "level": 1.558,
+                "level": 1.584,
                 "confidence": 68
               },
               "candidate": {
@@ -155,15 +155,15 @@
               },
               "timingDeltaMinutes": 20,
               "absoluteTimingDeltaMinutes": 20,
-              "levelDeltaMeters": 0.042,
-              "absoluteLevelDeltaMeters": 0.042
+              "levelDeltaMeters": 0.016,
+              "absoluteLevelDeltaMeters": 0.016
             },
             {
               "baseline": {
                 "type": "high",
                 "timestamp": "2026-08-15T07:00:00+07:00",
                 "clockTime": "07:00",
-                "level": 2.36,
+                "level": 2.385,
                 "confidence": 68
               },
               "candidate": {
@@ -175,15 +175,15 @@
               },
               "timingDeltaMinutes": -30,
               "absoluteTimingDeltaMinutes": 30,
-              "levelDeltaMeters": 0.08,
-              "absoluteLevelDeltaMeters": 0.08
+              "levelDeltaMeters": 0.055,
+              "absoluteLevelDeltaMeters": 0.055
             },
             {
               "baseline": {
                 "type": "low",
-                "timestamp": "2026-08-15T14:30:00+07:00",
-                "clockTime": "14:30",
-                "level": 0.426,
+                "timestamp": "2026-08-15T14:00:00+07:00",
+                "clockTime": "14:00",
+                "level": 0.411,
                 "confidence": 68
               },
               "candidate": {
@@ -193,17 +193,17 @@
                 "level": 0.38,
                 "confidence": 95
               },
-              "timingDeltaMinutes": 0,
-              "absoluteTimingDeltaMinutes": 0,
-              "levelDeltaMeters": -0.046,
-              "absoluteLevelDeltaMeters": 0.046
+              "timingDeltaMinutes": 30,
+              "absoluteTimingDeltaMinutes": 30,
+              "levelDeltaMeters": -0.031,
+              "absoluteLevelDeltaMeters": 0.031
             },
             {
               "baseline": {
                 "type": "high",
                 "timestamp": "2026-08-15T21:00:00+07:00",
                 "clockTime": "21:00",
-                "level": 2.922,
+                "level": 2.934,
                 "confidence": 68
               },
               "candidate": {
@@ -215,8 +215,8 @@
               },
               "timingDeltaMinutes": 0,
               "absoluteTimingDeltaMinutes": 0,
-              "levelDeltaMeters": 0.078,
-              "absoluteLevelDeltaMeters": 0.078
+              "levelDeltaMeters": 0.066,
+              "absoluteLevelDeltaMeters": 0.066
             }
           ],
           "unmatchedBaselineEvents": [],
@@ -226,14 +226,14 @@
             "candidateEventCount": 4,
             "matchedEventCount": 4,
             "eventCoverage": 1,
-            "meanAbsoluteTimingErrorMinutes": 12.5,
-            "meanTimingBiasMinutes": -2.5,
+            "meanAbsoluteTimingErrorMinutes": 20,
+            "meanTimingBiasMinutes": 5,
             "maxAbsoluteTimingErrorMinutes": 30,
-            "rmseTimingMinutes": 18.03,
-            "meanAbsoluteLevelErrorMeters": 0.061,
-            "meanLevelBiasMeters": 0.038,
-            "maxAbsoluteLevelErrorMeters": 0.08,
-            "rmseLevelMeters": 0.064,
+            "rmseTimingMinutes": 23.45,
+            "meanAbsoluteLevelErrorMeters": 0.042,
+            "meanLevelBiasMeters": 0.027,
+            "maxAbsoluteLevelErrorMeters": 0.066,
+            "rmseLevelMeters": 0.046,
             "supportsHeightComparison": true,
             "accuracyPass": true,
             "thresholdTimingMaeMinutes": 30,
@@ -279,28 +279,28 @@
             "type": "low",
             "timestamp": "2026-08-15T01:30:00+07:00",
             "clockTime": "01:30",
-            "level": 2.168,
+            "level": 2.164,
             "confidence": 68
           },
           {
             "type": "high",
-            "timestamp": "2026-08-15T06:00:00+07:00",
-            "clockTime": "06:00",
-            "level": 2.765,
+            "timestamp": "2026-08-15T05:30:00+07:00",
+            "clockTime": "05:30",
+            "level": 2.772,
             "confidence": 68
           },
           {
             "type": "low",
             "timestamp": "2026-08-15T12:30:00+07:00",
             "clockTime": "12:30",
-            "level": 0.759,
+            "level": 0.747,
             "confidence": 68
           },
           {
             "type": "high",
             "timestamp": "2026-08-15T19:30:00+07:00",
             "clockTime": "19:30",
-            "level": 3.4,
+            "level": 3.398,
             "confidence": 68
           }
         ],
@@ -309,7 +309,7 @@
           "engine": "station-harmonic-v1",
           "intervalMinutes": 30,
           "stationId": "hydro-19",
-          "constituents": 22,
+          "constituents": 24,
           "dominantConstituentQuarterPeriodMinutes": 359.017044839487
         }
       },
@@ -367,7 +367,7 @@
             "rawEventCount": 4,
             "metadata": {
               "validationEventCount": 4,
-              "calibrationRecommendation": "phase_shift_minutes=10"
+              "calibrationRecommendation": "phase_shift_minutes=17.5"
             }
           },
           "calibrationSuggestion": {
@@ -375,8 +375,8 @@
             "locationId": "benchmark-middle-gulf-ko-sichang",
             "sourceId": "validation_fixture",
             "matchedEventCount": 4,
-            "timeOffsetMinutesDelta": 10,
-            "levelOffsetMetersDelta": 0.022,
+            "timeOffsetMinutesDelta": 17.5,
+            "levelOffsetMetersDelta": 0.025,
             "note": "Apply these deltas to station harmonic constants only after source data is verified."
           },
           "matches": [
@@ -385,7 +385,7 @@
                 "type": "low",
                 "timestamp": "2026-08-15T01:30:00+07:00",
                 "clockTime": "01:30",
-                "level": 2.168,
+                "level": 2.164,
                 "confidence": 68
               },
               "candidate": {
@@ -397,15 +397,15 @@
               },
               "timingDeltaMinutes": 0,
               "absoluteTimingDeltaMinutes": 0,
-              "levelDeltaMeters": 0.012,
-              "absoluteLevelDeltaMeters": 0.012
+              "levelDeltaMeters": 0.016,
+              "absoluteLevelDeltaMeters": 0.016
             },
             {
               "baseline": {
                 "type": "high",
-                "timestamp": "2026-08-15T06:00:00+07:00",
-                "clockTime": "06:00",
-                "level": 2.765,
+                "timestamp": "2026-08-15T05:30:00+07:00",
+                "clockTime": "05:30",
+                "level": 2.772,
                 "confidence": 68
               },
               "candidate": {
@@ -415,17 +415,17 @@
                 "level": 2.8,
                 "confidence": 95
               },
-              "timingDeltaMinutes": 0,
-              "absoluteTimingDeltaMinutes": 0,
-              "levelDeltaMeters": 0.035,
-              "absoluteLevelDeltaMeters": 0.035
+              "timingDeltaMinutes": 30,
+              "absoluteTimingDeltaMinutes": 30,
+              "levelDeltaMeters": 0.028,
+              "absoluteLevelDeltaMeters": 0.028
             },
             {
               "baseline": {
                 "type": "low",
                 "timestamp": "2026-08-15T12:30:00+07:00",
                 "clockTime": "12:30",
-                "level": 0.759,
+                "level": 0.747,
                 "confidence": 68
               },
               "candidate": {
@@ -437,15 +437,15 @@
               },
               "timingDeltaMinutes": 20,
               "absoluteTimingDeltaMinutes": 20,
-              "levelDeltaMeters": -0.059,
-              "absoluteLevelDeltaMeters": 0.059
+              "levelDeltaMeters": -0.047,
+              "absoluteLevelDeltaMeters": 0.047
             },
             {
               "baseline": {
                 "type": "high",
                 "timestamp": "2026-08-15T19:30:00+07:00",
                 "clockTime": "19:30",
-                "level": 3.4,
+                "level": 3.398,
                 "confidence": 68
               },
               "candidate": {
@@ -457,8 +457,8 @@
               },
               "timingDeltaMinutes": 20,
               "absoluteTimingDeltaMinutes": 20,
-              "levelDeltaMeters": 0.1,
-              "absoluteLevelDeltaMeters": 0.1
+              "levelDeltaMeters": 0.102,
+              "absoluteLevelDeltaMeters": 0.102
             }
           ],
           "unmatchedBaselineEvents": [],
@@ -468,14 +468,14 @@
             "candidateEventCount": 4,
             "matchedEventCount": 4,
             "eventCoverage": 1,
-            "meanAbsoluteTimingErrorMinutes": 10,
-            "meanTimingBiasMinutes": 10,
-            "maxAbsoluteTimingErrorMinutes": 20,
-            "rmseTimingMinutes": 14.14,
-            "meanAbsoluteLevelErrorMeters": 0.052,
-            "meanLevelBiasMeters": 0.022,
-            "maxAbsoluteLevelErrorMeters": 0.1,
-            "rmseLevelMeters": 0.061,
+            "meanAbsoluteTimingErrorMinutes": 17.5,
+            "meanTimingBiasMinutes": 17.5,
+            "maxAbsoluteTimingErrorMinutes": 30,
+            "rmseTimingMinutes": 20.62,
+            "meanAbsoluteLevelErrorMeters": 0.048,
+            "meanLevelBiasMeters": 0.025,
+            "maxAbsoluteLevelErrorMeters": 0.102,
+            "rmseLevelMeters": 0.058,
             "supportsHeightComparison": true,
             "accuracyPass": true,
             "thresholdTimingMaeMinutes": 30,
@@ -521,28 +521,28 @@
             "type": "high",
             "timestamp": "2026-08-15T00:30:00+07:00",
             "clockTime": "00:30",
-            "level": 2.205,
+            "level": 2.217,
             "confidence": 68
           },
           {
             "type": "low",
             "timestamp": "2026-08-15T08:00:00+07:00",
             "clockTime": "08:00",
-            "level": 1.045,
+            "level": 1.024,
             "confidence": 68
           },
           {
             "type": "high",
-            "timestamp": "2026-08-15T13:30:00+07:00",
-            "clockTime": "13:30",
-            "level": 1.39,
+            "timestamp": "2026-08-15T14:00:00+07:00",
+            "clockTime": "14:00",
+            "level": 1.398,
             "confidence": 68
           },
           {
             "type": "low",
-            "timestamp": "2026-08-15T17:30:00+07:00",
-            "clockTime": "17:30",
-            "level": 1.241,
+            "timestamp": "2026-08-15T18:00:00+07:00",
+            "clockTime": "18:00",
+            "level": 1.245,
             "confidence": 68
           }
         ],
@@ -609,7 +609,7 @@
             "rawEventCount": 4,
             "metadata": {
               "validationEventCount": 4,
-              "calibrationRecommendation": "phase_shift_minutes=30"
+              "calibrationRecommendation": "phase_shift_minutes=15"
             }
           },
           "calibrationSuggestion": {
@@ -617,7 +617,7 @@
             "locationId": "benchmark-lower-gulf-samui",
             "sourceId": "validation_fixture",
             "matchedEventCount": 4,
-            "timeOffsetMinutesDelta": 30,
+            "timeOffsetMinutesDelta": 15,
             "levelOffsetMetersDelta": 0.002,
             "note": "Apply these deltas to station harmonic constants only after source data is verified."
           },
@@ -627,7 +627,7 @@
                 "type": "high",
                 "timestamp": "2026-08-15T00:30:00+07:00",
                 "clockTime": "00:30",
-                "level": 2.205,
+                "level": 2.217,
                 "confidence": 68
               },
               "candidate": {
@@ -639,15 +639,15 @@
               },
               "timingDeltaMinutes": 30,
               "absoluteTimingDeltaMinutes": 30,
-              "levelDeltaMeters": 0.095,
-              "absoluteLevelDeltaMeters": 0.095
+              "levelDeltaMeters": 0.083,
+              "absoluteLevelDeltaMeters": 0.083
             },
             {
               "baseline": {
                 "type": "low",
                 "timestamp": "2026-08-15T08:00:00+07:00",
                 "clockTime": "08:00",
-                "level": 1.045,
+                "level": 1.024,
                 "confidence": 68
               },
               "candidate": {
@@ -659,15 +659,15 @@
               },
               "timingDeltaMinutes": 60,
               "absoluteTimingDeltaMinutes": 60,
-              "levelDeltaMeters": -0.045,
-              "absoluteLevelDeltaMeters": 0.045
+              "levelDeltaMeters": -0.024,
+              "absoluteLevelDeltaMeters": 0.024
             },
             {
               "baseline": {
                 "type": "high",
-                "timestamp": "2026-08-15T13:30:00+07:00",
-                "clockTime": "13:30",
-                "level": 1.39,
+                "timestamp": "2026-08-15T14:00:00+07:00",
+                "clockTime": "14:00",
+                "level": 1.398,
                 "confidence": 68
               },
               "candidate": {
@@ -677,17 +677,17 @@
                 "level": 1.4,
                 "confidence": 95
               },
-              "timingDeltaMinutes": 30,
-              "absoluteTimingDeltaMinutes": 30,
-              "levelDeltaMeters": 0.01,
-              "absoluteLevelDeltaMeters": 0.01
+              "timingDeltaMinutes": 0,
+              "absoluteTimingDeltaMinutes": 0,
+              "levelDeltaMeters": 0.002,
+              "absoluteLevelDeltaMeters": 0.002
             },
             {
               "baseline": {
                 "type": "low",
-                "timestamp": "2026-08-15T17:30:00+07:00",
-                "clockTime": "17:30",
-                "level": 1.241,
+                "timestamp": "2026-08-15T18:00:00+07:00",
+                "clockTime": "18:00",
+                "level": 1.245,
                 "confidence": 68
               },
               "candidate": {
@@ -697,10 +697,10 @@
                 "level": 1.19,
                 "confidence": 95
               },
-              "timingDeltaMinutes": 0,
-              "absoluteTimingDeltaMinutes": 0,
-              "levelDeltaMeters": -0.051,
-              "absoluteLevelDeltaMeters": 0.051
+              "timingDeltaMinutes": -30,
+              "absoluteTimingDeltaMinutes": 30,
+              "levelDeltaMeters": -0.055,
+              "absoluteLevelDeltaMeters": 0.055
             }
           ],
           "unmatchedBaselineEvents": [],
@@ -711,13 +711,13 @@
             "matchedEventCount": 4,
             "eventCoverage": 1,
             "meanAbsoluteTimingErrorMinutes": 30,
-            "meanTimingBiasMinutes": 30,
+            "meanTimingBiasMinutes": 15,
             "maxAbsoluteTimingErrorMinutes": 60,
             "rmseTimingMinutes": 36.74,
-            "meanAbsoluteLevelErrorMeters": 0.05,
+            "meanAbsoluteLevelErrorMeters": 0.041,
             "meanLevelBiasMeters": 0.002,
-            "maxAbsoluteLevelErrorMeters": 0.095,
-            "rmseLevelMeters": 0.059,
+            "maxAbsoluteLevelErrorMeters": 0.083,
+            "rmseLevelMeters": 0.051,
             "supportsHeightComparison": true,
             "accuracyPass": true,
             "thresholdTimingMaeMinutes": 30,
@@ -763,28 +763,28 @@
             "type": "high",
             "timestamp": "2026-08-15T00:00:00+07:00",
             "clockTime": "00:00",
-            "level": 3.238,
+            "level": 3.243,
             "confidence": 68
           },
           {
             "type": "low",
             "timestamp": "2026-08-15T06:00:00+07:00",
             "clockTime": "06:00",
-            "level": 0.806,
+            "level": 0.816,
             "confidence": 68
           },
           {
             "type": "high",
             "timestamp": "2026-08-15T12:00:00+07:00",
             "clockTime": "12:00",
-            "level": 3.394,
+            "level": 3.407,
             "confidence": 68
           },
           {
             "type": "low",
             "timestamp": "2026-08-15T18:30:00+07:00",
             "clockTime": "18:30",
-            "level": 0.63,
+            "level": 0.637,
             "confidence": 68
           }
         ],
@@ -793,7 +793,7 @@
           "engine": "station-harmonic-v1",
           "intervalMinutes": 30,
           "stationId": "hydro-36",
-          "constituents": 18,
+          "constituents": 17,
           "dominantConstituentQuarterPeriodMinutes": 186.30901830666204
         }
       },
@@ -860,7 +860,7 @@
             "sourceId": "validation_fixture",
             "matchedEventCount": 4,
             "timeOffsetMinutesDelta": 2.5,
-            "levelOffsetMetersDelta": -0.002,
+            "levelOffsetMetersDelta": -0.011,
             "note": "Apply these deltas to station harmonic constants only after source data is verified."
           },
           "matches": [
@@ -869,7 +869,7 @@
                 "type": "high",
                 "timestamp": "2026-08-15T00:00:00+07:00",
                 "clockTime": "00:00",
-                "level": 3.238,
+                "level": 3.243,
                 "confidence": 68
               },
               "candidate": {
@@ -881,15 +881,15 @@
               },
               "timingDeltaMinutes": 0,
               "absoluteTimingDeltaMinutes": 0,
-              "levelDeltaMeters": -0.038,
-              "absoluteLevelDeltaMeters": 0.038
+              "levelDeltaMeters": -0.043,
+              "absoluteLevelDeltaMeters": 0.043
             },
             {
               "baseline": {
                 "type": "low",
                 "timestamp": "2026-08-15T06:00:00+07:00",
                 "clockTime": "06:00",
-                "level": 0.806,
+                "level": 0.816,
                 "confidence": 68
               },
               "candidate": {
@@ -901,15 +901,15 @@
               },
               "timingDeltaMinutes": 0,
               "absoluteTimingDeltaMinutes": 0,
-              "levelDeltaMeters": -0.006,
-              "absoluteLevelDeltaMeters": 0.006
+              "levelDeltaMeters": -0.016,
+              "absoluteLevelDeltaMeters": 0.016
             },
             {
               "baseline": {
                 "type": "high",
                 "timestamp": "2026-08-15T12:00:00+07:00",
                 "clockTime": "12:00",
-                "level": 3.394,
+                "level": 3.407,
                 "confidence": 68
               },
               "candidate": {
@@ -921,15 +921,15 @@
               },
               "timingDeltaMinutes": 10,
               "absoluteTimingDeltaMinutes": 10,
-              "levelDeltaMeters": 0.006,
-              "absoluteLevelDeltaMeters": 0.006
+              "levelDeltaMeters": -0.007,
+              "absoluteLevelDeltaMeters": 0.007
             },
             {
               "baseline": {
                 "type": "low",
                 "timestamp": "2026-08-15T18:30:00+07:00",
                 "clockTime": "18:30",
-                "level": 0.63,
+                "level": 0.637,
                 "confidence": 68
               },
               "candidate": {
@@ -941,8 +941,8 @@
               },
               "timingDeltaMinutes": 0,
               "absoluteTimingDeltaMinutes": 0,
-              "levelDeltaMeters": 0.03,
-              "absoluteLevelDeltaMeters": 0.03
+              "levelDeltaMeters": 0.023,
+              "absoluteLevelDeltaMeters": 0.023
             }
           ],
           "unmatchedBaselineEvents": [],
@@ -956,10 +956,10 @@
             "meanTimingBiasMinutes": 2.5,
             "maxAbsoluteTimingErrorMinutes": 10,
             "rmseTimingMinutes": 5,
-            "meanAbsoluteLevelErrorMeters": 0.02,
-            "meanLevelBiasMeters": -0.002,
-            "maxAbsoluteLevelErrorMeters": 0.038,
-            "rmseLevelMeters": 0.025,
+            "meanAbsoluteLevelErrorMeters": 0.022,
+            "meanLevelBiasMeters": -0.011,
+            "maxAbsoluteLevelErrorMeters": 0.043,
+            "rmseLevelMeters": 0.026,
             "supportsHeightComparison": true,
             "accuracyPass": true,
             "thresholdTimingMaeMinutes": 30,

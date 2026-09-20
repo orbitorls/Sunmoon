@@ -6,7 +6,7 @@ import {
   writeComparisonArtifacts,
   type ComparisonLocation,
   type ComparisonSourceId,
-} from '../lib/tide-comparison'
+} from '../lib/comparison'
 
 function parseArgument(name: string): string | undefined {
   return process.argv

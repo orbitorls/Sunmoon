@@ -20,7 +20,7 @@ function resolveLineApiBaseUrl(): string {
   }
 }
 
-const LINE_API_BASE = `${resolveLineApiBaseUrl()}/v2/bot`
+export const LINE_API_BASE = `${resolveLineApiBaseUrl()}/v2/bot`
 const DEFAULT_RETRY_ATTEMPTS = 3
 
 function getChannelAccessToken(): string {

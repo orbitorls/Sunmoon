@@ -5,7 +5,7 @@ import {
   findHighLowTides,
   predictTideLevel,
   type TideConstituent,
-} from '../lib/harmonic-tide-core'
+} from '../lib/harmonic'
 import { calculateAstronomicalArguments } from '../lib/ephemerides'
 
 const constituent: TideConstituent = {

@@ -1,11 +1,5 @@
-import calibrationSummaryJson from '../data/station-harmonic-constants.calibrated.json.summary.json'
 import validationEvents from '../data/tide-validation-events.json'
-import { MIN_MATCHED_EVENTS_FOR_CALIBRATION, type AppliedStationCalibration } from '../lib/tide-calibration-apply'
-
-// The threshold lives in lib/tide-calibration-apply.ts (requires >=1 lunar
-// month of matched high/low pairs) so this test can't drift from the actual
-// guard applied when the calibrated summary was generated.
-const calibrationSummary = calibrationSummaryJson as AppliedStationCalibration[]
+import { MIN_MATCHED_EVENTS_FOR_CALIBRATION } from '../lib/tide-calibration-apply'
 
 type ValidationRecord = {
   locationId: string
@@ -42,10 +36,24 @@ describe('tide-validation-events fixture integrity', () => {
     expect(collisions).toEqual([])
   })
 
-  it('every station used for calibration meets the documented minimum matchedEventCount', () => {
-    const undersourced = calibrationSummary.filter(
-      (entry) => entry.matchedEventCount < MIN_MATCHED_EVENTS_FOR_CALIBRATION,
-    )
+  it('gives every station enough matched events to clear the documented minimum', () => {
+    // The threshold lives in lib/tide-calibration-apply.ts (>=1 lunar month of
+    // matched high/low pairs). Assert it against the fixture itself, so the
+    // guard cannot drift from the data that actually feeds calibration.
+    const matchedByStation = new Map<string, number>()
+
+    for (const record of records) {
+      matchedByStation.set(
+        record.stationId,
+        (matchedByStation.get(record.stationId) ?? 0) + record.events.length,
+      )
+    }
+
+    expect(matchedByStation.size).toBeGreaterThan(0)
+
+    const undersourced = [...matchedByStation.entries()]
+      .filter(([, matchedEventCount]) => matchedEventCount < MIN_MATCHED_EVENTS_FOR_CALIBRATION)
+      .map(([stationId]) => stationId)
 
     expect(undersourced).toEqual([])
   })

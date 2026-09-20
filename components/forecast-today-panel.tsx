@@ -18,21 +18,21 @@ import {
 } from "lucide-react";
 import ForecastTrustStrip from "./forecast-trust-strip";
 import { TideStatusHero } from "./tide-status-hero";
-import { WaterLevelGraphV2 as WaterLevelGraph } from "./water-level-graph-v2";
+import { WaterLevelGraph } from "./water-level-graph";
 import DisasterAlert from "./disaster-alert";
 import WeatherTrends from "./WeatherTrends";
 import QuickActions from "./QuickActions";
 import { cn } from "@/lib/utils";
-import type { LocationData, TideData, WeatherData } from "@/lib/tide-service";
-import type { DisasterAnalysis } from "@/lib/disaster-analysis";
+import type { LocationData, TideData, WeatherData } from "@/lib/domain/types";
+import type { DisasterAnalysis } from "@/lib/domain/disaster-analysis";
 import {
   getDistanceCategory,
   getDistanceCategoryColor,
   getDistanceCategoryText,
   getPierTypeIcon,
   getPierTypeText,
-} from "@/lib/distance-utils";
-import type { NearestPier } from "@/lib/distance-utils";
+} from "@/lib/domain/geo";
+import type { NearestPier } from "@/lib/domain/geo";
 
 type ForecastTodayPanelProps = {
   loading: boolean;
@@ -79,7 +79,7 @@ export default function ForecastTodayPanel({
       <Card className="border-0 shadow-xl shadow-sky-100/60 dark:bg-slate-900/90 dark:shadow-none">
         <CardContent className="flex flex-col items-center justify-center px-8 py-16 text-center">
           <div className="relative mb-6">
-            <div className="h-16 w-16 animate-spin rounded-full border-4 border-sky-200 border-t-sky-600" />
+            <div className="h-16 w-16 animate-spin rounded-full border-4 border-sky-200 border-t-sky-600 motion-reduce:animate-none" />
             <div className="absolute inset-0 flex items-center justify-center">
               <Map className="h-6 w-6 text-sky-600" />
             </div>
@@ -97,9 +97,9 @@ export default function ForecastTodayPanel({
 
   let nextEvent:
     | {
-        type: string;
+        type: "high" | "low";
         time: string;
-        level?: number;
+        level: number;
       }
     | undefined;
 
@@ -129,11 +129,11 @@ export default function ForecastTodayPanel({
   return (
     <div className="space-y-6">
       <div className="grid gap-3 md:grid-cols-[1.15fr_repeat(4,minmax(0,1fr))]">
-        <Card className="border-0 bg-slate-950 text-white shadow-xl shadow-slate-200/70 dark:bg-slate-900 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-slate-950 text-white shadow-xl shadow-slate-200/70 transition-shadow duration-200 motion-reduce:transition-none dark:bg-slate-900 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/50">ตัวเลขที่ต้องดูตอนนี้</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/60">ตัวเลขที่ต้องดูตอนนี้</div>
             <div className="mt-3 flex items-end gap-2">
-              <span className="text-5xl font-black leading-none">
+              <span className="text-5xl font-black leading-none tabular-nums">
                 {currentTideData.currentWaterLevel.toFixed(2)}
               </span>
               <span className="pb-1 text-lg font-bold text-white/60">ม.</span>
@@ -142,33 +142,33 @@ export default function ForecastTodayPanel({
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-white shadow-md shadow-slate-100 dark:bg-slate-900/80 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">น้ำขึ้นสูงสุด</div>
-            <div className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{currentTideData.highTideTime || "-"}</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">น้ำขึ้นสูงสุด</div>
+            <div className="mt-3 text-3xl font-black tabular-nums text-slate-900 dark:text-white">{currentTideData.highTideTime || "-"}</div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-white shadow-md shadow-slate-100 dark:bg-slate-900/80 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">น้ำลงต่ำสุด</div>
-            <div className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{currentTideData.lowTideTime || "-"}</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">น้ำลงต่ำสุด</div>
+            <div className="mt-3 text-3xl font-black tabular-nums text-slate-900 dark:text-white">{currentTideData.lowTideTime || "-"}</div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-white shadow-md shadow-slate-100 dark:bg-slate-900/80 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">อุณหภูมิ</div>
-            <div className="mt-3 flex items-center gap-2 text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">อุณหภูมิ</div>
+            <div className="mt-3 flex items-center gap-2 text-3xl font-black tabular-nums text-slate-900 dark:text-white">
               <Thermometer className="h-5 w-5 text-orange-500" />
               {Math.round(currentWeatherData.main?.temp ?? 0)}°C
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-white shadow-md shadow-slate-100 dark:bg-slate-900/80 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">สภาพน้ำวันนี้</div>
+            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">สภาพน้ำวันนี้</div>
             <div className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{currentTideData.tideStatus}</div>
           </CardContent>
         </Card>
@@ -180,6 +180,11 @@ export default function ForecastTodayPanel({
         apiStatusMessage={currentTideData.apiStatusMessage}
         isFromCache={currentTideData.isFromCache}
         lastUpdated={currentTideData.lastUpdated}
+        qualityScore={currentTideData.qualityScore}
+        confidenceMethod={currentTideData.confidenceMethod}
+        degraded={currentTideData.degraded}
+        degradedReason={currentTideData.degradedReason}
+        measuredAccuracy={currentTideData.measuredAccuracy}
       />
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
@@ -187,10 +192,12 @@ export default function ForecastTodayPanel({
           status={currentTideData.waterLevelStatus}
           currentLevel={currentTideData.currentWaterLevel}
           nextEvent={nextEvent}
+          stationId={currentTideData.stationId}
+          location={{ lat: selectedLocation.lat, lon: selectedLocation.lon }}
           className="h-full"
         />
 
-        <Card className="border-0 bg-gradient-to-br from-[#f8fbff] via-white to-[#eef8ff] shadow-xl shadow-sky-100/60 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-gradient-to-br from-[#f8fbff] via-white to-[#eef8ff] shadow-xl shadow-sky-100/60 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 dark:shadow-none">
           <CardHeader className="pb-4">
             <CardTitle className="flex items-center gap-2 text-xl font-black text-slate-900 dark:text-white">
               <Compass className="h-5 w-5 text-sky-600" />
@@ -203,33 +210,33 @@ export default function ForecastTodayPanel({
             </p>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-sky-100 dark:bg-slate-800/80 dark:ring-slate-700">
-                <div className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-sky-100 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none dark:bg-slate-800/80 dark:ring-slate-700">
+                <div className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">
                   น้ำขึ้นสูงสุด
                 </div>
-                <div className="text-lg font-black text-slate-900 dark:text-white">
+                <div className="text-lg font-black tabular-nums text-slate-900 dark:text-white">
                   {currentTideData.highTideTime || "-"}
                 </div>
               </div>
-              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-sky-100 dark:bg-slate-800/80 dark:ring-slate-700">
-                <div className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-sky-100 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none dark:bg-slate-800/80 dark:ring-slate-700">
+                <div className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">
                   น้ำลงต่ำสุด
                 </div>
-                <div className="text-lg font-black text-slate-900 dark:text-white">
+                <div className="text-lg font-black tabular-nums text-slate-900 dark:text-white">
                   {currentTideData.lowTideTime || "-"}
                 </div>
               </div>
-              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-sky-100 dark:bg-slate-800/80 dark:ring-slate-700">
-                <div className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-sky-100 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none dark:bg-slate-800/80 dark:ring-slate-700">
+                <div className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">
                   อุณหภูมิ
                 </div>
-                <div className="flex items-center gap-2 text-lg font-black text-slate-900 dark:text-white">
+                <div className="flex items-center gap-2 text-lg font-black tabular-nums text-slate-900 dark:text-white">
                   <Thermometer className="h-4 w-4 text-orange-500" />
                   {Math.round(currentWeatherData.main?.temp ?? 0)}°C
                 </div>
               </div>
-              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-sky-100 dark:bg-slate-800/80 dark:ring-slate-700">
-                <div className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
+              <div className="rounded-2xl bg-white/90 p-4 shadow-sm ring-1 ring-sky-100 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none dark:bg-slate-800/80 dark:ring-slate-700">
+                <div className="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">
                   สภาพน้ำวันนี้
                 </div>
                 <div className="text-lg font-black text-slate-900 dark:text-white">
@@ -241,7 +248,7 @@ export default function ForecastTodayPanel({
             <div className="grid gap-3 sm:grid-cols-2">
               <Button
                 size="lg"
-                className="h-14 rounded-2xl bg-sky-600 text-base font-bold hover:bg-sky-700"
+                className="h-14 cursor-pointer rounded-2xl bg-sky-600 text-base font-bold transition-colors duration-200 hover:bg-sky-700 focus-enhanced"
                 onClick={onOpenMultiday}
               >
                 <CalendarDays className="mr-2 h-5 w-5" />
@@ -250,7 +257,7 @@ export default function ForecastTodayPanel({
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 rounded-2xl border-slate-200 bg-white text-base font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                className="h-14 cursor-pointer rounded-2xl border-slate-200 bg-white text-base font-bold text-slate-700 transition-colors duration-200 hover:bg-slate-50 focus-enhanced dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 onClick={onOpenRiskMap}
               >
                 <Map className="mr-2 h-5 w-5" />
@@ -261,49 +268,54 @@ export default function ForecastTodayPanel({
         </Card>
       </div>
 
-      {disasterAnalysis && <DisasterAlert analysis={disasterAnalysis} />}
+      {disasterAnalysis && (
+        <DisasterAlert
+          analysis={disasterAnalysis}
+          location={{ lat: selectedLocation.lat, lon: selectedLocation.lon }}
+        />
+      )}
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 bg-white shadow-md shadow-slate-100 dark:bg-slate-900/80 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="mb-3 flex items-center gap-2 text-slate-500 dark:text-slate-400">
+            <div className="mb-3 flex items-center gap-2 text-slate-600 dark:text-slate-400">
               <CloudSun className="h-4 w-4 text-sky-500" />
               <span className="text-sm font-semibold">อากาศตอนนี้</span>
             </div>
             <div className="text-2xl font-black text-slate-900 dark:text-white">
               {currentWeatherData.weather?.[0]?.description || "ไม่มีข้อมูล"}
             </div>
-            <div className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="mt-2 text-sm tabular-nums text-slate-600 dark:text-slate-400">
               รู้สึกเหมือน {Math.round(currentWeatherData.main?.feels_like ?? 0)}°C
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-white shadow-md shadow-slate-100 dark:bg-slate-900/80 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="mb-3 flex items-center gap-2 text-slate-500 dark:text-slate-400">
+            <div className="mb-3 flex items-center gap-2 text-slate-600 dark:text-slate-400">
               <Wind className="h-4 w-4 text-emerald-500" />
               <span className="text-sm font-semibold">ลมและความชื้น</span>
             </div>
-            <div className="text-2xl font-black text-slate-900 dark:text-white">
+            <div className="text-2xl font-black tabular-nums text-slate-900 dark:text-white">
               {currentWeatherData.wind?.speed ?? 0} m/s
             </div>
-            <div className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="mt-2 text-sm tabular-nums text-slate-600 dark:text-slate-400">
               ความชื้น {currentWeatherData.main?.humidity ?? 0}%
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 bg-white shadow-md shadow-slate-100 dark:bg-slate-900/80 dark:shadow-none">
+        <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="mb-3 flex items-center gap-2 text-slate-500 dark:text-slate-400">
+            <div className="mb-3 flex items-center gap-2 text-slate-600 dark:text-slate-400">
               <Droplet className="h-4 w-4 text-blue-500" />
               <span className="text-sm font-semibold">ความหมายของวันนี้</span>
             </div>
             <div className="text-2xl font-black text-slate-900 dark:text-white">
               {currentTideData.tideStatus}
             </div>
-            <div className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="mt-2 text-sm text-slate-600 dark:text-slate-400">
               {currentTideData.tideStatus === "น้ำเป็น"
                 ? "ช่วงต่างระดับน้ำค่อนข้างชัด ควรดูเวลาน้ำขึ้นน้ำลงให้แม่น"
                 : "ระดับน้ำเปลี่ยนไม่รุนแรงมาก เหมาะกับการวางแผนแบบสบายขึ้น"}
@@ -328,7 +340,7 @@ export default function ForecastTodayPanel({
           {currentTideData.graphData && currentTideData.graphData.length > 0 ? (
             <WaterLevelGraph tideData={currentTideData} location={selectedLocation} />
           ) : (
-            <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-600 dark:border-slate-700 dark:text-slate-400">
               ยังไม่มีข้อมูลกราฟสำหรับตำแหน่งนี้
             </div>
           )}
@@ -351,7 +363,7 @@ export default function ForecastTodayPanel({
                 </CardHeader>
                 <CardContent className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
                   <div className="rounded-2xl bg-white/80 p-4 dark:bg-slate-900/60">
-                    <div className="mb-2 text-sm text-slate-500 dark:text-slate-400">ชื่อสถานี/ท่าเรือ</div>
+                    <div className="mb-2 text-sm text-slate-600 dark:text-slate-400">ชื่อสถานี/ท่าเรือ</div>
                     <div className="text-xl font-black text-slate-900 dark:text-white">{nearestPierInfo.name}</div>
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                       <span>{getPierTypeIcon(nearestPierInfo.type)}</span>
@@ -361,7 +373,7 @@ export default function ForecastTodayPanel({
                     </div>
                   </div>
                   <div className="rounded-2xl bg-white/80 p-4 dark:bg-slate-900/60">
-                    <div className="mb-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                    <div className="mb-2 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                       <MapPin className="h-4 w-4" />
                       ระยะจากจุดที่คุณดู
                     </div>
@@ -402,7 +414,7 @@ export default function ForecastTodayPanel({
                   {currentWeatherData && currentWeatherData.main.temp > 0 ? (
                     <WeatherTrends weatherData={currentWeatherData} />
                   ) : (
-                    <div className="text-sm text-slate-500 dark:text-slate-400">ยังไม่มีข้อมูลแนวโน้มอากาศ</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400">ยังไม่มีข้อมูลแนวโน้มอากาศ</div>
                   )}
                 </CardContent>
               </Card>

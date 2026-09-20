@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import type { LocationData } from '@/lib/tide-service'
+import type { LocationData } from '@/lib/domain/types'
 import { fetchForecast } from '@/lib/services/forecast'
 import { 
   compressForecast, 

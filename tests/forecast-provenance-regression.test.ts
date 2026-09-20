@@ -2,8 +2,11 @@ import type { NextRequest } from "next/server";
 
 import benchmarkLocations from "../data/forecast-benchmark-thai-coastal.json";
 import { POST as predictTidePOST } from "../app/api/predict-tide/route";
-import { generatePredictionTimeSeries } from "../lib/harmonic-prediction";
-import { getTideData } from "../lib/tide-service";
+import {
+  getStationHarmonicDiagnostics,
+  getStationHarmonicPrediction,
+} from "../lib/harmonic";
+import { getTideData } from "../lib/domain/forecast-facade";
 
 type BenchmarkLocation = (typeof benchmarkLocations)[number];
 
@@ -11,12 +14,12 @@ const TEST_DATE = new Date("2025-03-24T06:00:00Z");
 const CANONICAL_START = new Date("2025-03-24T00:00:00Z");
 const CANONICAL_END = new Date("2025-03-25T00:00:00Z");
 
-function formatTime(date: Date): string {
-  return date.toISOString().slice(11, 16);
-}
-
 function roundLevel(value: number): number {
   return Number(value.toFixed(3));
+}
+
+function formatThailandClock(date: Date): string {
+  return new Date(date.getTime() + 7 * 60 * 60 * 1000).toISOString().slice(11, 16);
 }
 
 function annotatePredictionTypes(
@@ -113,7 +116,7 @@ describe("forecast provenance regression", () => {
       expect(location.zone).toEqual(expect.any(String));
       expect(location.expectedStationId).toEqual(expect.any(String));
       expect(location.expectedStationName).toEqual(expect.any(String));
-      expect(location.expectedSourceTier).toBe("station_projected");
+      expect(location.expectedSourceTier).toBe("station_harmonic");
       expect(location.modelFamily).toBe("harmonic");
       expect(location.notes).toEqual(expect.any(String));
 
@@ -125,8 +128,20 @@ describe("forecast provenance regression", () => {
     expect(stationIds.size).toBe(4);
   });
 
+  it("reports station harmonic constant coverage without inventing missing station constants", () => {
+    const diagnostics = getStationHarmonicDiagnostics();
+
+    expect(diagnostics.totalStations).toBe(38);
+    expect(diagnostics.configuredStations).toBe(19);
+    expect(diagnostics.missingStationIds).toHaveLength(
+      diagnostics.totalStations - diagnostics.configuredStations,
+    );
+    expect(diagnostics.missingStationIds).toContain("hydro-2");
+    expect(diagnostics.invalidStationIds).toHaveLength(0);
+  });
+
   it.each(benchmarkLocations as BenchmarkLocation[])(
-    "returns canonical harmonic route output for %s",
+    "returns station harmonic route output for %s",
     async (location) => {
       const randomSpy = jest.spyOn(Math, "random");
       const response = await predictTidePOST(buildPredictionRequest(location));
@@ -141,6 +156,7 @@ describe("forecast provenance regression", () => {
         lowTides: Array<{ time: string; level: number }>;
         metadata: {
           engine: string;
+          stationId: string;
           constituents: number;
           datum: string;
           version: string;
@@ -150,16 +166,13 @@ describe("forecast provenance regression", () => {
         };
       };
 
-      const canonicalSeries = generatePredictionTimeSeries(
+      const stationPrediction = getStationHarmonicPrediction(
+        { lat: location.lat, lon: location.lon },
         CANONICAL_START,
         CANONICAL_END,
-        {
-          lat: location.lat,
-          lon: location.lon,
-          name: location.name,
-        },
         60,
       );
+      expect(stationPrediction).not.toBeNull();
 
       expect(body.location.lat).toBe(location.lat);
       expect(body.location.lon).toBe(location.lon);
@@ -170,17 +183,18 @@ describe("forecast provenance regression", () => {
         start: CANONICAL_START.toISOString(),
         end: CANONICAL_END.toISOString(),
         interval: 60,
-        count: canonicalSeries.length,
+        count: stationPrediction!.series.length,
       });
       expect(body.metadata).toMatchObject({
-        engine: "Canonical Harmonic Forecast",
-        version: "canonical-harmonic-v1",
-        sourceTier: "harmonic",
-        confidenceMethod: "none",
-        qualityScore: 68,
+        engine: "Station Harmonic Forecast",
+        stationId: location.expectedStationId,
+        version: "station-harmonic-v1",
+        sourceTier: "station_harmonic",
+        confidenceMethod: "model",
+        qualityScore: stationPrediction!.qualityScore,
       });
 
-      expect(body.data).toEqual(annotatePredictionTypes(canonicalSeries));
+      expect(body.data).toEqual(annotatePredictionTypes(stationPrediction!.series));
       expect(body.highTides.length).toBeGreaterThan(0);
       expect(body.lowTides.length).toBeGreaterThan(0);
       expect(randomSpy).not.toHaveBeenCalled();
@@ -188,7 +202,7 @@ describe("forecast provenance regression", () => {
   );
 
   it.each(benchmarkLocations as BenchmarkLocation[])(
-    "returns real station-projected provenance and time-range windows for %s",
+    "returns station harmonic provenance and time-range windows for %s",
     async (location) => {
       const randomSpy = jest.spyOn(Math, "random");
       const tideData = await getTideData(
@@ -204,36 +218,36 @@ describe("forecast provenance regression", () => {
         },
       );
 
-      const canonicalSeries = generatePredictionTimeSeries(
-        new Date("2025-03-24T00:00:00Z"),
-        new Date("2025-03-24T23:00:00Z"),
-        {
-          lat: location.lat,
-          lon: location.lon,
-          name: location.name,
-        },
+      const stationPrediction = getStationHarmonicPrediction(
+        { lat: location.lat, lon: location.lon },
+        new Date("2025-03-23T17:00:00Z"),
+        new Date("2025-03-24T16:59:00Z"),
         60,
       );
+      expect(stationPrediction).not.toBeNull();
 
       expect(tideData).toMatchObject({
         tideStatus: expect.stringMatching(/^(น้ำเป็น|น้ำตาย)$/),
         apiStatus: "success",
-        sourceTier: "station_projected",
-        confidenceMethod: "empirical",
+        sourceTier: "station_harmonic",
+        confidenceMethod: "model",
         degraded: false,
-        modelVersion: "canonical-harmonic-v1",
+        modelVersion: "station-harmonic-v1",
         stationId: location.expectedStationId,
         sourceLabel: expect.stringContaining(location.expectedStationName),
       });
       expect(tideData.stationDistanceKm).toEqual(expect.any(Number));
-      expect(tideData.qualityScore).toBe(78);
+      expect(tideData.qualityScore).toBe(stationPrediction!.qualityScore);
       expect(tideData.degradedReason).toBeFalsy();
       expect(tideData.isFromCache).toBeUndefined();
-      expect(tideData.dataSource).toContain("สถานีใกล้เคียง");
-      expect(tideData.graphData).toHaveLength(canonicalSeries.length);
+      expect(tideData.dataSource).toBe("Station Harmonic Model");
+      expect(tideData.graphData).toHaveLength(stationPrediction!.series.length);
       expect(tideData.graphData.map((point) => point.time)).toEqual(
-        canonicalSeries.map((point) => formatTime(point.time)),
+        stationPrediction!.series.map((point) => formatThailandClock(point.time)),
       );
+      const levels = tideData.graphData.map((point) => point.level);
+      expect(tideData.tideEvents[0].level).toBeGreaterThanOrEqual(Math.min(...levels) - 0.1);
+      expect(tideData.tideEvents[0].level).toBeLessThanOrEqual(Math.max(...levels) + 0.1);
 
       for (const prediction of tideData.timeRangePredictions) {
         const [startHour, startMinute] = prediction.startTime

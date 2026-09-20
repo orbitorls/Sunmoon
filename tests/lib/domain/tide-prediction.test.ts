@@ -1,5 +1,5 @@
 import { predictTideEvents } from '@/lib/domain/tide-prediction';
-import type { LocationData } from '@/lib/tide-service';
+import type { LocationData } from '@/lib/domain/types';
 
 describe('predictTideEvents', () => {
   it('returns high and low tide events for Phuket on 2026-07-29', async () => {

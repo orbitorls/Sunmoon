@@ -1,4 +1,4 @@
-import type { LocationData } from "@/lib/tide-service"
+import type { LocationData } from "@/lib/domain/types"
 import { getDefaultLineLocation } from "./config"
 
 export type LineSubscriber = {

@@ -24,7 +24,7 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import type { RiskLevel } from "@/lib/disaster-analysis";
+import type { RiskLevel } from "@/lib/domain/disaster-analysis";
 
 interface SafetyTipsProps {
     currentRiskLevel?: RiskLevel;

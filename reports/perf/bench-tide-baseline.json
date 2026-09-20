@@ -1,0 +1,25 @@
+{
+  "label": "baseline",
+  "generatedAt": "2026-09-19T12:32:32.028Z",
+  "node": "v24.16.0",
+  "runs": {
+    "predictTideLevel (1 point)": {
+      "iterations": 2000,
+      "medianMs": 0.0083,
+      "meanMs": 0.0091,
+      "p95Ms": 0.0115
+    },
+    "createPredictionSeries (24h @60min)": {
+      "iterations": 100,
+      "medianMs": 0.2018,
+      "meanMs": 0.2086,
+      "p95Ms": 0.2702
+    },
+    "getStationHarmonicDayPrediction (24h)": {
+      "iterations": 100,
+      "medianMs": 7.1717,
+      "meanMs": 7.1829,
+      "p95Ms": 7.3002
+    }
+  }
+}

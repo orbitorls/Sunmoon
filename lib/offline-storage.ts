@@ -4,6 +4,8 @@
  * Enables the app to work offline with cached data
  */
 
+import { formatBytes } from "./storage/core";
+
 export interface CacheEntry<T> {
   data: T;
   timestamp: number;
@@ -258,7 +260,8 @@ export function saveLocationCache(
   location: unknown,
 ): boolean {
   const key = getStorageKey("location", lat, lon);
-  return saveToCache(key, { ...location, name }, LOCATION_CACHE_DURATION_MS);
+  const base = location && typeof location === "object" ? location : {};
+  return saveToCache(key, { ...base, name }, LOCATION_CACHE_DURATION_MS);
 }
 
 /**
@@ -350,19 +353,6 @@ export function clearAllCache(): void {
 }
 
 /**
- * Get formatted cache size string
- */
-export function formatCacheSize(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  } else if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(2)} KB`;
-  } else {
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
-  }
-}
-
-/**
  * Migrate old cache format to new one (if needed)
  */
 export function migrateCache(): void {
@@ -422,7 +412,7 @@ export function initializeOfflineStorage(): void {
     const stats = getCacheStats();
     console.log("Offline storage initialized:", {
       ...stats,
-      approximateSize: formatCacheSize(stats.approximateSize),
+      approximateSize: formatBytes(stats.approximateSize),
     });
   } catch (error) {
     console.error("Error initializing offline storage:", error);

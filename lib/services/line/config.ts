@@ -1,4 +1,4 @@
-import type { LocationData } from "@/lib/tide-service"
+import type { LocationData } from "@/lib/domain/types"
 
 const FALLBACK_LOCATION: LocationData = {
   lat: 13.7563,

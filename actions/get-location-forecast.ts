@@ -1,6 +1,6 @@
 "use server";
 
-import type { LocationData } from "@/lib/tide-service";
+import type { LocationData } from "@/lib/domain/types";
 import { fetchForecast, type ForecastResult } from "@/lib/services/forecast";
 
 export type { ForecastResult };

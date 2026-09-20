@@ -1,7 +1,6 @@
-import { deflate, inflate } from 'pako'
 import { TileData, ConstituentData } from './tile-storage'
 import { getEphemeridesMetadata } from './ephemerides'
-import { TIDAL_CONSTITUENTS } from './harmonic-prediction'
+import { TIDAL_CONSTITUENTS } from './harmonic'
 
 export interface TilePackage {
   tile: TileData
@@ -195,11 +194,31 @@ export async function verifyTileIntegrity(tile: TileData, payload: Uint8Array): 
 
 /**
  * Decompress payload to tile JSON string.
+ *
+ * Uses the native DecompressionStream where available (mirrors the pattern in
+ * lib/indexed-db.ts) and falls back to pako on older browsers. The format is
+ * `deflate` (zlib-wrapped), which is exactly what pako's `deflate`/`inflate`
+ * use, so payloads stay byte-compatible across server and client and with any
+ * tiles produced before this swap. pako is imported lazily so it stays out of
+ * the main client bundle unless the fallback actually runs.
  */
 export async function decompressToString(payload: Uint8Array): Promise<string> {
   try {
-    const result = inflate(payload)
-    return TEXT_DECODER.decode(result)
+    if (typeof DecompressionStream !== 'undefined') {
+      try {
+        const buffer = payload.buffer.slice(
+          payload.byteOffset,
+          payload.byteOffset + payload.byteLength,
+        ) as ArrayBuffer
+        const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('deflate'))
+        return await new Response(stream).text()
+      } catch {
+        // Fall through to pako for streams the native decoder cannot read.
+      }
+    }
+
+    const { inflate } = await import('pako')
+    return TEXT_DECODER.decode(inflate(payload))
   } catch (error) {
     throw new Error(`Failed to decompress tile payload: ${(error as Error).message}`)
   }
@@ -268,10 +287,26 @@ export async function calculateChecksum(data: BinaryLike): Promise<string> {
 }
 
 /**
- * Compress a string using brotli/deflate (pako).
+ * Compress a string using the native CompressionStream where available
+ * (mirrors the pattern in lib/indexed-db.ts) and falls back to pako on older
+ * browsers. Uses the zlib-wrapped `deflate` format, matching pako's `deflate`
+ * output so payloads remain readable by every existing consumer. pako is
+ * imported lazily so it stays out of the main client bundle unless the
+ * fallback actually runs.
  */
 async function compressString(data: string): Promise<Uint8Array> {
   const encoded = TEXT_ENCODER.encode(data)
+
+  if (typeof CompressionStream !== 'undefined') {
+    try {
+      const stream = new Blob([encoded]).stream().pipeThrough(new CompressionStream('deflate'))
+      return new Uint8Array(await new Response(stream).arrayBuffer())
+    } catch {
+      // Fall through to the pako fallback below.
+    }
+  }
+
+  const { deflate } = await import('pako')
   return deflate(encoded, { level: 9 })
 }
 

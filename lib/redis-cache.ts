@@ -3,7 +3,8 @@
  * Provides caching for API responses using Redis
  */
 
-// @ts-nocheck - ioredis is optional dependency
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck - ioredis is an optional dependency; this file is intentionally JS-style until types are added
 
 interface CacheEntry<T> {
   data: T;

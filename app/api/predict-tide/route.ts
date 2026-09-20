@@ -1,11 +1,10 @@
 /**
  * Real-time Tide Prediction API
- * Uses the canonical harmonic forecast series for Thai coastal predictions
+ * Uses station harmonic synthesis for Thai coastal predictions.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { generatePredictionTimeSeries, getLocationConstituents } from '@/lib/harmonic-prediction'
-import type { LocationData } from '@/lib/harmonic-prediction'
+import { getStationHarmonicPrediction } from '@/lib/harmonic'
 
 export const runtime = 'edge' // Use edge runtime for faster response
 
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
     const body: PredictionRequest = await request.json()
     
     // Validate input
-    if (!body.lat || !body.lon) {
+    if (!Number.isFinite(body.lat) || !Number.isFinite(body.lon)) {
       return NextResponse.json(
         { error: 'Missing required parameters: lat, lon' },
         { status: 400 }
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const location: LocationData = {
+    const location = {
       lat: body.lat,
       lon: body.lon,
       name: `Location ${body.lat.toFixed(4)}, ${body.lon.toFixed(4)}`
@@ -52,10 +51,17 @@ export async function POST(request: NextRequest) {
     const hours = Math.min(body.hours || 72, 168) // Max 1 week
     const interval = Math.max(body.interval || 30, 5) // Min 5 minutes
 
-    const constituents = getLocationConstituents(location)
     const endDate = new Date(startDate.getTime() + hours * 60 * 60 * 1000)
-    const series = generatePredictionTimeSeries(startDate, endDate, location, interval)
-    const predictions: TidePrediction[] = series.map((point) => ({
+    const stationPrediction = getStationHarmonicPrediction(location, startDate, endDate, interval)
+
+    if (!stationPrediction) {
+      return NextResponse.json(
+        { error: 'No configured station harmonic model is available for this location' },
+        { status: 422 }
+      )
+    }
+
+    const predictions: TidePrediction[] = stationPrediction.series.map((point) => ({
       time: point.time.toISOString(),
       waterLevel: Number(point.level.toFixed(3)),
     }))
@@ -80,9 +86,14 @@ export async function POST(request: NextRequest) {
     const meanLevel = levels.reduce((a, b) => a + b, 0) / levels.length
     const range = maxLevel - minLevel
 
-    // Find extremes
-    const highTides = predictions.filter(p => p.type === 'high')
-    const lowTides = predictions.filter(p => p.type === 'low')
+    // Find extremes from the 10-minute resolved event list, which is more
+    // accurate than the coarser prediction series for timing/level extremes.
+    const highTides = stationPrediction.events
+      .filter(e => e.type === 'high')
+      .map(e => ({ time: e.timestamp, level: e.level }))
+    const lowTides = stationPrediction.events
+      .filter(e => e.type === 'low')
+      .map(e => ({ time: e.timestamp, level: e.level }))
 
     return NextResponse.json({
       location: {
@@ -107,20 +118,23 @@ export async function POST(request: NextRequest) {
       data: predictions,
       highTides: highTides.map(p => ({
         time: p.time,
-        level: p.waterLevel
+        level: p.level
       })),
       lowTides: lowTides.map(p => ({
         time: p.time,
-        level: p.waterLevel
+        level: p.level
       })),
       metadata: {
-        engine: 'Canonical Harmonic Forecast',
-        constituents: constituents.length,
-        datum: 'MSL (Mean Sea Level)',
-        version: 'canonical-harmonic-v1',
-        sourceTier: 'harmonic',
-        confidenceMethod: 'none',
-        qualityScore: 68
+        engine: 'Station Harmonic Forecast',
+        stationId: stationPrediction.stationId,
+        stationName: stationPrediction.stationName,
+        stationDistanceKm: stationPrediction.distanceKm,
+        constituents: stationPrediction.constituentsCount,
+        datum: stationPrediction.datum,
+        version: 'station-harmonic-v1',
+        sourceTier: 'station_harmonic',
+        confidenceMethod: 'model',
+        qualityScore: stationPrediction.qualityScore
       }
     })
 
@@ -144,7 +158,7 @@ export async function GET(request: NextRequest) {
   const hours = Number(searchParams.get('hours')) || 72
   const interval = Number(searchParams.get('interval')) || 30
 
-  if (!lat || !lon) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
     return NextResponse.json(
       { error: 'Missing required parameters: lat, lon' },
       { status: 400 }

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { getLocationForecast } from "@/actions/get-location-forecast";
-import type { LocationData, TideData, WeatherData } from "@/lib/tide-service";
+import type { LocationData, TideData, WeatherData } from "@/lib/domain/types";
 import { loadTideDataCache, saveTideDataCache, loadWeatherDataCache, saveWeatherDataCache, initializeOfflineStorage } from "@/lib/offline-storage";
 
 const defaultTideData: TideData = {

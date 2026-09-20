@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { LocationData } from "@/lib/tide-service";
+import type { LocationData } from "@/lib/domain/types";
 
 const BANGKOK_DEFAULT: LocationData = {
   lat: 13.7563,

@@ -1,0 +1,25 @@
+{
+  "label": "after-ephemeris-hoist",
+  "generatedAt": "2026-09-19T12:33:16.379Z",
+  "node": "v24.16.0",
+  "runs": {
+    "predictTideLevel (1 point)": {
+      "iterations": 2000,
+      "medianMs": 0.0017,
+      "meanMs": 0.002,
+      "p95Ms": 0.0026
+    },
+    "createPredictionSeries (24h @60min)": {
+      "iterations": 100,
+      "medianMs": 0.0362,
+      "meanMs": 0.0439,
+      "p95Ms": 0.0794
+    },
+    "getStationHarmonicDayPrediction (24h)": {
+      "iterations": 100,
+      "medianMs": 1.1683,
+      "meanMs": 1.1921,
+      "p95Ms": 1.2966
+    }
+  }
+}

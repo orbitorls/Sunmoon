@@ -1,5 +1,5 @@
 import { applyCalibrationSuggestions } from '../../lib/tide-calibration-apply'
-import { type TideComparisonReport } from '../../lib/tide-comparison'
+import { type TideComparisonReport } from '../../lib/comparison'
 
 describe('applyCalibrationSuggestions', () => {
   it('applies a weighted time offset to a station with enough matched events', () => {

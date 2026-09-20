@@ -22,7 +22,7 @@ import {
   type LocationComparisonReport,
   type TideComparisonReport,
   type ValidationFixtureRecord,
-} from './tide-comparison'
+} from './comparison'
 
 export interface CommunityObservation {
   stationId: string

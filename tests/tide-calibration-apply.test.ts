@@ -1,5 +1,5 @@
 import { applyCalibrationSuggestions, MIN_MATCHED_EVENTS_FOR_CALIBRATION } from '../lib/tide-calibration-apply'
-import type { TideComparisonReport } from '../lib/tide-comparison'
+import type { TideComparisonReport } from '../lib/comparison'
 
 function buildReport(matchedEventCountForHydro1 = MIN_MATCHED_EVENTS_FOR_CALIBRATION): TideComparisonReport {
   return {

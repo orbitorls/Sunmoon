@@ -1,0 +1,18 @@
+import coreWebVitals from "eslint-config-next/core-web-vitals";
+import typescript from "eslint-config-next/typescript";
+
+/** @type {import("eslint").Linter.Config[]} */
+const eslintConfig = [
+  ...coreWebVitals,
+  ...typescript,
+  {
+    rules: {
+      "@next/next/no-html-link-for-pages": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "react-hooks/set-state-in-effect": "warn",
+      "react/display-name": "warn",
+    },
+  },
+];
+
+export default eslintConfig;

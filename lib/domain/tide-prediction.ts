@@ -2,11 +2,11 @@ import {
   CONSTITUENTS_DATABASE,
   createPredictionSeries,
   type TideConstituent,
-} from "@/lib/harmonic-tide-core";
-import { getLocationConstituents } from "@/lib/harmonic-prediction";
-import { getStationHarmonicDayPrediction } from "@/lib/station-harmonic-model";
+} from "@/lib/harmonic";
+import { getLocationConstituents } from "@/lib/harmonic";
+import { getStationHarmonicDayPrediction } from "@/lib/harmonic";
 import { getThailandDayBounds, roundToDigits } from "@/lib/thailand-time";
-import { deriveExtremesFromSeries } from "@/lib/tide-comparison";
+import { deriveExtremesFromSeries } from "@/lib/comparison";
 
 export type TideEvent = {
   time: string;

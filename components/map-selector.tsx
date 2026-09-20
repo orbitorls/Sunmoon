@@ -1,12 +1,22 @@
 "use client"
 
 import { useState, useCallback, useMemo, useEffect } from "react"
-import { Map as PigeonMap, Marker } from "pigeon-maps"
+import dynamic from "next/dynamic"
 import { Loader2, Search, Crosshair } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { LocationData } from "@/lib/tide-service"
+import type { LocationData } from "@/lib/domain/types"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+
+// pigeon-maps is heavy — load the map only when the dialog is opened.
+const MapSelectorInner = dynamic(() => import("./map-selector.client"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center bg-muted text-sm text-muted-foreground">
+      กำลังโหลดแผนที่...
+    </div>
+  ),
+})
 
 type MapSelectorProps = {
   isOpen: boolean
@@ -29,7 +39,7 @@ export default function MapSelector({ isOpen, currentLocation, onSelectLocationA
     return markerPosition ? [markerPosition.lat, markerPosition.lon] as [number, number] : [13.7563, 100.5018] as [number, number];
   }, [markerPosition])
 
-  const handleMapClick = useCallback(({ latLng }: { latLng: [number, number] }) => {
+  const handleMapClick = useCallback((latLng: [number, number]) => {
     const [lat, lon] = latLng
     setMarkerPosition({ lat, lon, name: "ตำแหน่งที่เลือก" })
     setError(null)
@@ -87,9 +97,7 @@ export default function MapSelector({ isOpen, currentLocation, onSelectLocationA
             </DialogHeader>
 
             <div className="mt-2 h-72 rounded-md overflow-hidden border">
-              <PigeonMap center={center} zoom={9} onClick={handleMapClick} attributionPrefix={false} dprs={[1, 2] as [number, number]} boxClassname="w-full h-full">
-                <Marker anchor={center} />
-              </PigeonMap>
+              <MapSelectorInner center={center} onMapClick={handleMapClick} />
             </div>
 
             <div className="mt-2 flex items-center justify-between">

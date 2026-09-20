@@ -1,5 +1,11 @@
-import { choleskySolve, fitConstituents, type FitSample } from '../lib/harmonic-fit'
-import { predictTideLevel, CONSTITUENTS_DATABASE, type TideConstituent } from '../lib/harmonic-tide-core'
+import {
+  choleskySolve,
+  densifySamples,
+  fitConstituents,
+  mergeWeightedSamples,
+  type FitSample,
+} from '../lib/harmonic'
+import { predictTideLevel, CONSTITUENTS_DATABASE, type TideConstituent } from '../lib/harmonic'
 
 const LONGITUDE = 100.58 // Bangkok, matches the constituent-basis longitude convention
 
@@ -113,5 +119,40 @@ describe('harmonic-fit', () => {
     )
     expect(result[0]).toBeCloseTo(3, 6)
     expect(result[1]).toBeCloseTo(2, 6)
+  })
+
+  it('densifySamples upsamples hourly points to a 15-minute grid', () => {
+    const hourly = buildSyntheticSeries(2, 60)
+    const densified = densifySamples(hourly, 15)
+    expect(densified.length).toBeGreaterThan(hourly.length * 3)
+    // Endpoints preserved
+    expect(densified[0].time.getTime()).toBe(hourly[0].time.getTime())
+    expect(densified[0].level).toBeCloseTo(hourly[0].level, 5)
+    const mid = densified[1]
+    expect(mid.time.getTime() - densified[0].time.getTime()).toBe(15 * 60 * 1000)
+  })
+
+  it('retains shallow-water constituents below the default amplitude floor when requested', () => {
+    const samples = buildSyntheticSeries(60, 15)
+    const names = TRUE_CONSTITUENTS.map((c) => c.name)
+    // High min amplitude drops everything except retained names above the floor.
+    const result = fitConstituents(samples, names, LONGITUDE, {
+      minAmplitudeMeters: 0.5,
+      retainNames: ['M4'],
+    })
+    const m4 = result.constituents.find((c) => c.name === 'M4')
+    expect(m4).toBeDefined()
+    expect(m4!.amplitude).toBeGreaterThanOrEqual(0.003)
+  })
+
+  it('mergeWeightedSamples duplicates extras by weight', () => {
+    const base: FitSample[] = [
+      { time: new Date('2026-01-01T00:00:00Z'), level: 1 },
+      { time: new Date('2026-01-01T02:00:00Z'), level: 2 },
+    ]
+    const extras: FitSample[] = [{ time: new Date('2026-01-01T01:00:00Z'), level: 1.5 }]
+    const merged = mergeWeightedSamples(base, extras, 3)
+    expect(merged).toHaveLength(5)
+    expect(merged.filter((s) => s.level === 1.5)).toHaveLength(3)
   })
 })

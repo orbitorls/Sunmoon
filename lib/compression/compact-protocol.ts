@@ -7,7 +7,7 @@
  * - รองรับการส่งข้อมูลแบบ Batch
  */
 
-import type { TideData, WeatherData, LocationData } from "@/lib/tide-service"
+import type { TideData, WeatherData, LocationData } from "@/lib/domain/types"
 
 /**
  * Compact Frame Format

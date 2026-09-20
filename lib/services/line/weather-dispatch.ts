@@ -1,6 +1,6 @@
-import type { LocationData } from "@/lib/tide-service"
+import type { LocationData } from "@/lib/domain/types"
 import { fetchForecast } from "@/lib/services/forecast"
-import { analyzeDisasterRisk } from "@/lib/disaster-analysis"
+import { analyzeDisasterRisk } from "@/lib/domain/disaster-analysis"
 import { broadcast, multicast, push } from "./client"
 import { getDefaultLineLocation } from "./config"
 import { buildWeatherMessages, buildDisasterAlertMessages } from "./message-builder"

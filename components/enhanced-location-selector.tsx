@@ -14,7 +14,7 @@ import {
   Calendar as CalendarDays,
   Activity,
 } from "lucide-react";
-import type { LocationData } from "@/lib/tide-service";
+import type { LocationData } from "@/lib/domain/types";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";

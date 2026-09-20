@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { calculateLunarPhase } from '@/lib/tide-service'
+import { calculateLunarPhase } from '@/lib/domain/lunar-phase'
 
 export async function GET(req: NextRequest) {
   try {

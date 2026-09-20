@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { TideData, WeatherData } from "@/lib/tide-service";
+import type { TideData, WeatherData } from "@/lib/domain/types";
 
 /**
  * Monitors weather and tide data for dangerous conditions and logs warnings.

@@ -3,152 +3,152 @@
     "stationId": "hydro-1",
     "datum": "LLW",
     "epoch": "2000-01-01T00:00:00Z",
-    "levelOffsetMeters": 1.967,
-    "timeOffsetMinutes": 0,
+    "levelOffsetMeters": 1.972,
+    "timeOffsetMinutes": 2,
     "qualityScore": 72,
     "source": "least-squares fit against Thai Navy 2026 tide table hourly heights",
     "sourceKind": "field_fit",
-    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Datum: Lowest Low Water (LLW). Calibrated against 1211 official Thai Navy tide-table fixtures (2026); timing MAE 37.5 min",
+    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples densified to 35037 points. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Hourly heights densified to 15-minute samples via cubic Hermite before fit. Official high/low extremes (1211 events, weight×8) injected for sub-hour phase. Shallow-water constituents (M4, MS4, MN4, M6) retained when amplitude ≥ 3 mm. Datum: Lowest Low Water (LLW). Calibrated against 1211 official Thai Navy tide-table fixtures (2026); timing MAE 35.6 min.",
     "constituents": [
       {
         "name": "M2",
-        "amplitude": 0.49470060483612427,
-        "phase": 166.5629926297936
+        "amplitude": 0.5006312114176977,
+        "phase": 166.5983313447225
       },
       {
         "name": "S2",
-        "amplitude": 0.24874601307898192,
-        "phase": 230.86111622443894
+        "amplitude": 0.24960788446441126,
+        "phase": 229.71296260806412
       },
       {
         "name": "N2",
-        "amplitude": 0.06277139089829664,
-        "phase": 142.37143261824133
+        "amplitude": 0.06407847526261443,
+        "phase": 142.33172677990342
       },
       {
         "name": "K2",
-        "amplitude": 0.10752001710228651,
-        "phase": 200.37500890969807
+        "amplitude": 0.10840248736767763,
+        "phase": 202.71931040237695
       },
       {
         "name": "2N2",
-        "amplitude": 0.040660116542887384,
-        "phase": 120.78230638947423
+        "amplitude": 0.0408622488089028,
+        "phase": 119.23239442259728
       },
       {
         "name": "NU2",
-        "amplitude": 0.017077796260453863,
-        "phase": 125.85402099279543
+        "amplitude": 0.019887305917469417,
+        "phase": 129.80875591745365
       },
       {
         "name": "MU2",
-        "amplitude": 0.03033765640918833,
-        "phase": 242.80724016389485
+        "amplitude": 0.028930815655074445,
+        "phase": 250.12960790199304
       },
       {
         "name": "L2",
-        "amplitude": 0.04624491356383309,
-        "phase": 0.6736855829431647
+        "amplitude": 0.04623514641931856,
+        "phase": 359.97176124651804
       },
       {
         "name": "LAMBDA2",
-        "amplitude": 0.029221975872492305,
-        "phase": 3.795115288949262
+        "amplitude": 0.029054164645034616,
+        "phase": 6.276070432328311
       },
       {
         "name": "T2",
-        "amplitude": 0.01725756564015253,
-        "phase": 146.3450468913706
+        "amplitude": 0.01706708688665009,
+        "phase": 139.0920559758809
       },
       {
         "name": "K1",
-        "amplitude": 0.5774713005629627,
-        "phase": 87.8573460955165
+        "amplitude": 0.5770617146950661,
+        "phase": 88.1173649498619
       },
       {
         "name": "O1",
-        "amplitude": 0.36481932536167844,
-        "phase": 225.02100071244644
+        "amplitude": 0.36716997731897333,
+        "phase": 224.75573398836772
       },
       {
         "name": "P1",
-        "amplitude": 0.15169124533168662,
-        "phase": 266.13356866286705
+        "amplitude": 0.15596205529711493,
+        "phase": 265.2353701174457
       },
       {
         "name": "Q1",
-        "amplitude": 0.06312938821665261,
-        "phase": 210.13521433547302
+        "amplitude": 0.06373382209045635,
+        "phase": 209.04290125888662
       },
       {
         "name": "J1",
-        "amplitude": 0.02511564096368721,
-        "phase": 158.48925325284415
+        "amplitude": 0.024662040205953816,
+        "phase": 156.71199389355752
       },
       {
         "name": "M1",
-        "amplitude": 0.02106754709855827,
-        "phase": 83.86761936634798
+        "amplitude": 0.020495983576011997,
+        "phase": 85.69587600409028
       },
       {
         "name": "OO1",
-        "amplitude": 0.046022523328092396,
-        "phase": 121.6202584426278
+        "amplitude": 0.045122600048450735,
+        "phase": 119.65581549178188
       },
       {
         "name": "RHO1",
-        "amplitude": 0.011552947863206127,
-        "phase": 193.49947466093082
+        "amplitude": 0.012333184044133999,
+        "phase": 189.93781424229897
       },
       {
         "name": "M4",
-        "amplitude": 0.04076700289403311,
-        "phase": 240.57991210386723
+        "amplitude": 0.036562345934549455,
+        "phase": 235.60822125652885
       },
       {
         "name": "MS4",
-        "amplitude": 0.034326188053778815,
-        "phase": 290.5398188222871
+        "amplitude": 0.033659039027545856,
+        "phase": 286.1730215640616
       },
       {
         "name": "MN4",
-        "amplitude": 0.013198125839150119,
-        "phase": 219.40640638150074
+        "amplitude": 0.013022865119760904,
+        "phase": 218.64760283447788
       },
       {
         "name": "M6",
-        "amplitude": 0.011932590412062212,
-        "phase": 303.24581861311947
+        "amplitude": 0.009322501377635383,
+        "phase": 297.3377116712148
       },
       {
         "name": "MM",
-        "amplitude": 0.03938440063861102,
-        "phase": 48.749798428974316
+        "amplitude": 0.03964658850087345,
+        "phase": 48.07237142719998
       },
       {
         "name": "MF",
-        "amplitude": 0.013024482735477783,
-        "phase": 174.30692144938234
+        "amplitude": 0.013166710642474017,
+        "phase": 177.68346575072133
       },
       {
         "name": "MSF",
-        "amplitude": 0.036128645261420775,
-        "phase": 114.44349893902637
+        "amplitude": 0.03380924822371529,
+        "phase": 112.8893637876186
       },
       {
         "name": "SA",
-        "amplitude": 0.1919992020030952,
-        "phase": 355.9960683968039
+        "amplitude": 0.19477408677117364,
+        "phase": 356.19807691399683
       },
       {
         "name": "SSA",
-        "amplitude": 0.031638439828721575,
-        "phase": 95.2725505183023
+        "amplitude": 0.029120772872617183,
+        "phase": 97.72744440692867
       },
       {
-        "name": "2MS6",
-        "amplitude": 0.01631020575876481,
-        "phase": 344.22213778754843
+        "name": "M3",
+        "amplitude": 0.010396173723526912,
+        "phase": 133.74172890115676
       }
     ]
   },
@@ -156,122 +156,132 @@
     "stationId": "hydro-19",
     "datum": "LLW",
     "epoch": "2000-01-01T00:00:00Z",
-    "levelOffsetMeters": 2.38,
-    "timeOffsetMinutes": 1,
+    "levelOffsetMeters": 2.384,
+    "timeOffsetMinutes": 0,
     "qualityScore": 72,
     "source": "least-squares fit against Thai Navy 2026 tide table hourly heights",
     "sourceKind": "field_fit",
-    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Datum: Lowest Low Water (LLW). Calibrated against 1122 official Thai Navy tide-table fixtures (2026); timing MAE 30.1 min",
+    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples densified to 35037 points. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Hourly heights densified to 15-minute samples via cubic Hermite before fit. Official high/low extremes (1122 events, weight×8) injected for sub-hour phase. Shallow-water constituents (M4, MS4, MN4, M6) retained when amplitude ≥ 3 mm. Datum: Lowest Low Water (LLW). Calibrated against 1122 official Thai Navy tide-table fixtures (2026); timing MAE 29.5 min.",
     "constituents": [
       {
         "name": "M2",
-        "amplitude": 0.4994260172837622,
-        "phase": 130.52754320268036
+        "amplitude": 0.5022954915129846,
+        "phase": 130.60085508771397
       },
       {
         "name": "S2",
-        "amplitude": 0.24316134606845907,
-        "phase": 195.09063031435417
+        "amplitude": 0.24609319645321,
+        "phase": 194.23553220447639
       },
       {
         "name": "N2",
-        "amplitude": 0.08803143856114491,
-        "phase": 107.36383649836398
+        "amplitude": 0.08924115774062986,
+        "phase": 107.78554957481981
       },
       {
         "name": "K2",
-        "amplitude": 0.09378236549423594,
-        "phase": 175.00304082224727
+        "amplitude": 0.09502823658635716,
+        "phase": 176.21205542650682
       },
       {
         "name": "2N2",
-        "amplitude": 0.02936600150068597,
-        "phase": 95.50017983280776
+        "amplitude": 0.028712150476841995,
+        "phase": 94.01351081136295
       },
       {
         "name": "NU2",
-        "amplitude": 0.01354562148103682,
-        "phase": 84.38834256527446
-      },
-      {
-        "name": "MU2",
-        "amplitude": 0.011408365557755373,
-        "phase": 159.98438463013372
+        "amplitude": 0.014874471487533989,
+        "phase": 86.53864449134596
       },
       {
         "name": "L2",
-        "amplitude": 0.0348191660049291,
-        "phase": 324.96816411518967
+        "amplitude": 0.03466361333850712,
+        "phase": 324.508562945791
       },
       {
         "name": "LAMBDA2",
-        "amplitude": 0.023660255830710557,
-        "phase": 320.5631657512461
+        "amplitude": 0.02214700957380033,
+        "phase": 322.7166468911944
       },
       {
         "name": "T2",
-        "amplitude": 0.015327068074376693,
-        "phase": 137.47370098313593
+        "amplitude": 0.014071494601548263,
+        "phase": 138.74928374269882
       },
       {
         "name": "K1",
-        "amplitude": 0.6539517418365921,
-        "phase": 69.0873176896664
+        "amplitude": 0.6545920351899674,
+        "phase": 69.19015050997103
       },
       {
         "name": "O1",
-        "amplitude": 0.42553754373789543,
-        "phase": 208.00986065936334
+        "amplitude": 0.4270300550796285,
+        "phase": 207.8609264716901
       },
       {
         "name": "P1",
-        "amplitude": 0.19556989281243967,
-        "phase": 251.83348556194414
+        "amplitude": 0.19464946099435276,
+        "phase": 251.77680546491376
       },
       {
         "name": "Q1",
-        "amplitude": 0.07633082297977772,
-        "phase": 193.18293208513361
+        "amplitude": 0.075475138398584,
+        "phase": 193.2717154811511
       },
       {
         "name": "J1",
-        "amplitude": 0.02890466651050941,
-        "phase": 110.50323042463799
+        "amplitude": 0.0285889585930789,
+        "phase": 109.40254566098662
       },
       {
         "name": "M1",
-        "amplitude": 0.02669899051240847,
-        "phase": 52.23472788592454
+        "amplitude": 0.026264844778227367,
+        "phase": 53.169153661504595
       },
       {
         "name": "OO1",
-        "amplitude": 0.05198348876826179,
-        "phase": 95.24555901016168
+        "amplitude": 0.05163374694193464,
+        "phase": 96.42327085995993
       },
       {
         "name": "RHO1",
-        "amplitude": 0.016060341842104513,
-        "phase": 176.00926807986104
+        "amplitude": 0.015833880195297873,
+        "phase": 174.793774680046
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.0038910704225828454,
+        "phase": 123.63448019917524
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.008075599170770567,
+        "phase": 195.94344220128352
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.0034482592942740938,
+        "phase": 181.84422102617566
       },
       {
         "name": "MF",
-        "amplitude": 0.017063512840217628,
-        "phase": 25.409510032940545
+        "amplitude": 0.016264295258959283,
+        "phase": 26.82339826522241
       },
       {
         "name": "MSF",
-        "amplitude": 0.018034902630642877,
-        "phase": 256.0533063164407
+        "amplitude": 0.01801936996284657,
+        "phase": 257.9417542712956
       },
       {
         "name": "SA",
-        "amplitude": 0.18983000644314024,
-        "phase": 16.946061331439182
+        "amplitude": 0.18968680142404945,
+        "phase": 16.8789120056623
       },
       {
         "name": "SSA",
-        "amplitude": 0.04282196007919952,
-        "phase": 345.5012809375573
+        "amplitude": 0.04223506475296842,
+        "phase": 343.8144580540628
       }
     ]
   },
@@ -279,82 +289,92 @@
     "stationId": "hydro-21",
     "datum": "LLW",
     "epoch": "2000-01-01T00:00:00Z",
-    "levelOffsetMeters": 1.717,
-    "timeOffsetMinutes": -2,
+    "levelOffsetMeters": 1.715,
+    "timeOffsetMinutes": -4,
     "qualityScore": 72,
     "source": "least-squares fit against Thai Navy 2026 tide table hourly heights",
     "sourceKind": "field_fit",
-    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Datum: Lowest Low Water (LLW). Calibrated against 830 official Thai Navy tide-table fixtures (2026); timing MAE 38.4 min",
+    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples densified to 35037 points. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Hourly heights densified to 15-minute samples via cubic Hermite before fit. Official high/low extremes (830 events, weight×8) injected for sub-hour phase. Shallow-water constituents (M4, MS4, MN4, M6) retained when amplitude ≥ 3 mm. Datum: Lowest Low Water (LLW). Calibrated against 830 official Thai Navy tide-table fixtures (2026); clean timing MAE 20.0 min (cross-day matching, miss-capped).",
     "constituents": [
       {
         "name": "M2",
-        "amplitude": 0.16259279516520464,
-        "phase": 307.9110861479404
+        "amplitude": 0.16351934391180975,
+        "phase": 307.9385101409949
       },
       {
         "name": "S2",
-        "amplitude": 0.085529089851273,
-        "phase": 21.534980292553882
+        "amplitude": 0.08680333119313352,
+        "phase": 21.538296170673107
       },
       {
         "name": "N2",
-        "amplitude": 0.02746187604894224,
-        "phase": 272.0683004833608
+        "amplitude": 0.027688359451514086,
+        "phase": 271.5560969230573
       },
       {
         "name": "K2",
-        "amplitude": 0.03449306754493228,
-        "phase": 17.40545247386342
+        "amplitude": 0.035757277581529016,
+        "phase": 16.99159760435799
       },
       {
         "name": "K1",
-        "amplitude": 0.3648425832715676,
-        "phase": 81.35043796209322
+        "amplitude": 0.36638595418572995,
+        "phase": 81.53690148359493
       },
       {
         "name": "O1",
-        "amplitude": 0.25590101626511563,
-        "phase": 218.905824388447
+        "amplitude": 0.2574514804503778,
+        "phase": 218.72544692240325
       },
       {
         "name": "P1",
-        "amplitude": 0.11497780115572699,
-        "phase": 256.02853462591764
+        "amplitude": 0.11436225344115528,
+        "phase": 255.8258315574863
       },
       {
         "name": "Q1",
-        "amplitude": 0.04981251683630526,
-        "phase": 203.03618895875843
+        "amplitude": 0.04980377962517269,
+        "phase": 202.43665447514897
       },
       {
         "name": "J1",
-        "amplitude": 0.01731982010219672,
-        "phase": 118.86861765820959
+        "amplitude": 0.01721978272207904,
+        "phase": 119.9181750346329
       },
       {
         "name": "OO1",
-        "amplitude": 0.025308485765111945,
-        "phase": 102.20917459326836
+        "amplitude": 0.025270236949397656,
+        "phase": 102.58598177823797
       },
       {
         "name": "2Q1",
-        "amplitude": 0.010328844627349459,
-        "phase": 209.03590689442265
+        "amplitude": 0.010612921446276154,
+        "phase": 210.57769523109113
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.00822236600829562,
+        "phase": 317.3578069753082
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.009135647163384731,
+        "phase": 3.718473706569398
       },
       {
         "name": "MF",
-        "amplitude": 0.010183924586206716,
-        "phase": 30.75281774714182
+        "amplitude": 0.01054213802923727,
+        "phase": 30.368275820310032
       },
       {
         "name": "SA",
-        "amplitude": 0.23849016724876432,
-        "phase": 357.1103841177545
+        "amplitude": 0.23745222049834264,
+        "phase": 357.09692392454025
       },
       {
         "name": "SSA",
-        "amplitude": 0.0719709027785307,
-        "phase": 102.8806281141313
+        "amplitude": 0.07187440949473195,
+        "phase": 102.21046827579545
       }
     ]
   },
@@ -367,97 +387,2612 @@
     "qualityScore": 72,
     "source": "least-squares fit against Thai Navy 2026 tide table hourly heights",
     "sourceKind": "field_fit",
-    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Datum: Lowest Low Water (LLW). Calibrated against 1372 official Thai Navy tide-table fixtures (2026); timing MAE 34.1 min",
+    "sourceCitation": "Amplitude/phase least-squares fit against Royal Thai Navy Hydrographic Department 2026 tide tables (Thai Waters, https://hydro.navy.mi.th/waterlaveltable), 8760 hourly samples densified to 35037 points. K1/P1 and S2/K2 fit directly (Rayleigh criterion satisfied for the one-year window). Hourly heights densified to 15-minute samples via cubic Hermite before fit. Official high/low extremes (1372 events, weight×8) injected for sub-hour phase. Datum: Lowest Low Water (LLW). Calibrated against 1372 official Thai Navy tide-table fixtures (2026); timing MAE 31.6 min.",
     "constituents": [
       {
         "name": "M2",
-        "amplitude": 0.786558767214806,
-        "phase": 297.6037168276777
+        "amplitude": 0.7882778354576924,
+        "phase": 297.6913348946901
       },
       {
         "name": "S2",
-        "amplitude": 0.4028187709796483,
-        "phase": 333.08372239461767
+        "amplitude": 0.40333984182812105,
+        "phase": 333.00690733383004
       },
       {
         "name": "N2",
-        "amplitude": 0.1531259501025271,
-        "phase": 291.1430995098523
+        "amplitude": 0.152888952832605,
+        "phase": 290.90242208680536
       },
       {
         "name": "K2",
-        "amplitude": 0.11607339383976646,
-        "phase": 328.35398367455167
+        "amplitude": 0.11633770104542795,
+        "phase": 328.1605461291348
       },
       {
         "name": "2N2",
-        "amplitude": 0.01802070912474028,
-        "phase": 286.4266243087759
+        "amplitude": 0.01860769539169082,
+        "phase": 287.6499628217292
       },
       {
         "name": "NU2",
-        "amplitude": 0.02935384594059051,
-        "phase": 286.85894730748134
+        "amplitude": 0.030062109932537072,
+        "phase": 286.92813791531796
       },
       {
         "name": "MU2",
-        "amplitude": 0.030716178732088952,
-        "phase": 317.0095050121093
+        "amplitude": 0.029303025470796072,
+        "phase": 319.64543593516134
       },
       {
         "name": "L2",
-        "amplitude": 0.03793128980382134,
-        "phase": 89.44554189865403
+        "amplitude": 0.038483447934943855,
+        "phase": 89.86157331036759
       },
       {
         "name": "LAMBDA2",
-        "amplitude": 0.013151340674023532,
-        "phase": 98.61685799087485
+        "amplitude": 0.013663447486456945,
+        "phase": 99.53183272133487
       },
       {
         "name": "T2",
-        "amplitude": 0.022779567136772014,
-        "phase": 339.8700298743172
+        "amplitude": 0.023111923206787274,
+        "phase": 339.5438560488292
       },
       {
         "name": "K1",
-        "amplitude": 0.13043266762758154,
-        "phase": 233.2966926011166
+        "amplitude": 0.13184859227476606,
+        "phase": 233.40203215864847
       },
       {
         "name": "O1",
-        "amplitude": 0.04763465617426196,
-        "phase": 19.577211750978336
+        "amplitude": 0.049803848187839346,
+        "phase": 18.78046000392129
       },
       {
         "name": "P1",
-        "amplitude": 0.039727985968416014,
-        "phase": 57.59183182803423
+        "amplitude": 0.041387775411502105,
+        "phase": 57.276622354280505
       },
       {
         "name": "OO1",
-        "amplitude": 0.013147730096392394,
-        "phase": 239.5428301220433
+        "amplitude": 0.013466224478191104,
+        "phase": 239.53719145946576
       },
       {
         "name": "MM",
-        "amplitude": 0.01003718190724187,
-        "phase": 291.32693672941116
-      },
-      {
-        "name": "MSF",
-        "amplitude": 0.010454573988584055,
-        "phase": 195.62899395515342
+        "amplitude": 0.010383591842404153,
+        "phase": 289.0207160947022
       },
       {
         "name": "SA",
-        "amplitude": 0.08542383528579159,
-        "phase": 213.46058476672644
+        "amplitude": 0.08526036513683077,
+        "phase": 213.5173724645361
       },
       {
         "name": "SSA",
-        "amplitude": 0.07792027925317788,
-        "phase": 115.25779058201908
+        "amplitude": 0.07787846233696906,
+        "phase": 115.21641930897931
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-4",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.477,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Ko Lak, Thailand), 86.9km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Lak\" (Thailand) at 86.9km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.477m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.06190925,
+        "phase": 114.629
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.01250939,
+        "phase": 85.811
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.014934210000000002,
+        "phase": 164.704
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.007227010000000001,
+        "phase": 136.134
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.00141238,
+        "phase": 50.36
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.50571649,
+        "phase": 241.039
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.15271285,
+        "phase": 240.274
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.33603128,
+        "phase": 199.398
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.06448287,
+        "phase": 181.692
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.018320799999999998,
+        "phase": 145.146
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.0035156700000000003,
+        "phase": 223.568
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00766294,
+        "phase": 214.52
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.00537206,
+        "phase": 250.823
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.21460098,
+        "phase": 105.492
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.0392694,
+        "phase": 279.493
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.00173736,
+        "phase": 140.915
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.02140209,
+        "phase": 288.277
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.00217917,
+        "phase": 151.675
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00841632,
+        "phase": 166.208
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.0058170900000000005,
+        "phase": 308.191
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0006181699999999999,
+        "phase": 167.318
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.00204097,
+        "phase": 347.488
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.00219943,
+        "phase": 98.146
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.0013411,
+        "phase": 176.54
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00152008,
+        "phase": 200.793
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.00389483,
+        "phase": 265.037
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.0018807799999999999,
+        "phase": 209.827
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00023014,
+        "phase": 64.484
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.02520567,
+        "phase": 274.053
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.01284814,
+        "phase": 180.25
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.0018970100000000002,
+        "phase": 275.313
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-5",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.715,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Ko Taphao Noi, Thailand), 60.4km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Taphao Noi\" (Thailand) at 60.4km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.715m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.78955141,
+        "phase": 279.422
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.15110754999999998,
+        "phase": 273.962
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.40051626,
+        "phase": 315.777
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.11271767,
+        "phase": 310.757
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02120352,
+        "phase": 261.679
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.13072547,
+        "phase": 44.885
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.03856849,
+        "phase": 42.826
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.048403520000000005,
+        "phase": 10.888
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.00734471,
+        "phase": 315.513
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.0036159,
+        "phase": 315.525
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.00909891,
+        "phase": 171.679
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00865061,
+        "phase": 190.425
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.013236369999999999,
+        "phase": 192.538
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.07937114,
+        "phase": 318.992
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.06371497,
+        "phase": 307.294
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.023604470000000002,
+        "phase": 315.949
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.00815759,
+        "phase": 53.671
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.028735919999999998,
+        "phase": 273.394
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.0016173799999999999,
+        "phase": 228.26
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00313979,
+        "phase": 5.372
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0031788800000000002,
+        "phase": 265.023
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.0343554,
+        "phase": 300.566
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.02791507,
+        "phase": 269.462
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.013924639999999999,
+        "phase": 257.514
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00325975,
+        "phase": 186.632
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.01047683,
+        "phase": 233.286
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00169084,
+        "phase": 17.861
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00065578,
+        "phase": 164.634
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.00892347,
+        "phase": 59.429
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00146756,
+        "phase": 302.078
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.00267914,
+        "phase": 32.306
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-8",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.834,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Langkawi, Malaysia), 78.3km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Langkawi\" (Malaysia) at 78.3km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.834m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.80590271,
+        "phase": 298.193
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.14952678,
+        "phase": 293.909
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.44721210999999994,
+        "phase": 336.042
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.12473022,
+        "phase": 330.782
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02057045,
+        "phase": 283.478
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.16835427,
+        "phase": 52.021
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.05021404,
+        "phase": 54.254
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.05219394,
+        "phase": 4.346
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.00915545,
+        "phase": 314.173
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.00439519,
+        "phase": 338.052
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.012221580000000001,
+        "phase": 78.88
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00979308,
+        "phase": 189.993
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.01542586,
+        "phase": 191.171
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.09105105999999999,
+        "phase": 317.411
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.06283998,
+        "phase": 298.524
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.02626659,
+        "phase": 338.068
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.011519360000000001,
+        "phase": 76.595
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.02955424,
+        "phase": 286.598
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00202837,
+        "phase": 243.007
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00258623,
+        "phase": 219.082
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0027517,
+        "phase": 324.366
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.046006080000000005,
+        "phase": 318.892
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.025350450000000004,
+        "phase": 287.2
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.01674192,
+        "phase": 264.925
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00463117,
+        "phase": 25.054
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.00539463,
+        "phase": 145.094
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00142302,
+        "phase": 24.884
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00076254,
+        "phase": 272.763
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.011527810000000001,
+        "phase": 75.653
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00186359,
+        "phase": 279.159
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.0030186600000000003,
+        "phase": 42.722
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-13",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 0.767,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Geting, Malaysia), 39.0km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Geting\" (Malaysia) at 39.0km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (0.767m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.16317424,
+        "phase": 203.18
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.03613918,
+        "phase": 189.274
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.07838441,
+        "phase": 234.14
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.02093089,
+        "phase": 221.946
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.0049704599999999995,
+        "phase": 168.818
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.24770178,
+        "phase": 53.995
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.07024269999999999,
+        "phase": 55.448
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.13040213,
+        "phase": 10.719
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.022134499999999998,
+        "phase": 354.594
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.00905147,
+        "phase": 329.17
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.00831517,
+        "phase": 248.265
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00692541,
+        "phase": 181.411
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.00579728,
+        "phase": 233.388
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.23012823999999998,
+        "phase": 99.558
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.04892903,
+        "phase": 322.915
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.00233436,
+        "phase": 194.808
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.01360522,
+        "phase": 110.242
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.00332763,
+        "phase": 172.57
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00225367,
+        "phase": 350.282
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00673994,
+        "phase": 308.115
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0017197100000000002,
+        "phase": 237.198
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.01018257,
+        "phase": 156.446
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.00542544,
+        "phase": 195.502
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.00152474,
+        "phase": 169.315
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.0037073899999999996,
+        "phase": 223.147
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.0052549400000000005,
+        "phase": 267.841
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00312056,
+        "phase": 251.09
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00052357,
+        "phase": 314.129
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.01603673,
+        "phase": 68.37
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00423481,
+        "phase": 356.277
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.00369527,
+        "phase": 304.262
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-15",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 0.767,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Geting, Malaysia), 118.2km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Geting\" (Malaysia) at 118.2km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (0.767m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.16317424,
+        "phase": 203.18
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.03613918,
+        "phase": 189.274
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.07838441,
+        "phase": 234.14
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.02093089,
+        "phase": 221.946
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.0049704599999999995,
+        "phase": 168.818
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.24770178,
+        "phase": 53.995
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.07024269999999999,
+        "phase": 55.448
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.13040213,
+        "phase": 10.719
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.022134499999999998,
+        "phase": 354.594
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.00905147,
+        "phase": 329.17
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.00831517,
+        "phase": 248.265
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00692541,
+        "phase": 181.411
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.00579728,
+        "phase": 233.388
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.23012823999999998,
+        "phase": 99.558
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.04892903,
+        "phase": 322.915
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.00233436,
+        "phase": 194.808
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.01360522,
+        "phase": 110.242
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.00332763,
+        "phase": 172.57
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00225367,
+        "phase": 350.282
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00673994,
+        "phase": 308.115
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0017197100000000002,
+        "phase": 237.198
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.01018257,
+        "phase": 156.446
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.00542544,
+        "phase": 195.502
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.00152474,
+        "phase": 169.315
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.0037073899999999996,
+        "phase": 223.147
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.0052549400000000005,
+        "phase": 267.841
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00312056,
+        "phase": 251.09
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00052357,
+        "phase": 314.129
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.01603673,
+        "phase": 68.37
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00423481,
+        "phase": 356.277
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.00369527,
+        "phase": 304.262
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-20",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.834,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Langkawi, Malaysia), 97.9km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Langkawi\" (Malaysia) at 97.9km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.834m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.80590271,
+        "phase": 298.193
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.14952678,
+        "phase": 293.909
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.44721210999999994,
+        "phase": 336.042
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.12473022,
+        "phase": 330.782
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02057045,
+        "phase": 283.478
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.16835427,
+        "phase": 52.021
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.05021404,
+        "phase": 54.254
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.05219394,
+        "phase": 4.346
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.00915545,
+        "phase": 314.173
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.00439519,
+        "phase": 338.052
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.012221580000000001,
+        "phase": 78.88
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00979308,
+        "phase": 189.993
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.01542586,
+        "phase": 191.171
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.09105105999999999,
+        "phase": 317.411
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.06283998,
+        "phase": 298.524
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.02626659,
+        "phase": 338.068
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.011519360000000001,
+        "phase": 76.595
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.02955424,
+        "phase": 286.598
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00202837,
+        "phase": 243.007
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00258623,
+        "phase": 219.082
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0027517,
+        "phase": 324.366
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.046006080000000005,
+        "phase": 318.892
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.025350450000000004,
+        "phase": 287.2
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.01674192,
+        "phase": 264.925
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00463117,
+        "phase": 25.054
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.00539463,
+        "phase": 145.094
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00142302,
+        "phase": 24.884
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00076254,
+        "phase": 272.763
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.011527810000000001,
+        "phase": 75.653
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00186359,
+        "phase": 279.159
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.0030186600000000003,
+        "phase": 42.722
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-23",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.715,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Ko Taphao Noi, Thailand), 0.3km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Taphao Noi\" (Thailand) at 0.3km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.715m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.78955141,
+        "phase": 279.422
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.15110754999999998,
+        "phase": 273.962
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.40051626,
+        "phase": 315.777
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.11271767,
+        "phase": 310.757
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02120352,
+        "phase": 261.679
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.13072547,
+        "phase": 44.885
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.03856849,
+        "phase": 42.826
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.048403520000000005,
+        "phase": 10.888
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.00734471,
+        "phase": 315.513
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.0036159,
+        "phase": 315.525
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.00909891,
+        "phase": 171.679
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00865061,
+        "phase": 190.425
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.013236369999999999,
+        "phase": 192.538
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.07937114,
+        "phase": 318.992
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.06371497,
+        "phase": 307.294
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.023604470000000002,
+        "phase": 315.949
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.00815759,
+        "phase": 53.671
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.028735919999999998,
+        "phase": 273.394
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.0016173799999999999,
+        "phase": 228.26
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00313979,
+        "phase": 5.372
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0031788800000000002,
+        "phase": 265.023
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.0343554,
+        "phase": 300.566
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.02791507,
+        "phase": 269.462
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.013924639999999999,
+        "phase": 257.514
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00325975,
+        "phase": 186.632
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.01047683,
+        "phase": 233.286
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00169084,
+        "phase": 17.861
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00065578,
+        "phase": 164.634
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.00892347,
+        "phase": 59.429
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00146756,
+        "phase": 302.078
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.00267914,
+        "phase": 32.306
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-25",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.715,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Ko Taphao Noi, Thailand), 84.8km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Taphao Noi\" (Thailand) at 84.8km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.715m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.78955141,
+        "phase": 279.422
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.15110754999999998,
+        "phase": 273.962
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.40051626,
+        "phase": 315.777
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.11271767,
+        "phase": 310.757
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02120352,
+        "phase": 261.679
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.13072547,
+        "phase": 44.885
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.03856849,
+        "phase": 42.826
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.048403520000000005,
+        "phase": 10.888
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.00734471,
+        "phase": 315.513
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.0036159,
+        "phase": 315.525
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.00909891,
+        "phase": 171.679
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00865061,
+        "phase": 190.425
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.013236369999999999,
+        "phase": 192.538
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.07937114,
+        "phase": 318.992
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.06371497,
+        "phase": 307.294
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.023604470000000002,
+        "phase": 315.949
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.00815759,
+        "phase": 53.671
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.028735919999999998,
+        "phase": 273.394
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.0016173799999999999,
+        "phase": 228.26
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00313979,
+        "phase": 5.372
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0031788800000000002,
+        "phase": 265.023
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.0343554,
+        "phase": 300.566
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.02791507,
+        "phase": 269.462
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.013924639999999999,
+        "phase": 257.514
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00325975,
+        "phase": 186.632
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.01047683,
+        "phase": 233.286
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00169084,
+        "phase": 17.861
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00065578,
+        "phase": 164.634
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.00892347,
+        "phase": 59.429
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00146756,
+        "phase": 302.078
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.00267914,
+        "phase": 32.306
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-28",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.772,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Langkawi, Malaysia), 24.7km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Langkawi\" (Malaysia) at 24.7km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.772m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.79511855,
+        "phase": 298.085
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.14702514,
+        "phase": 293.545
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.44249961,
+        "phase": 335.86
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.12489035,
+        "phase": 330.933
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02103746,
+        "phase": 282.582
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.16563789,
+        "phase": 52.722
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.04901381,
+        "phase": 55.87
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.05127087,
+        "phase": 4.667
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.00892177,
+        "phase": 315.312
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.00464717,
+        "phase": 336.529
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.0119404,
+        "phase": 79.497
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.01062935,
+        "phase": 188.69
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.015961760000000002,
+        "phase": 194.197
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.09261338000000001,
+        "phase": 317.834
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.06475705999999999,
+        "phase": 301.2
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.021371699999999997,
+        "phase": 330.395
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.01124001,
+        "phase": 76.773
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.02955987,
+        "phase": 288.73
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.0020455499999999997,
+        "phase": 244.956
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.0028778,
+        "phase": 197.184
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0028072799999999997,
+        "phase": 325.389
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.04526932,
+        "phase": 319.236
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.021987939999999997,
+        "phase": 286.956
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.0160165,
+        "phase": 272.545
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.0046428,
+        "phase": 26.721
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.005330850000000001,
+        "phase": 145.73
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00143687,
+        "phase": 26.307
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00076289,
+        "phase": 274.827
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.0113741,
+        "phase": 77.929
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00150359,
+        "phase": 273.187
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.0030143599999999998,
+        "phase": 44.241
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-30",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.477,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Ko Lak, Thailand), 40.0km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Lak\" (Thailand) at 40.0km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.477m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.06190925,
+        "phase": 114.629
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.01250939,
+        "phase": 85.811
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.014934210000000002,
+        "phase": 164.704
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.007227010000000001,
+        "phase": 136.134
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.00141238,
+        "phase": 50.36
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.50571649,
+        "phase": 241.039
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.15271285,
+        "phase": 240.274
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.33603128,
+        "phase": 199.398
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.06448287,
+        "phase": 181.692
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.018320799999999998,
+        "phase": 145.146
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.0035156700000000003,
+        "phase": 223.568
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00766294,
+        "phase": 214.52
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.00537206,
+        "phase": 250.823
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.21460098,
+        "phase": 105.492
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.0392694,
+        "phase": 279.493
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.00173736,
+        "phase": 140.915
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.02140209,
+        "phase": 288.277
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.00217917,
+        "phase": 151.675
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00841632,
+        "phase": 166.208
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.0058170900000000005,
+        "phase": 308.191
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0006181699999999999,
+        "phase": 167.318
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.00204097,
+        "phase": 347.488
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.00219943,
+        "phase": 98.146
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.0013411,
+        "phase": 176.54
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00152008,
+        "phase": 200.793
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.00389483,
+        "phase": 265.037
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.0018807799999999999,
+        "phase": 209.827
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00023014,
+        "phase": 64.484
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.02520567,
+        "phase": 274.053
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.01284814,
+        "phase": 180.25
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.0018970100000000002,
+        "phase": 275.313
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-33",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 0.767,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Geting, Malaysia), 33.6km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Geting\" (Malaysia) at 33.6km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (0.767m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.16317424,
+        "phase": 203.18
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.03613918,
+        "phase": 189.274
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.07838441,
+        "phase": 234.14
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.02093089,
+        "phase": 221.946
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.0049704599999999995,
+        "phase": 168.818
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.24770178,
+        "phase": 53.995
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.07024269999999999,
+        "phase": 55.448
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.13040213,
+        "phase": 10.719
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.022134499999999998,
+        "phase": 354.594
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.00905147,
+        "phase": 329.17
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.00831517,
+        "phase": 248.265
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00692541,
+        "phase": 181.411
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.00579728,
+        "phase": 233.388
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.23012823999999998,
+        "phase": 99.558
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.04892903,
+        "phase": 322.915
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.00233436,
+        "phase": 194.808
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.01360522,
+        "phase": 110.242
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.00332763,
+        "phase": 172.57
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00225367,
+        "phase": 350.282
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00673994,
+        "phase": 308.115
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0017197100000000002,
+        "phase": 237.198
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.01018257,
+        "phase": 156.446
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.00542544,
+        "phase": 195.502
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.00152474,
+        "phase": 169.315
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.0037073899999999996,
+        "phase": 223.147
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.0052549400000000005,
+        "phase": 267.841
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00312056,
+        "phase": 251.09
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00052357,
+        "phase": 314.129
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.01603673,
+        "phase": 68.37
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00423481,
+        "phase": 356.277
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.00369527,
+        "phase": 304.262
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-34",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.477,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Ko Lak, Thailand), 54.4km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Lak\" (Thailand) at 54.4km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.477m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.06190925,
+        "phase": 114.629
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.01250939,
+        "phase": 85.811
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.014934210000000002,
+        "phase": 164.704
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.007227010000000001,
+        "phase": 136.134
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.00141238,
+        "phase": 50.36
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.50571649,
+        "phase": 241.039
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.15271285,
+        "phase": 240.274
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.33603128,
+        "phase": 199.398
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.06448287,
+        "phase": 181.692
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.018320799999999998,
+        "phase": 145.146
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.0035156700000000003,
+        "phase": 223.568
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00766294,
+        "phase": 214.52
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.00537206,
+        "phase": 250.823
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.21460098,
+        "phase": 105.492
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.0392694,
+        "phase": 279.493
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.00173736,
+        "phase": 140.915
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.02140209,
+        "phase": 288.277
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.00217917,
+        "phase": 151.675
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00841632,
+        "phase": 166.208
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.0058170900000000005,
+        "phase": 308.191
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0006181699999999999,
+        "phase": 167.318
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.00204097,
+        "phase": 347.488
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.00219943,
+        "phase": 98.146
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.0013411,
+        "phase": 176.54
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00152008,
+        "phase": 200.793
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.00389483,
+        "phase": 265.037
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.0018807799999999999,
+        "phase": 209.827
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00023014,
+        "phase": 64.484
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.02520567,
+        "phase": 274.053
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.01284814,
+        "phase": 180.25
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.0018970100000000002,
+        "phase": 275.313
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-35",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.477,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Ko Lak, Thailand), 71.0km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Lak\" (Thailand) at 71.0km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.477m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.06190925,
+        "phase": 114.629
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.01250939,
+        "phase": 85.811
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.014934210000000002,
+        "phase": 164.704
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.007227010000000001,
+        "phase": 136.134
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.00141238,
+        "phase": 50.36
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.50571649,
+        "phase": 241.039
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.15271285,
+        "phase": 240.274
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.33603128,
+        "phase": 199.398
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.06448287,
+        "phase": 181.692
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.018320799999999998,
+        "phase": 145.146
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.0035156700000000003,
+        "phase": 223.568
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00766294,
+        "phase": 214.52
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.00537206,
+        "phase": 250.823
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.21460098,
+        "phase": 105.492
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.0392694,
+        "phase": 279.493
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.00173736,
+        "phase": 140.915
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.02140209,
+        "phase": 288.277
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.00217917,
+        "phase": 151.675
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00841632,
+        "phase": 166.208
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.0058170900000000005,
+        "phase": 308.191
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0006181699999999999,
+        "phase": 167.318
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.00204097,
+        "phase": 347.488
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.00219943,
+        "phase": 98.146
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.0013411,
+        "phase": 176.54
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00152008,
+        "phase": 200.793
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.00389483,
+        "phase": 265.037
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.0018807799999999999,
+        "phase": 209.827
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00023014,
+        "phase": 64.484
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.02520567,
+        "phase": 274.053
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.01284814,
+        "phase": 180.25
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.0018970100000000002,
+        "phase": 275.313
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-37",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.834,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Langkawi, Malaysia), 65.6km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Langkawi\" (Malaysia) at 65.6km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.834m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.80590271,
+        "phase": 298.193
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.14952678,
+        "phase": 293.909
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.44721210999999994,
+        "phase": 336.042
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.12473022,
+        "phase": 330.782
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02057045,
+        "phase": 283.478
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.16835427,
+        "phase": 52.021
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.05021404,
+        "phase": 54.254
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.05219394,
+        "phase": 4.346
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.00915545,
+        "phase": 314.173
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.00439519,
+        "phase": 338.052
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.012221580000000001,
+        "phase": 78.88
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00979308,
+        "phase": 189.993
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.01542586,
+        "phase": 191.171
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.09105105999999999,
+        "phase": 317.411
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.06283998,
+        "phase": 298.524
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.02626659,
+        "phase": 338.068
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.011519360000000001,
+        "phase": 76.595
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.02955424,
+        "phase": 286.598
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.00202837,
+        "phase": 243.007
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00258623,
+        "phase": 219.082
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0027517,
+        "phase": 324.366
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.046006080000000005,
+        "phase": 318.892
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.025350450000000004,
+        "phase": 287.2
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.01674192,
+        "phase": 264.925
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00463117,
+        "phase": 25.054
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.00539463,
+        "phase": 145.094
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00142302,
+        "phase": 24.884
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00076254,
+        "phase": 272.763
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.011527810000000001,
+        "phase": 75.653
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00186359,
+        "phase": 279.159
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.0030186600000000003,
+        "phase": 42.722
+      }
+    ]
+  },
+  {
+    "stationId": "hydro-38",
+    "datum": "LAT",
+    "epoch": "2000-01-01T00:00:00Z",
+    "levelOffsetMeters": 1.715,
+    "timeOffsetMinutes": 0,
+    "qualityScore": 50,
+    "source": "TICON-4 nearest-gauge import (Ko Taphao Noi, Thailand), 85.4km away",
+    "sourceKind": "field_fit",
+    "sourceCitation": "TICON-4 (Piccioni et al., GESLA-4 sea-level records, CC BY 4.0, https://www.seanoe.org/data/00980/109129/) -- nearest published gauge \"Ko Taphao Noi\" (Thailand) at 85.4km, not this station's own observation. levelOffsetMeters is the gauge's observed MSL-above-LAT (1.715m). 31/50 published constituents matched our constituent database. Phase values shifted +180 degrees vs TICON-4's raw publication to align with this engine's cos(angle - phase) convention -- verified against official DHN validation events in data/tide-validation-events.json (high/low labels only match with this shift applied), not an unverified guess.",
+    "constituents": [
+      {
+        "name": "M2",
+        "amplitude": 0.78955141,
+        "phase": 279.422
+      },
+      {
+        "name": "N2",
+        "amplitude": 0.15110754999999998,
+        "phase": 273.962
+      },
+      {
+        "name": "S2",
+        "amplitude": 0.40051626,
+        "phase": 315.777
+      },
+      {
+        "name": "K2",
+        "amplitude": 0.11271767,
+        "phase": 310.757
+      },
+      {
+        "name": "2N2",
+        "amplitude": 0.02120352,
+        "phase": 261.679
+      },
+      {
+        "name": "K1",
+        "amplitude": 0.13072547,
+        "phase": 44.885
+      },
+      {
+        "name": "P1",
+        "amplitude": 0.03856849,
+        "phase": 42.826
+      },
+      {
+        "name": "O1",
+        "amplitude": 0.048403520000000005,
+        "phase": 10.888
+      },
+      {
+        "name": "Q1",
+        "amplitude": 0.00734471,
+        "phase": 315.513
+      },
+      {
+        "name": "M1",
+        "amplitude": 0.0036159,
+        "phase": 315.525
+      },
+      {
+        "name": "M4",
+        "amplitude": 0.00909891,
+        "phase": 171.679
+      },
+      {
+        "name": "MM",
+        "amplitude": 0.00865061,
+        "phase": 190.425
+      },
+      {
+        "name": "MF",
+        "amplitude": 0.013236369999999999,
+        "phase": 192.538
+      },
+      {
+        "name": "SA",
+        "amplitude": 0.07937114,
+        "phase": 318.992
+      },
+      {
+        "name": "SSA",
+        "amplitude": 0.06371497,
+        "phase": 307.294
+      },
+      {
+        "name": "T2",
+        "amplitude": 0.023604470000000002,
+        "phase": 315.949
+      },
+      {
+        "name": "J1",
+        "amplitude": 0.00815759,
+        "phase": 53.671
+      },
+      {
+        "name": "L2",
+        "amplitude": 0.028735919999999998,
+        "phase": 273.394
+      },
+      {
+        "name": "2Q1",
+        "amplitude": 0.0016173799999999999,
+        "phase": 228.26
+      },
+      {
+        "name": "MSF",
+        "amplitude": 0.00313979,
+        "phase": 5.372
+      },
+      {
+        "name": "M3",
+        "amplitude": 0.0031788800000000002,
+        "phase": 265.023
+      },
+      {
+        "name": "MU2",
+        "amplitude": 0.0343554,
+        "phase": 300.566
+      },
+      {
+        "name": "NU2",
+        "amplitude": 0.02791507,
+        "phase": 269.462
+      },
+      {
+        "name": "LAMBDA2",
+        "amplitude": 0.013924639999999999,
+        "phase": 257.514
+      },
+      {
+        "name": "MN4",
+        "amplitude": 0.00325975,
+        "phase": 186.632
+      },
+      {
+        "name": "MS4",
+        "amplitude": 0.01047683,
+        "phase": 233.286
+      },
+      {
+        "name": "M6",
+        "amplitude": 0.00169084,
+        "phase": 17.861
+      },
+      {
+        "name": "M8",
+        "amplitude": 0.00065578,
+        "phase": 164.634
+      },
+      {
+        "name": "OO1",
+        "amplitude": 0.00892347,
+        "phase": 59.429
+      },
+      {
+        "name": "RHO1",
+        "amplitude": 0.00146756,
+        "phase": 302.078
+      },
+      {
+        "name": "2MS6",
+        "amplitude": 0.00267914,
+        "phase": 32.306
       }
     ]
   }

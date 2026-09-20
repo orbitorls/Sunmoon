@@ -1,74 +1,41 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { swManager } from '@/lib/sw-registration';
 
 export function ServiceWorkerRegistration() {
-  const [swStatus, setSwStatus] = useState<'idle' | 'registering' | 'active' | 'failed'>('idle');
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [swStatus, setSwStatus] = useState<'idle' | 'registering' | 'active' | 'failed'>('registering');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Online/offline status listeners
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // Register Service Worker
-    const registerServiceWorker = async () => {
-      if (!('serviceWorker' in navigator)) {
-        console.warn('[SW] Service Worker not supported in this browser');
-        setSwStatus('failed');
-        return;
-      }
-
-      setSwStatus('registering');
-
-      try {
-        const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/'
-        });
-
-        console.log('[SW] Service Worker registered successfully:', registration.scope);
-        setSwStatus('active');
-
-        // Check for updates
-        registration.addEventListener('updatefound', () => {
-          console.log('[SW] New Service Worker version found');
-        });
-
-        // Handle new service worker activation
-        let refreshing = false;
-        registration.addEventListener('controllerchange', () => {
-          if (refreshing) return;
-          refreshing = true;
-          console.log('[SW] Controller changed, reloading page');
-          window.location.reload();
-        });
-
-      } catch (error) {
-        console.error('[SW] Service Worker registration failed:', error);
-        setSwStatus('failed');
-      }
+    const register = async () => {
+      const registration = await swManager.register();
+      setSwStatus(registration ? 'active' : 'failed');
     };
 
-    // Register Service Worker after a short delay to ensure page load is complete
-    const timeoutId = setTimeout(registerServiceWorker, 1000);
+    const timeoutId = setTimeout(register, 1000);
+
+    const unsubscribe = swManager.subscribe((state) => {
+      if (state.active) {
+        setSwStatus('active');
+      } else if (state.registered || state.installing) {
+        setSwStatus('registering');
+      } else if (state.error) {
+        setSwStatus('failed');
+      }
+    });
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
       clearTimeout(timeoutId);
+      unsubscribe();
     };
   }, []);
 
-    // Sync IndexedDB on mount
+  // Sync IndexedDB when service worker is active
   useEffect(() => {
     if (typeof window === 'undefined' || swStatus !== 'active') return;
 
-    // Initialize IndexedDB when SW is ready
     const initIndexedDB = async () => {
       try {
         const { indexedDB } = await import('@/lib/indexed-db');

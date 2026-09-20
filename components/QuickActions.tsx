@@ -21,7 +21,7 @@ import {
     ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { TideData, LocationData } from "@/lib/tide-service";
+import type { TideData, LocationData } from "@/lib/domain/types";
 
 interface QuickActionsProps {
     location: LocationData;

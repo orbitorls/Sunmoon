@@ -8,7 +8,7 @@
  */
 
 import { decompressForecast, type CompactFrame } from '@/lib/compression/compact-protocol'
-import type { LocationData } from '@/lib/tide-service'
+import type { LocationData } from '@/lib/domain/types'
 
 function normalizeBaseUrl(url: string | undefined | null): string {
   if (!url) return ''

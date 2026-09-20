@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import {
   findNearestPier,
   type NearestPier,
-} from "@/lib/distance-utils";
+} from "@/lib/domain/geo";
 import { getElevation } from "@/lib/elevation-service";
 import { compareWaterLevel, type WaterLevelComparison } from "@/lib/water-level-comparison";
-import type { LocationData, TideData } from "@/lib/tide-service";
+import type { LocationData, TideData } from "@/lib/domain/types";
 
 export type LocationContext = {
   nearestPier: NearestPier | null;

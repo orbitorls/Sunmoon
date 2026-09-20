@@ -3,6 +3,29 @@
  * Manages tile data, compression, and LRU eviction
  */
 
+declare global {
+  interface CompressionStream {
+    readonly readable: ReadableStream<Uint8Array>
+    readonly writable: WritableStream<Uint8Array>
+  }
+
+  interface CompressionStreamConstructor {
+    new (format: 'gzip' | 'deflate' | 'deflate-raw'): CompressionStream
+  }
+
+  interface DecompressionStream {
+    readonly readable: ReadableStream<Uint8Array>
+    readonly writable: WritableStream<Uint8Array>
+  }
+
+  interface DecompressionStreamConstructor {
+    new (format: 'gzip' | 'deflate' | 'deflate-raw'): DecompressionStream
+  }
+
+  const CompressionStream: CompressionStreamConstructor
+  const DecompressionStream: DecompressionStreamConstructor
+}
+
 const DB_NAME = 'SunmoonTileDB'
 const DB_VERSION = 1
 const TILE_STORE = 'tiles'

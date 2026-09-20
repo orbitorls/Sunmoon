@@ -17,7 +17,8 @@ import {
   AlertCircle,
   RefreshCw
 } from 'lucide-react'
-import { tileStorage, formatStorageSize, TileData } from '@/lib/tile-storage'
+import { tileStorage, TileData } from '@/lib/tile-storage'
+import { formatBytes } from '@/lib/storage/core'
 import {
   createTilePackage,
   generateSampleTiles,
@@ -30,11 +31,6 @@ export function TileManagementPanel() {
   const [storageInfo, setStorageInfo] = useState({ quota: 0, usage: 0, available: 0 })
   const [isLoading, setIsLoading] = useState(false)
   const [downloadingTile, setDownloadingTile] = useState<string | null>(null)
-
-  useEffect(() => {
-    loadTiles()
-    loadStorageInfo()
-  }, [])
 
   const loadTiles = async () => {
     try {
@@ -53,6 +49,11 @@ export function TileManagementPanel() {
       console.error('Failed to load storage info:', error)
     }
   }
+
+  useEffect(() => {
+    loadTiles()
+    loadStorageInfo()
+  }, [])
 
   const downloadTile = async (tileInfo: {
     tileId: string
@@ -138,7 +139,7 @@ export function TileManagementPanel() {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">
-                ใช้ไป {formatStorageSize(storageInfo.usage)} จาก {formatStorageSize(storageInfo.quota)}
+                ใช้ไป {formatBytes(storageInfo.usage)} จาก {formatBytes(storageInfo.quota)}
               </span>
               <span className="font-medium">{usagePercent.toFixed(1)}%</span>
             </div>
@@ -152,13 +153,13 @@ export function TileManagementPanel() {
             </div>
             <div className="space-y-1">
               <div className="text-2xl font-bold text-green-600">
-                {formatStorageSize(tiles.reduce((sum, t) => sum + t.compressedSize, 0))}
+                {formatBytes(tiles.reduce((sum, t) => sum + t.compressedSize, 0))}
               </div>
               <div className="text-xs text-gray-600">ขนาดรวม</div>
             </div>
             <div className="space-y-1">
               <div className="text-2xl font-bold text-purple-600">
-                {formatStorageSize(storageInfo.available)}
+                {formatBytes(storageInfo.available)}
               </div>
               <div className="text-xs text-gray-600">พื้นที่ว่าง</div>
             </div>
@@ -234,7 +235,7 @@ export function TileManagementPanel() {
                       <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                         <span className="flex items-center gap-1">
                           <Database className="h-3 w-3" />
-                          {formatStorageSize(tile.compressedSize)}
+                          {formatBytes(tile.compressedSize)}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />

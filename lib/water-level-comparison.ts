@@ -5,7 +5,7 @@
  */
 
 import pierMslData from "@/data/pier-msl.json";
-import { calculateDistance } from "./distance-utils";
+import { calculateDistance } from "./domain/geo";
 
 // Reference point from pier-msl.json
 export interface ReferencePoint {

@@ -1,4 +1,4 @@
-import { formatForecastMessage, handleWeatherError } from '../../lib/services/line-service'
+import { formatForecastMessage, handleWeatherError } from '../../lib/services/line/message-builder'
 
 describe('LINE Service', () => {
   describe('formatForecastMessage', () => {

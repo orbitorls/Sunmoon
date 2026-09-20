@@ -1,40 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
-import { handleLineMessage, sendWelcomeMessage } from '@/lib/services/line-service'
+import { handleLineMessage } from '@/lib/services/line/message-handler'
+import { sendWelcomeMessage } from '@/lib/services/line/reply'
+import { verifyLineSignature } from '@/lib/services/line/signature'
 
 /**
  * LINE Webhook API endpoint
  * Receives events from LINE Official Account
  */
-
-const CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET || ''
-
-/**
- * Verify LINE signature to ensure request is from LINE
- */
-function verifySignature(body: string, signature: string): boolean {
-  if (!CHANNEL_SECRET) {
-    console.error('❌ LINE_CHANNEL_SECRET is not configured')
-    return false
-  }
-
-  const hash = crypto
-    .createHmac('SHA256', CHANNEL_SECRET)
-    .update(body)
-    .digest('base64')
-
-  const isValid = hash === signature
-  
-  if (!isValid) {
-    console.error('❌ Signature mismatch')
-    console.error('Expected:', signature)
-    console.error('Got:', hash)
-  } else {
-    console.log('✅ Signature verified')
-  }
-  
-  return isValid
-}
 
 /**
  * POST /api/webhook/line
@@ -49,7 +21,7 @@ export async function POST(request: NextRequest) {
     console.log('Signature header:', signature ? '✅ Present' : '❌ Missing')
 
     // Verify signature
-    if (!signature || !verifySignature(bodyText, signature)) {
+    if (!signature || !verifyLineSignature(bodyText, signature)) {
       console.error('❌ Invalid LINE signature - Rejecting request')
       return NextResponse.json(
         { error: 'Invalid signature' },
@@ -109,4 +81,3 @@ export async function GET() {
     }
   })
 }
-

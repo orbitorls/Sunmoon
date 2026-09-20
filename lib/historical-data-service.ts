@@ -4,6 +4,7 @@
  */
 
 import historicalData from '@/data/historical-events.json';
+import { calculateDistance } from './domain/geo';
 
 // Types
 export type EventType = 'flood' | 'storm_surge' | 'high_tide' | 'erosion';
@@ -133,21 +134,6 @@ export function getMetadata(): HistoricalDataMetadata {
 }
 
 /**
- * Calculate distance between two coordinates (Haversine formula)
- */
-function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371; // Earth's radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-}
-
-/**
  * Find events near a specific location
  */
 export function findEventsNearLocation(
@@ -167,6 +153,48 @@ export function findEventsNearLocation(
             const distB = calculateDistance(lat, lon, b.location.lat, b.location.lon);
             return distA - distB;
         });
+}
+
+/**
+ * Find the nearby historical event whose max water level is closest to a
+ * given predicted level (simple nearest-level match, no scoring model).
+ * Returns null if nothing nearby comes within maxLevelDiff meters.
+ */
+export function findSimilarEventByLevel(
+    lat: number,
+    lon: number,
+    level: number,
+    radiusKm: number = 300,
+    maxLevelDiff: number = 0.5
+): HistoricalEvent | null {
+    const nearby = findEventsNearLocation(lat, lon, radiusKm);
+
+    let best: HistoricalEvent | null = null;
+    let bestDiff = Infinity;
+    for (const event of nearby) {
+        const diff = Math.abs(event.maxWaterLevel - level);
+        if (diff < bestDiff) {
+            bestDiff = diff;
+            best = event;
+        }
+    }
+
+    return bestDiff <= maxLevelDiff ? best : null;
+}
+
+/**
+ * Format a "YYYY-MM" (Thai Buddhist year) event date as e.g. "ต.ค. 2565"
+ */
+export function formatEventDateThai(date: string): string {
+    const monthNames = [
+        'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+        'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
+    ];
+    const match = date.match(/^(\d{4})-(\d{2})$/);
+    if (!match) return date;
+    const [, year, month] = match;
+    const monthName = monthNames[Number.parseInt(month, 10) - 1] ?? month;
+    return `${monthName} ${year}`;
 }
 
 /**

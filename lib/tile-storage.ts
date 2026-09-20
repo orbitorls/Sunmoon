@@ -3,6 +3,8 @@
  * Manages tile data storage with LRU eviction and quota management
  */
 
+import { sha256Hex } from './storage/core'
+
 const DB_NAME = 'SunmoonTileCache'
 const DB_VERSION = 1
 const TILES_STORE = 'tiles'
@@ -427,7 +429,7 @@ class TileStorageManager {
   async validateTileChecksum(tileId: string): Promise<boolean> {
     const record = await this.getTilePackage(tileId)
     if (!record) return false
-    const checksum = await digestSHA256(record.payload)
+    const checksum = await sha256Hex(record.payload)
     return checksum === record.metadata.checksum
   }
 
@@ -438,29 +440,6 @@ class TileStorageManager {
 
 // Export singleton instance
 export const tileStorage = new TileStorageManager()
-
-// Helper functions
-
-export function formatStorageSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
-}
-
-export function calculateCompressionRatio(original: number, compressed: number): number {
-  if (original === 0) return 0
-  return ((original - compressed) / original) * 100
-}
-
-async function digestSHA256(data: Uint8Array | ArrayBuffer | SharedArrayBuffer): Promise<string> {
-  const buffer = toArrayBuffer(data)
-
-  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('')
-}
 
 function decodeBase64(base64: string): Uint8Array {
   const globalWithBuffer = globalThis as { Buffer?: { from(input: string, encoding: string): { length: number; [index: number]: number } } }

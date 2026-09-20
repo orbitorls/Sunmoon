@@ -1,4 +1,7 @@
-import { getTideData, getWeatherData, type LocationData, type TideData, type WeatherData } from "@/lib/tide-service"
+import { getTideData } from "@/lib/domain/forecast-facade";
+import { getWeatherBlend as getWeatherData } from "@/lib/domain/weather-blend";
+import type { LocationData, TideData, WeatherData } from "@/lib/domain/types";
+import { getThailandClockParts } from "@/lib/thailand-time"
 
 export type ForecastResult = {
   weatherData: WeatherData | null
@@ -6,10 +9,7 @@ export type ForecastResult = {
   error: string | null
 }
 
-const DEFAULT_TIME_RESOLVER = () => {
-  const now = new Date()
-  return { hour: now.getHours(), minute: now.getMinutes() }
-}
+const DEFAULT_TIME_RESOLVER = () => getThailandClockParts(new Date())
 
 type FetchForecastOptions = {
   date?: Date

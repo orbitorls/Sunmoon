@@ -1,7 +1,7 @@
 # Tide Comparison Report
 
 - Date: 2026-08-15
-- Generated: 2026-07-29T17:13:47.447Z
+- Generated: 2026-07-30T17:45:13.296Z
 - Locations: 4
 - Available comparisons: 4
 - Unavailable comparisons: 0
@@ -18,7 +18,7 @@
 
 | Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |
 |---|---:|---:|---:|---:|---:|---|
-| Validation Fixture | yes | yes | complete (1) | 12.5 | 0.061 | calibration: no_change; suggested constants delta: timeOffsetMinutes -2.5, levelOffsetMeters 0.038 |
+| Validation Fixture | yes | yes | complete (1) | 20 | 0.042 | calibration: no_change; suggested constants delta: timeOffsetMinutes 5, levelOffsetMeters 0.027 |
 
 ## Ko Si Chang
 
@@ -28,7 +28,7 @@
 
 | Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |
 |---|---:|---:|---:|---:|---:|---|
-| Validation Fixture | yes | yes | complete (1) | 10 | 0.052 | calibration: phase_shift_minutes=10; suggested constants delta: timeOffsetMinutes 10, levelOffsetMeters 0.022 |
+| Validation Fixture | yes | yes | complete (1) | 17.5 | 0.048 | calibration: phase_shift_minutes=17.5; suggested constants delta: timeOffsetMinutes 17.5, levelOffsetMeters 0.025 |
 
 ## Koh Samui
 
@@ -38,7 +38,7 @@
 
 | Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |
 |---|---:|---:|---:|---:|---:|---|
-| Validation Fixture | yes | yes | complete (1) | 30 | 0.05 | calibration: phase_shift_minutes=30; suggested constants delta: timeOffsetMinutes 30, levelOffsetMeters 0.002 |
+| Validation Fixture | yes | yes | complete (1) | 30 | 0.041 | calibration: phase_shift_minutes=15; suggested constants delta: timeOffsetMinutes 15, levelOffsetMeters 0.002 |
 
 ## Phuket Andaman
 
@@ -48,4 +48,4 @@
 
 | Source | Available | Pass | Coverage | Mean abs timing error (min) | Mean abs level error (m) | Notes |
 |---|---:|---:|---:|---:|---:|---|
-| Validation Fixture | yes | yes | complete (1) | 2.5 | 0.02 | calibration: no_change; suggested constants delta: timeOffsetMinutes 2.5, levelOffsetMeters -0.002 |
+| Validation Fixture | yes | yes | complete (1) | 2.5 | 0.022 | calibration: no_change; suggested constants delta: timeOffsetMinutes 2.5, levelOffsetMeters -0.011 |

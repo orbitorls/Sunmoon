@@ -4,8 +4,8 @@ export function verifyLineSignature(body: string, signature: string | null): boo
   const secret = process.env.LINE_CHANNEL_SECRET
 
   if (!secret) {
-    console.warn("LINE_CHANNEL_SECRET not set; skipping webhook signature verification")
-    return true
+    console.error("LINE_CHANNEL_SECRET not set; rejecting webhook signature verification")
+    return false
   }
 
   if (!signature) {

@@ -17,6 +17,7 @@ export interface ServiceWorkerState {
 
 class ServiceWorkerManager {
   private registration: ServiceWorkerRegistration | null = null;
+  private registeringPromise: Promise<ServiceWorkerRegistration | null> | null = null;
   private listeners: Array<(state: ServiceWorkerState) => void> = [];
 
   /**
@@ -35,6 +36,19 @@ class ServiceWorkerManager {
       return null;
     }
 
+    if (this.registration) {
+      return this.registration;
+    }
+
+    if (this.registeringPromise) {
+      return this.registeringPromise;
+    }
+
+    this.registeringPromise = this.doRegister();
+    return this.registeringPromise;
+  }
+
+  private async doRegister(): Promise<ServiceWorkerRegistration | null> {
     try {
       console.log("[SW Manager] Registering service worker...");
 
@@ -85,6 +99,8 @@ class ServiceWorkerManager {
       console.error("[SW Manager] Registration failed:", error);
       this.notifyListeners();
       return null;
+    } finally {
+      this.registeringPromise = null;
     }
   }
 

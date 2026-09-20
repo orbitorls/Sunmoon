@@ -22,7 +22,7 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import type { LocationData } from "@/lib/tide-service";
+import type { LocationData } from "@/lib/domain/types";
 
 interface FavoriteLocationsProps {
     currentLocation: LocationData;

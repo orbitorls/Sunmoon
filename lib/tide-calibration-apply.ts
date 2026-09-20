@@ -1,4 +1,4 @@
-import type { CalibrationSuggestion, TideComparisonReport } from './tide-comparison'
+import type { CalibrationSuggestion, TideComparisonReport } from './comparison'
 
 export type StationHarmonicConstantForCalibration = {
   stationId: string
