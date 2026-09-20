@@ -1,0 +1,9 @@
+{
+  "pages": {
+    "/api/predict-tide/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/predict-tide/route.js"
+    ]
+  }
+}

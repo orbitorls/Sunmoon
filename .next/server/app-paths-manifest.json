@@ -1,0 +1,3 @@
+{
+  "/api/predict-tide/route": "app/api/predict-tide/route.js"
+}
