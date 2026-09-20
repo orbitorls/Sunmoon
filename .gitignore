@@ -36,3 +36,6 @@ yarn-error.log*
 # TypeScript incremental build info
 /tsconfig.tsbuildinfo
 
+# Next.js build cache (machine-specific, regenerate on pull)
+.next/cache/
+
