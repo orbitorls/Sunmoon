@@ -15,7 +15,7 @@
 ## Operational references
 - **Forecast Facade** → `lib/domain/forecast-facade.ts`
 - **Prediction API** → `app/api/predict-tide/route.ts`, `app/api/hydro-tide/route.ts`
-- **Tile packaging / cache** → `lib/tile-packaging.ts`, `lib/tile-storage.ts`, `lib/indexed-db.ts`
+- **Tile packaging / cache** → `lib/storage/tile-packaging.ts`, `lib/storage/tile-storage.ts`, `lib/storage/indexed-db.ts`
 - **Shared storage helpers** → `lib/storage/core.ts`
 - **Performance harness** → `scripts/perf/bench-tide.ts` (baseline JSON under `reports/perf/`)
 

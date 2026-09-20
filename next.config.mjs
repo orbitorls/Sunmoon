@@ -1,3 +1,8 @@
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -11,9 +16,6 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
 
   modularizeImports: {
-    '@radix-ui/react-icons': {
-      transform: '@radix-ui/react-icons/{{member}}',
-    },
     'lucide-react': {
       transform: 'lucide-react/{{member}}',
     },
@@ -22,7 +24,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': '.',
+      '@': rootDir,
     };
 
     return config;
@@ -39,7 +41,6 @@ const nextConfig = {
         "*.ngrok-free.app",
       ],
     },
-    ppr: false,
   },
 
   headers: async () => {

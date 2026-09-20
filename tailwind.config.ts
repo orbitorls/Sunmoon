@@ -3,10 +3,8 @@ import type { Config } from "tailwindcss"
 const config = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
   prefix: "",
@@ -20,7 +18,7 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sarabun)"], // Apply Sarabun as the default sans-serif font
+        sans: ["var(--font-sarabun)", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

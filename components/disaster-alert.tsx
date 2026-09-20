@@ -28,12 +28,12 @@ import {
     getRiskLevelText,
 } from "@/lib/domain/disaster-analysis";
 import { findSimilarEventByLevel, formatEventDateThai } from "@/lib/services/historical-data-service";
-import { AdvanceWarningsSection } from "./disaster/AdvanceWarningsSection";
-import { DisasterCard } from "./disaster/DisasterCard";
-import { FloodPredictionSection } from "./disaster/FloodPredictionSection";
-import { HistoricalContextSection } from "./disaster/HistoricalContextSection";
-import { RiskFactorCard } from "./disaster/RiskFactorCard";
-import { RiskTimelineSection } from "./disaster/RiskTimelineSection";
+import { AdvanceWarningsSection } from "./disaster/advance-warnings-section";
+import { DisasterCard } from "./disaster/disaster-card";
+import { FloodPredictionSection } from "./disaster/flood-prediction-section";
+import { HistoricalContextSection } from "./disaster/historical-context-section";
+import { RiskFactorCard } from "./disaster/risk-factor-card";
+import { RiskTimelineSection } from "./disaster/risk-timeline-section";
 
 type DisasterAlertProps = {
     analysis: DisasterAnalysis | null;

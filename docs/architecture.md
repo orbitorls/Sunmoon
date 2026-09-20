@@ -20,17 +20,18 @@ consolidation waves.
 ```
 app/                     Next.js App Router: pages + API route handlers (thin)
 actions/                 Server actions (forecast fetch, LINE broadcast)
-components/              React components (PascalCase); components/ui = shadcn primitives
+components/              React components (kebab-case files); components/ui = shadcn primitives
 hooks/                   React hooks (state/effects only)
 lib/
-  harmonic/              Tide model: synthesis, fitting, station selection
-  domain/                Business logic and domain types
-  comparison/            Accuracy validation and calibration suggestions
+  harmonic/              Tide model: synthesis, fitting, station selection, ephemerides
+  domain/                Business logic and domain types (incl. time + tide events)
+  comparison/            Accuracy validation, calibration, timing bands
   presentation/          Thai formatting of domain results
-  line/                  LINE Messaging integration
-  services/              External I/O (weather, tides, disasters, elevation)
-  storage/               Storage seam: shared helpers + tier barrel
+  services/              External I/O (weather, tides, disasters, elevation) + LINE
+  storage/               Storage seam: shared helpers + tier modules + barrel
   compression/           Binary wire protocols
+  infra/                 Cross-cutting infra (Redis cache, service-worker registration)
+  ui/                    Client-side UI control singletons (controls.ts)
 data/                    Fitted constants, stations, fixtures, benchmarks
 scripts/                 Offline pipelines (fit, calibrate, compare) + perf harness
 tests/                   Jest suites (see tests/README.md)
@@ -76,19 +77,19 @@ barrel. The dependency direction is strictly left-to-right and acyclic.
 Thai-language formatting of domain results, separated so analysis modules stay
 language-agnostic. Today: `disaster-formatter.ts`.
 
-### `lib/line/`
+### `lib/services/`
+
+External I/O. `forecast.ts` (OpenWeather), `disaster-data-service.ts` (live
+disaster feed), `worldtides-client.ts`, `thaiwater-service.ts`,
+`elevation-service.ts`, `historical-data-service.ts`, `community-observations.ts`.
+
+#### `lib/services/line/` — LINE Messaging
 
 `client.ts` is the only module that performs LINE HTTP calls. `message-builder.ts`
 is the only module that contains LINE message text. `message-handler.ts`
 (webhook reply) and `weather-dispatch.ts` (broadcast push) are orchestration over
-those two, and `reply.ts` is a thin wrapper over `client.reply`.
-
-### `lib/services/`
-
-External I/O: `forecast.ts` (OpenWeather), `disaster-data-service.ts` (live
-disaster feed). Other provider clients (`worldtides-client.ts`,
-`thaiwater-service.ts`, `elevation-service.ts`, `historical-data-service.ts`)
-still live at the `lib/` root and are slated to move here.
+those two, and `reply.ts` is a thin wrapper over `client.reply`. `line-service.ts`
+is the public surface that routes and server actions import.
 
 ### `lib/storage/` — the storage seam
 
@@ -96,9 +97,9 @@ Three tiers with deliberately different backends, plus shared helpers:
 
 | Module | Backend | Format |
 |---|---|---|
-| `../offline-storage.ts` | localStorage | JSON request cache |
-| `../indexed-db.ts` | IndexedDB (`SunmoonTileDB`) | gzip blobs, LRU by access count |
-| `../tile-storage.ts` | IndexedDB (`SunmoonTileCache`) | raw payloads + metadata, age/quota eviction |
+| `offline-storage.ts` | localStorage | JSON request cache |
+| `indexed-db.ts` | IndexedDB (`SunmoonTileDB`) | gzip blobs, LRU by access count |
+| `tile-storage.ts` | IndexedDB (`SunmoonTileCache`) | raw payloads + metadata, age/quota eviction |
 | `core.ts` | — | `formatBytes`, `sha256Hex`, `compressionRatio` |
 
 `core.ts` documents why the compression helpers are **not** unified: the tiers
@@ -107,13 +108,9 @@ already-persisted payloads unreadable.
 
 ### `lib/` root
 
-Modules that have not yet been filed into a bucket: `ephemerides.ts`
-(astronomical polynomials), `thailand-time.ts`, `tide-events.ts`,
-`tide-calibration-apply.ts`, `timing-accuracy-band.ts`, `water-level-comparison.ts`,
-`worldtides-client.ts`, `thaiwater-service.ts`, `elevation-service.ts`,
-`historical-data-service.ts`, `community-observations.ts`, `tile-*.ts`,
-`offline-storage.ts`, `indexed-db.ts`, `redis-cache.ts`, `sw-registration.ts`,
-`controls.ts`, `utils.ts`.
+Only `utils.ts` remains at the root — it is the target of the shadcn
+`@/lib/utils` alias and must stay there. Every other module is filed into a
+bucket above.
 
 ## Dependency rules
 
@@ -121,10 +118,10 @@ Modules that have not yet been filed into a bucket: `ephemerides.ts`
 app/ , components/ , hooks/ , actions/
         │
         ▼
-lib/domain  lib/comparison  lib/presentation  lib/line  lib/services  lib/storage
+lib/domain  lib/comparison  lib/presentation  lib/services  lib/storage  lib/infra
         │
         ▼
-lib/harmonic  (pure math, depends only on lib/ephemerides)
+lib/harmonic  (pure math, depends only on lib/harmonic/ephemerides)
 ```
 
 - `lib/harmonic/**` must not import from `components/`, `app/`, or any I/O module.
@@ -160,8 +157,8 @@ lib/harmonic  (pure math, depends only on lib/ephemerides)
 
 ## Conventions
 
-- `lib/` modules: kebab-case. React components: PascalCase. `components/ui/` is
-  generated shadcn and keeps kebab-case.
+- `lib/` modules and component files: kebab-case. Component *exports* stay
+  PascalCase. `components/ui/` is generated shadcn and keeps kebab-case.
 - Dynamic-import-only components get a `.client.tsx` suffix.
 - No backwards-compatibility shims: old paths are deleted, not re-exported.
 - Server-only modules are used through routes/actions, never imported by

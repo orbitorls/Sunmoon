@@ -40,7 +40,7 @@ import {
 } from "@/lib/services/historical-data-service";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { RealTimeDisasterPanel } from "@/components/RealTimeDisasterPanel";
+import { RealTimeDisasterPanel } from "@/components/real-time-disaster-panel";
 
 interface HistoricalEventsPanelProps {
     currentLocation: { lat: number; lon: number; name: string };

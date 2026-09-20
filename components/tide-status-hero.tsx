@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { tideControlManager } from "@/lib/ui/controls"
-import { StatCard } from "@/components/StatCard"
+import { StatCard } from "@/components/stat-card"
 
 interface TideStatusHeroProps {
     status: string; // "น้ำขึ้น", "น้ำลง", "น้ำนิ่ง"

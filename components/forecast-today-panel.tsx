@@ -19,10 +19,10 @@ import {
 import ForecastTrustStrip from "./forecast-trust-strip";
 import { TideStatusHero } from "./tide-status-hero";
 import { WaterLevelGraph } from "./water-level-graph";
-import DisasterAlert from "./DisasterAlert";
-import WeatherTrends from "./WeatherTrends";
-import QuickActions from "./QuickActions";
-import { StatCard } from "./StatCard";
+import DisasterAlert from "./disaster-alert";
+import WeatherTrends from "./weather-trends";
+import QuickActions from "./quick-actions";
+import { StatCard } from "./stat-card";
 import { cn } from "@/lib/utils";
 import type { LocationData, TideData, WeatherData } from "@/lib/domain/types";
 import type { DisasterAnalysis } from "@/lib/domain/disaster-analysis";
