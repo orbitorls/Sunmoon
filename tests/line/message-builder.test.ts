@@ -3,7 +3,7 @@ import {
   buildUnsupportedLocationMessage,
   buildWeatherMessages,
   buildWelcomeMessage,
-} from "@/lib/line/message-builder"
+} from "@/lib/services/line/message-builder"
 import type { ForecastResult } from "@/lib/services/forecast"
 
 // These literals are intentionally duplicated here: they are the byte-for-byte

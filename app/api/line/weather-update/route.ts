@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import type { LocationData } from "@/lib/domain/types"
-import { getDefaultLineLocation, getLineDispatchToken } from "@/lib/line/config"
-import { dispatchWeatherUpdate } from "@/lib/line/weather-dispatch"
+import {
+  getDefaultLineLocation,
+  getLineDispatchToken,
+  dispatchWeatherUpdate,
+} from "@/lib/services/line-service"
 
 export const runtime = "nodejs"
 

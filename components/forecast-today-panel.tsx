@@ -16,9 +16,9 @@ import {
   TrendingUp,
   Wind,
 } from "lucide-react";
-import ForecastTrustStrip from "./ForecastTrustStrip";
-import { TideStatusHero } from "./TideStatusHero";
-import { WaterLevelGraph } from "./WaterLevelGraph";
+import ForecastTrustStrip from "./forecast-trust-strip";
+import { TideStatusHero } from "./tide-status-hero";
+import { WaterLevelGraph } from "./water-level-graph";
 import DisasterAlert from "./DisasterAlert";
 import WeatherTrends from "./WeatherTrends";
 import QuickActions from "./QuickActions";

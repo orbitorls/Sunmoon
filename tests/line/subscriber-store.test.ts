@@ -3,7 +3,7 @@ import {
   clearSubscribers,
   listSubscribers,
   removeSubscriber,
-} from "@/lib/line/subscriber-store"
+} from "@/lib/services/line/subscriber-store"
 
 const MANAGED_ENV = [
   "LINE_SEEDED_USER_IDS",

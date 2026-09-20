@@ -30,7 +30,8 @@ import SafetyTips from "./SafetyTips";
 import ThemeToggle from "./ThemeToggle";
 import ForecastTodayPanel from "./forecast-today-panel";
 
-import { useForecastData, initializeOfflineStorage } from "@/hooks/use-forecast-data";
+import { useForecastData } from "@/hooks/use-forecast-data";
+import { initializeOfflineStorage } from "@/lib/offline-storage";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { useDisasterAnalysis } from "@/hooks/use-disaster-analysis";
 import { useLocationContext } from "@/hooks/use-location-context";

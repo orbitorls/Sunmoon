@@ -2,9 +2,9 @@ import { readFile, rm } from "node:fs/promises"
 import os from "node:os"
 import path from "node:path"
 
-import { LINE_API_BASE, broadcast, multicast, push, reply } from "@/lib/line/client"
-import { sendLineMessage, sendWelcomeMessage } from "@/lib/line/reply"
-import type { LineMessage } from "@/lib/line/types"
+import { LINE_API_BASE, broadcast, multicast, push, reply } from "@/lib/services/line/client"
+import { sendLineMessage, sendWelcomeMessage } from "@/lib/services/line/reply"
+import type { LineMessage } from "@/lib/services/line/types"
 
 function okResponse(): Response {
   return {

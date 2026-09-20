@@ -1,4 +1,4 @@
-jest.mock("@/lib/line/client", () => ({
+jest.mock("@/lib/services/line/client", () => ({
   broadcast: jest.fn().mockResolvedValue(undefined),
   multicast: jest.fn().mockResolvedValue(undefined),
   push: jest.fn().mockResolvedValue(undefined),
@@ -15,11 +15,11 @@ jest.mock("@/lib/domain/disaster-analysis", () => ({
 }))
 
 import { analyzeDisasterRisk } from "@/lib/domain/disaster-analysis"
-import { broadcast, multicast, push } from "@/lib/line/client"
-import { buildWeatherMessages } from "@/lib/line/message-builder"
-import { addSubscriber, clearSubscribers } from "@/lib/line/subscriber-store"
-import type { LineMessage } from "@/lib/line/types"
-import { chunkArray, dispatchWeatherUpdate } from "@/lib/line/weather-dispatch"
+import { broadcast, multicast, push } from "@/lib/services/line/client"
+import { buildWeatherMessages } from "@/lib/services/line/message-builder"
+import { addSubscriber, clearSubscribers } from "@/lib/services/line/subscriber-store"
+import type { LineMessage } from "@/lib/services/line/types"
+import { chunkArray, dispatchWeatherUpdate } from "@/lib/services/line/weather-dispatch"
 import { fetchForecast } from "@/lib/services/forecast"
 
 const broadcastMock = broadcast as jest.Mock

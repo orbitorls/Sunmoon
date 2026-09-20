@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto"
 
-import { verifyLineSignature } from "@/lib/line/signature"
+import { verifyLineSignature } from "@/lib/services/line/signature"
 
 const SECRET = "unit-test-channel-secret"
 const BODY = JSON.stringify({ destination: "U000", events: [{ type: "message" }] })

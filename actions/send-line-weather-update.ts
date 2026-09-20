@@ -1,7 +1,7 @@
 "use server"
 
 import type { LocationData } from "@/lib/domain/types"
-import { dispatchWeatherUpdate, type WeatherDispatchResult } from "@/lib/line/weather-dispatch"
+import { dispatchWeatherUpdate, type WeatherDispatchResult } from "@/lib/services/line-service"
 
 export type SendLineWeatherUpdateInput = {
   location?: LocationData

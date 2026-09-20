@@ -2,7 +2,7 @@ jest.mock("@/lib/compression/compact-client", () => ({
   compactClient: { fetchCompactForecast: jest.fn() },
 }))
 
-jest.mock("@/lib/line/reply", () => ({
+jest.mock("@/lib/services/line/reply", () => ({
   sendLineMessage: jest.fn().mockResolvedValue(undefined),
   sendWelcomeMessage: jest.fn().mockResolvedValue(undefined),
 }))
@@ -12,8 +12,8 @@ import {
   handleLineMessage,
   parseLocationFromText,
   type LineEvent,
-} from "@/lib/line/message-handler"
-import { sendLineMessage } from "@/lib/line/reply"
+} from "@/lib/services/line/message-handler"
+import { sendLineMessage } from "@/lib/services/line/reply"
 
 const fetchCompactForecast = compactClient.fetchCompactForecast as jest.Mock
 const sendLineMessageMock = sendLineMessage as jest.Mock

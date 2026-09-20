@@ -1,1 +1,0 @@
-globalThis.__RSC_MANIFEST=(globalThis.__RSC_MANIFEST||{});globalThis.__RSC_MANIFEST["/api/predict-tide/route"]={"moduleLoading":{"prefix":"/_next/","crossOrigin":null},"ssrModuleMapping":{},"edgeSSRModuleMapping":{},"clientModules":{},"entryCSSFiles":{"D:\\Sunmoon\\":[],"D:\\Sunmoon\\app\\api\\predict-tide\\route":[]},"rscModuleMapping":{},"edgeRscModuleMapping":{}}
