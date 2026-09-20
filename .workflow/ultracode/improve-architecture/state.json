@@ -1,0 +1,20 @@
+{
+  "slug": "improve-architecture",
+  "mode": "delegated",
+  "phase": "complete",
+  "engagement": "audit-plan-only",
+  "readOnly": true,
+  "packets": {
+    "A": { "owner": "subagent:9889dc5d", "status": "complete", "file": "packets/packet-A.md", "result": "results/result-A.md" },
+    "B": { "owner": "parent (re-run, subagent empty)", "status": "complete", "file": "packets/packet-B.md", "result": "results/result-B.md" },
+    "C": { "owner": "subagent:4f2cded7", "status": "complete", "file": "packets/packet-C.md", "result": "results/result-C.md" },
+    "D": { "owner": "subagent:3dd15976", "status": "complete", "file": "packets/packet-D.md", "result": "results/result-D.md" }
+  },
+  "integration": "integration.md",
+  "finalReport": "final-report.md",
+  "verification": {
+    "spotChecks": "3 dead + 3 canonical claims verified via grep",
+    "noEdits": true
+  },
+  "approvalGatesTriggered": []
+}

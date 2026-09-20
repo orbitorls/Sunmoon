@@ -22,7 +22,7 @@ Harmonic constants (amplitude, phase, and offsets) produced by the offline fitti
 A verified high/low tide observation used to measure and calibrate predictions.
 
 ## Forecast Facade
-The narrow public interface the UI and LINE integration use to consume tide, weather, and lunar data. It is responsible for applying calibration offsets and unit/datum conversion.
+The narrow public interface the UI and LINE integration use to consume tide, weather, and lunar data. It is responsible for applying calibration offsets and unit/datum conversion. Implemented in `lib/domain/forecast-facade.ts` (`getTideData`); weather lives in `lib/domain/weather-blend.ts` and lunar phase in `lib/domain/lunar-phase.ts`.
 
 ## Offline-First
 The constraint that the app must provide useful predictions without a network connection after the initial tile/data pack is downloaded.

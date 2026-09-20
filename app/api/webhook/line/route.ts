@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { handleLineMessage } from '@/lib/services/line/message-handler'
-import { sendWelcomeMessage } from '@/lib/services/line/reply'
-import { verifyLineSignature } from '@/lib/services/line/signature'
+import { handleLineMessage } from '@/lib/line/message-handler'
+import { sendWelcomeMessage } from '@/lib/line/reply'
+import { verifyLineSignature } from '@/lib/line/signature'
 
 /**
  * LINE Webhook API endpoint

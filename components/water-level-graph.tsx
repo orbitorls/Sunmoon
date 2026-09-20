@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -9,22 +10,23 @@ import { TideData } from "@/lib/domain/types";
 import { tideControlManager } from "@/lib/controls";
 import { cn } from "@/lib/utils";
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "recharts";
-import {
   compareWaterLevel,
   compareWithPrediction,
   getPredictionDeviationColor,
   type WaterLevelComparison,
   type PredictionDeviation,
 } from "@/lib/water-level-comparison";
+
+// recharts is heavy — load the chart canvas only in the browser, keeping
+// recharts out of the main client bundle (mirrors the map components).
+const WaterLevelChart = dynamic(() => import("./water-level-chart.client"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[320px] w-full items-center justify-center rounded-xl bg-slate-50 text-sm text-slate-500 dark:bg-slate-900/40 dark:text-slate-400">
+      กำลังโหลดกราฟ...
+    </div>
+  ),
+});
 
 interface WaterLevelGraphProps {
   tideData: TideData;
@@ -68,39 +70,6 @@ const PredictionDeviationBadge: React.FC<{ deviation: PredictionDeviation }> = (
     <div className={cn("flex items-center gap-2 rounded-lg border px-3 py-2", getPredictionDeviationColor(deviation.warningLevel))}>
       {deviation.isHigherThanPredicted ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
       <span className="text-xs font-medium">{deviation.warningText}</span>
-    </div>
-  );
-};
-
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: Array<{ payload: { level: number; prediction: boolean } }>;
-  label?: string;
-  referenceLevel: number;
-}
-
-const CustomTooltip = ({ active, payload, label, referenceLevel }: CustomTooltipProps) => {
-  if (!active || !payload || !payload.length) {
-    return null;
-  }
-
-  const { level, prediction } = payload[0].payload;
-  const diff = level - referenceLevel;
-
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-950">
-      <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">{label}</p>
-      <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-        ระดับน้ำ: <span className="font-bold tabular-nums">{level.toFixed(2)} ม.</span>
-      </p>
-      <p className="text-xs text-slate-600 dark:text-slate-400">
-        เทียบอ้างอิง: <span className={cn("font-medium tabular-nums", diff > 0 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400")}>
-          {diff > 0 ? "+" : ""}{diff.toFixed(2)} ม.
-        </span>
-      </p>
-      <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-        {prediction ? "ค่าทำนาย" : "ค่าจริง"}
-      </p>
     </div>
   );
 };
@@ -214,76 +183,13 @@ export const WaterLevelGraph: React.FC<WaterLevelGraphProps> = ({ tideData, loca
           </div>
         </div>
 
-        <div className="h-[320px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={tideData.graphData}
-              margin={{ top: 20, right: 10, left: -20, bottom: 0 }}
-            >
-              <defs>
-                <linearGradient id="colorLevel" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.45} />
-                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0.05} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-              <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
-              <YAxis
-                domain={[paddedMin, paddedMax]}
-                tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v) => `${v.toFixed(1)}`}
-                width={40}
-              />
-              <ReferenceLine
-                y={waterLevelComparison.referenceLevel}
-                stroke="#10b981"
-                strokeDasharray="5 5"
-                strokeWidth={2}
-                label={{
-                  value: `MSL ${waterLevelComparison.referenceLevel.toFixed(2)}m`,
-                  position: "right",
-                  fill: "#059669",
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}
-              />
-              {waterLevelComparison.referencePoint?.warningThresholdMeters && (
-                <ReferenceLine
-                  y={waterLevelComparison.referenceLevel + waterLevelComparison.referencePoint.warningThresholdMeters}
-                  stroke="#f59e0b"
-                  strokeDasharray="3 3"
-                  strokeWidth={1}
-                  label={{
-                    value: "เตือน",
-                    position: "right",
-                    fill: "#d97706",
-                    fontSize: 10,
-                    fontWeight: 600,
-                  }}
-                />
-              )}
-              {waterLevelComparison.referencePoint?.floodThresholdMeters && (
-                <ReferenceLine
-                  y={waterLevelComparison.referenceLevel + waterLevelComparison.referencePoint.floodThresholdMeters}
-                  stroke="#ef4444"
-                  strokeDasharray="3 3"
-                  strokeWidth={1}
-                  label={{
-                    value: "วิกฤต",
-                    position: "right",
-                    fill: "#dc2626",
-                    fontSize: 10,
-                    fontWeight: 600,
-                  }}
-                />
-              )}
-              <Tooltip content={<CustomTooltip referenceLevel={waterLevelComparison.referenceLevel} />} cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1, strokeDasharray: "4 4" }} />
-              <Area type="monotone" dataKey="level" stroke="#2563eb" strokeWidth={3} fill="url(#colorLevel)" animationDuration={800} activeDot={{ r: 6, strokeWidth: 0 }} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
+        <WaterLevelChart
+          data={tideData.graphData}
+          domain={[paddedMin, paddedMax]}
+          referenceLevel={waterLevelComparison.referenceLevel}
+          warningThresholdMeters={waterLevelComparison.referencePoint?.warningThresholdMeters}
+          floodThresholdMeters={waterLevelComparison.referencePoint?.floodThresholdMeters}
+        />
 
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="details">

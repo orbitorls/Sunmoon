@@ -15,10 +15,11 @@ Apply pre-computed, per-station calibration offsets (time and level) from the fi
 
 Fitted constants are produced by:
 1. Extracting 24 hourly heights per day from the official Thai Navy PDFs.
-2. Least-squares fitting amplitude/phase for the major tidal constituents with `lib/harmonic-fit.ts`.
-3. Calibrating `timeOffsetMinutes` and `levelOffsetMeters` against the same official table by matching predicted high/low events.
+2. Densifying hourly heights to 15-minute samples via cubic Hermite interpolation, and injecting official high/low extremes (quadratic-refined times from the same tables) with elevated least-squares weight so sub-hour phase enters the design matrix.
+3. Least-squares fitting amplitude/phase for the major tidal constituents plus shallow-water compounds (M4, MS4, MN4, M6) with `lib/harmonic-fit.ts`, retaining small shallow-water amplitudes (≥3 mm) for upper-Gulf stations (`hydro-1`, `hydro-19`).
+4. Calibrating `timeOffsetMinutes` / `levelOffsetMeters` and optionally refining major/shallow constituent phases against the same official high/low fixtures (offline scripts only — never at request time).
 
-For sample windows >= 200 days, the close K1/P1 and S2/K2 pairs are now fit directly instead of being inferred from fixed equilibrium ratios. This improves residual and timing accuracy for the one-year tables.
+For sample windows >= 200 days, the close K1/P1 and S2/K2 pairs are fit directly instead of being inferred from fixed equilibrium ratios. Extreme detection uses a 5-minute scan step.
 
 ## Consequences
 
@@ -27,6 +28,6 @@ For sample windows >= 200 days, the close K1/P1 and S2/K2 pairs are now fit dire
 - Adds a dependency on `data/station-harmonic-constants.calibrated.json` being current.
 - Requires the forecast facade to select the closest or exact station offset deterministically.
 - Reversing the decision means removing the offset application step; the harmonic synthesis still works without it, but with lower accuracy.
-- Post-implementation coverage (2026-08-15, benchmarks): 4 of 4 pilot stations within 30 minutes, all within 15 minutes on the sampled validation day.
-- Regression MAE across 2026 pilot fixtures: hydro-1 37.5 min, hydro-19 30.1 min, hydro-21 38.4 min, hydro-36 34.1 min (below the 40 min test threshold). Level error for the sample date is below 0.3 m for all four pilots.
-- Remaining gap to ±15 min / ±0.10 m is primarily the 30–60 minute quantisation/phase residual from fitting to hourly rather than sub-hourly samples and from missing higher-order shallow-water constituents not resolvable in the one-year table.
+- Wave A (2026-07-31) densify + extreme-weighted fit + gated phase refine: regression MAE across full 2026 pilot fixtures is approximately hydro-1 35.6 min, hydro-19 29.5 min, hydro-21 37.3 min, hydro-36 31.6 min (regression gate tightened 40 → 38). Sample comparison days (e.g. 2026-08-15) remain within ~30 minutes for all pilots.
+- Wave B coverage (2026-07-31): TICON-4 nearest-gauge imports expanded configured stations from 4 pilots to 19 where a published gauge is ≤150 km (`--expand --skip-navy`); no synthetic validation fixtures were invented for non-pilot stations.
+- Remaining gap to ±15 min / ±0.10 m is primarily irreducible with a single annual harmonic set against Navy tables that include complex double-high structure (upper Gulf) and non-tidal residual; next levers are seasonal/nodal multi-set fits and more official sub-hourly series if published — not online refit.

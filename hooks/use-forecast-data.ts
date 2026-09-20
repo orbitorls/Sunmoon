@@ -1,64 +1,19 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { getLocationForecast } from "@/actions/get-location-forecast";
 import type { LocationData, TideData, WeatherData } from "@/lib/domain/types";
-import { loadTideDataCache, saveTideDataCache, loadWeatherDataCache, saveWeatherDataCache, initializeOfflineStorage } from "@/lib/offline-storage";
-
-const defaultTideData: TideData = {
-  isWaxingMoon: true,
-  lunarPhaseKham: 0,
-  tideStatus: "น้ำตาย",
-  highTideTime: "N/A",
-  lowTideTime: "N/A",
-  isSeaLevelHighToday: false,
-  currentWaterLevel: 0,
-  waterLevelStatus: "ไม่ทราบ",
-  waterLevelReference: "ไม่ทราบแหล่งอ้างอิง",
-  seaLevelRiseReference: "ไม่ทราบแหล่งอ้างอิง",
-  pierDistance: 0,
-  pierReference: "ไม่ทราบแหล่งอ้างอิง",
-  tideEvents: [],
-  timeRangePredictions: [],
-  graphData: [],
-  apiStatus: "error",
-  apiStatusMessage: "ไม่มีข้อมูล",
-  lastUpdated: new Date().toISOString(),
-};
-
-const defaultWeatherData: WeatherData = {
-  main: { temp: 0, feels_like: 0, humidity: 0, pressure: 0 },
-  weather: [{ description: "ไม่ทราบ", icon: "01d" }],
-  wind: { speed: 0, deg: 0 },
-  name: "ไม่ทราบ",
-};
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
-
-const isTideData = (value: unknown): value is TideData => {
-  if (!isRecord(value)) return false;
-  return (
-    typeof value.tideStatus === "string" &&
-    typeof value.apiStatus === "string" &&
-    typeof value.apiStatusMessage === "string" &&
-    typeof value.currentWaterLevel === "number"
-  );
-};
-
-const isWeatherData = (value: unknown): value is WeatherData => {
-  if (!isRecord(value)) return false;
-  return (
-    isRecord(value.main) &&
-    typeof value.main.temp === "number" &&
-    Array.isArray(value.weather) &&
-    value.weather.length > 0 &&
-    isRecord(value.weather[0]) &&
-    typeof value.weather[0].description === "string" &&
-    isRecord(value.wind) &&
-    typeof value.wind.speed === "number"
-  );
-};
+import {
+  buildErrorTideData,
+  defaultTideData,
+  defaultWeatherData,
+  getRefreshIntervalMs,
+  LOCATION_REFRESH_DEBOUNCE_MS,
+  readForecastCache,
+  readTideCache,
+  readWeatherCache,
+  writeForecastCache,
+} from "@/lib/domain/forecast-cache";
 
 export type ForecastDataResult = {
   tideData: TideData;
@@ -84,15 +39,9 @@ export function useForecastData(
     let cachedWeatherData: WeatherData | null = null;
 
     try {
-      const tideCacheRaw = loadTideDataCache(location.lat, location.lon, date);
-      if (isTideData(tideCacheRaw)) {
-        cachedTideData = tideCacheRaw;
-      }
-
-      const weatherCacheRaw = loadWeatherDataCache(location.lat, location.lon);
-      if (isWeatherData(weatherCacheRaw)) {
-        cachedWeatherData = weatherCacheRaw;
-      }
+      const cached = readForecastCache(location.lat, location.lon, date);
+      cachedTideData = cached.tideData;
+      cachedWeatherData = cached.weatherData;
 
       if (cachedTideData && cachedWeatherData) {
         console.log("Loading data from cache...");
@@ -107,8 +56,13 @@ export function useForecastData(
       const result = await getLocationForecast(location, date || new Date());
 
       if (result?.tideData && result?.weatherData) {
-        saveTideDataCache(location.lat, location.lon, date || new Date(), result.tideData);
-        saveWeatherDataCache(location.lat, location.lon, result.weatherData);
+        writeForecastCache(
+          location.lat,
+          location.lon,
+          date || new Date(),
+          result.tideData,
+          result.weatherData,
+        );
 
         setTideData({ ...result.tideData, isFromCache: false });
         setWeatherData(result.weatherData);
@@ -122,12 +76,7 @@ export function useForecastData(
             apiStatusMessage: "ข้อมูลจากแคช (API ล้มเหลว)",
           });
         } else {
-          setTideData({
-            ...defaultTideData,
-            apiStatus: "error",
-            apiStatusMessage: fallbackMessage,
-            lastUpdated: new Date().toISOString(),
-          });
+          setTideData(buildErrorTideData(fallbackMessage));
         }
         setWeatherData(defaultWeatherData);
       }
@@ -135,17 +84,11 @@ export function useForecastData(
       console.error("Error fetching forecast:", error);
 
       if (!cachedTideData) {
-        const tideCacheRaw = loadTideDataCache(location.lat, location.lon, date);
-        if (isTideData(tideCacheRaw)) {
-          cachedTideData = tideCacheRaw;
-        }
+        cachedTideData = readTideCache(location.lat, location.lon, date);
       }
 
       if (!cachedWeatherData) {
-        const weatherCacheRaw = loadWeatherDataCache(location.lat, location.lon);
-        if (isWeatherData(weatherCacheRaw)) {
-          cachedWeatherData = weatherCacheRaw;
-        }
+        cachedWeatherData = readWeatherCache(location.lat, location.lon);
       }
 
       if (cachedTideData && cachedWeatherData) {
@@ -161,12 +104,7 @@ export function useForecastData(
           error instanceof Error && error.message
             ? error.message
             : "ไม่สามารถโหลดข้อมูลได้";
-        setTideData({
-          ...defaultTideData,
-          apiStatus: "error",
-          apiStatusMessage: fallbackMessage,
-          lastUpdated: new Date().toISOString(),
-        });
+        setTideData(buildErrorTideData(fallbackMessage));
         setWeatherData(defaultWeatherData);
       }
     } finally {
@@ -184,15 +122,14 @@ export function useForecastData(
     if (!isHydrated) return;
     const timeoutId = setTimeout(() => {
       fetchForecastData();
-    }, 500);
+    }, LOCATION_REFRESH_DEBOUNCE_MS);
     return () => clearTimeout(timeoutId);
   }, [location.lat, location.lon, isHydrated, fetchForecastData]);
 
   // Auto-refresh based on tide cycle
   useEffect(() => {
     if (!isHydrated || !tideData.tideStatus) return;
-    const refreshInterval =
-      tideData.tideStatus === "น้ำเป็น" ? 15 * 60 * 1000 : 30 * 60 * 1000;
+    const refreshInterval = getRefreshIntervalMs(tideData.tideStatus);
     const intervalId = setInterval(() => {
       fetchForecastData();
     }, refreshInterval);
@@ -201,5 +138,3 @@ export function useForecastData(
 
   return { tideData, weatherData, loading, refresh: fetchForecastData };
 }
-
-export { initializeOfflineStorage };

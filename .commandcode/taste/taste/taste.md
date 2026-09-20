@@ -1,0 +1,12 @@
+# Taste
+- Wants a planning phase before coding: typically asks to analyze/plan first, then separately issues "Implement the plan" to execute. Prefers to review and approve plans before implementation begins. Confidence: 0.9
+- During analysis/planning phases, expects strictly read-only exploration: do not edit files, do not run mutating or destructive commands, do not print secrets. Confidence: 0.85
+- Works iteratively: after implementation, asks to check the current state and what still needs fixing, then plans and implements the next increment. Confidence: 0.7
+- For tide/water-level prediction, wants the system to compute predictions itself (independent harmonic/calculation logic), NOT to import or embed external authority tables (e.g., Hydrographic Department tables) as data. Correctness must come from the calculation, not from plugging in official tables. Confidence: 0.9
+- Expects analysis to be evidence-based with concrete file paths, filenames, function names, line references, and schemas — not vague summaries. Confidence: 0.8
+- When planning changes, wants explicit root limitations and integration risks identified, plus minimal verification hooks/tests to validate the runtime path. Confidence: 0.7
+- Communicates primarily in Thai; comfortable replying in Thai. Confidence: 0.7
+- Development environment is Windows (workspace paths like D:\Sunmoon). Confidence: 0.7
+- Prefers to fan out independent work to parallel background sub-agents rather than executing serially ("fan out"), while keeping shared/conflict-prone files (config, git index) with the main agent. Confidence: 0.65
+- For large refactors, prefers incremental phased waves that each end green (typecheck + lint + test) over a single mega-refactor, with external behavior/output frozen except in a dedicated wave for measured changes. Confidence: 0.6
+- Prefers deleting proven-dead code outright (relying on git history) rather than keeping it parked as legacy/deprecated. Confidence: 0.55

@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { tideControlManager } from "@/lib/controls"
+import { StatCard } from "@/components/StatCard"
 
 interface TideStatusHeroProps {
     status: string; // "น้ำขึ้น", "น้ำลง", "น้ำนิ่ง"
@@ -218,18 +219,19 @@ export function TideStatusHero({ status, currentLevel, nextEvent, className, dat
                 </div>
 
                 {/* Big Number Section */}
-                <div className="flex w-full md:w-auto flex-col items-center justify-center p-4 sm:p-6 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner transition-shadow duration-200 hover:shadow-2xl">
+                <StatCard
+                    className="flex w-full md:w-auto flex-col items-center justify-center p-4 sm:p-6 bg-white/10 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-inner transition-shadow duration-200 hover:shadow-2xl"
+                    labelClassName="flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-white/80 bg-black/20 px-4 py-1.5 rounded-full border border-white/10 mt-1"
+                    label={<><Droplets className="w-3 h-3 sm:w-4 sm:h-4" />ระดับน้ำปัจจุบัน (MSL)</>}
+                    labelAfter
+                >
                     <div className="flex items-baseline gap-2">
                         <span className="text-6xl sm:text-7xl md:text-8xl font-black tracking-tighter tabular-nums drop-shadow-2xl">
                             {tideControlManager.adjustHeightForDatum(currentLevel).toFixed(2)}
                         </span>
                         <span className="text-xl sm:text-2xl font-black text-white/80 mb-2">ม.</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-white/80 bg-black/20 px-4 py-1.5 rounded-full border border-white/10 mt-1">
-                        <Droplets className="w-3 h-3 sm:w-4 sm:h-4" />
-                        ระดับน้ำปัจจุบัน (MSL)
-                    </div>
-                </div>
+                </StatCard>
 
                 {/* Next Milestone */}
                 {nextEvent && (

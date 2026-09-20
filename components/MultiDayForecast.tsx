@@ -22,7 +22,7 @@ import {
 import { format, addDays, startOfDay, isSameDay } from "date-fns";
 import { th } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { getLocationForecast } from "@/actions/get-location-forecast";
+import { getLocationForecastRange, type ForecastResult } from "@/actions/get-location-forecast";
 import type { TideData, LocationData } from "@/lib/domain/types";
 import {
     analyzeDisasterRisk,
@@ -353,88 +353,93 @@ export default function MultiDayForecast({
         return initialForecasts;
     }, [startDayOffset]);
 
-    // Fetch forecast data for each day
-    const fetchDayForecast = useCallback(
-        async (date: Date, index: number) => {
-            try {
-                const result = await getLocationForecast(currentLocation, date);
-
-                if (result?.tideData && result?.weatherData) {
-                    const tideData = result.tideData;
-                    const weatherData = result.weatherData;
-
-                    // Analyze risk
-                    const analysis = analyzeDisasterRisk(
-                        tideData,
-                        weatherData,
-                        date,
-                        currentLocation.name
-                    );
-
-                    // Calculate max/min tide levels
-                    const highTides = tideData.tideEvents.filter((e) => e.type === "high");
-                    const lowTides = tideData.tideEvents.filter((e) => e.type === "low");
-
-                    const maxTideLevel =
-                        highTides.length > 0
-                            ? Math.max(...highTides.map((e) => e.level))
-                            : tideData.currentWaterLevel || 0;
-                    const minTideLevel =
-                        lowTides.length > 0
-                            ? Math.min(...lowTides.map((e) => e.level))
-                            : 0;
-
-                    setForecasts((prev) => {
-                        const updated = [...prev];
-                        if (updated[index]) {
-                            updated[index] = {
-                                ...updated[index],
-                                tideData,
-                                riskLevel: analysis.riskLevel,
-                                maxTideLevel,
-                                minTideLevel,
-                                highTideTime: tideData.highTideTime || "--:--",
-                                lowTideTime: tideData.lowTideTime || "--:--",
-                                tideStatus: tideData.tideStatus,
-                                lunarPhase: tideData.lunarPhaseKham,
-                                isWaxing: tideData.isWaxingMoon,
-                                loading: false,
-                                error: null,
-                            };
-                        }
-                        return updated;
-                    });
-                } else {
-                    throw new Error("ไม่สามารถดึงข้อมูลได้");
-                }
-            } catch (error) {
-                setForecasts((prev) => {
-                    const updated = [...prev];
-                    if (updated[index]) {
-                        updated[index] = {
-                            ...updated[index],
-                            loading: false,
-                            error: error instanceof Error ? error.message : "เกิดข้อผิดพลาด",
-                        };
-                    }
-                    return updated;
-                });
-            }
-        },
-        [currentLocation]
-    );
-
-    // Load forecasts when location or offset changes
+    // Load forecasts when location or offset changes — a single batched request
+    // returns every day at once instead of N staggered per-day requests.
     useEffect(() => {
         const initialForecasts = initializeForecasts();
+        let cancelled = false;
 
-        // Fetch data for each day with staggered timing to avoid rate limits
-        initialForecasts.forEach((forecast, index) => {
-            setTimeout(() => {
-                fetchDayForecast(forecast.date, index);
-            }, index * 500); // 500ms delay between each request
-        });
-    }, [currentLocation.lat, currentLocation.lon, startDayOffset, initializeForecasts, fetchDayForecast]);
+        const applyResults = (results: ForecastResult[]) => {
+            setForecasts((prev) =>
+                prev.map((forecast, index) => {
+                    const result = results[index];
+
+                    if (result?.tideData && result?.weatherData) {
+                        const tideData = result.tideData;
+                        const weatherData = result.weatherData;
+
+                        // Analyze risk
+                        const analysis = analyzeDisasterRisk(
+                            tideData,
+                            weatherData,
+                            forecast.date,
+                            currentLocation.name
+                        );
+
+                        // Calculate max/min tide levels
+                        const highTides = tideData.tideEvents.filter((e) => e.type === "high");
+                        const lowTides = tideData.tideEvents.filter((e) => e.type === "low");
+
+                        const maxTideLevel =
+                            highTides.length > 0
+                                ? Math.max(...highTides.map((e) => e.level))
+                                : tideData.currentWaterLevel || 0;
+                        const minTideLevel =
+                            lowTides.length > 0
+                                ? Math.min(...lowTides.map((e) => e.level))
+                                : 0;
+
+                        return {
+                            ...forecast,
+                            tideData,
+                            riskLevel: analysis.riskLevel,
+                            maxTideLevel,
+                            minTideLevel,
+                            highTideTime: tideData.highTideTime || "--:--",
+                            lowTideTime: tideData.lowTideTime || "--:--",
+                            tideStatus: tideData.tideStatus,
+                            lunarPhase: tideData.lunarPhaseKham,
+                            isWaxing: tideData.isWaxingMoon,
+                            loading: false,
+                            error: null,
+                        };
+                    }
+
+                    return {
+                        ...forecast,
+                        loading: false,
+                        error: "ไม่สามารถดึงข้อมูลได้",
+                    };
+                })
+            );
+        };
+
+        getLocationForecastRange(
+            currentLocation,
+            initialForecasts.map((forecast) => forecast.date)
+        )
+            .then((results) => {
+                if (!cancelled) {
+                    applyResults(results);
+                }
+            })
+            .catch((error) => {
+                if (cancelled) {
+                    return;
+                }
+                setForecasts((prev) =>
+                    prev.map((forecast) => ({
+                        ...forecast,
+                        loading: false,
+                        error: error instanceof Error ? error.message : "เกิดข้อผิดพลาด",
+                    }))
+                );
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [currentLocation, startDayOffset, initializeForecasts]);
 
     const selectedForecast = forecasts[selectedDayIndex];
 

@@ -16,12 +16,13 @@ import {
   TrendingUp,
   Wind,
 } from "lucide-react";
-import ForecastTrustStrip from "./forecast-trust-strip";
-import { TideStatusHero } from "./tide-status-hero";
-import { WaterLevelGraph } from "./water-level-graph";
-import DisasterAlert from "./disaster-alert";
+import ForecastTrustStrip from "./ForecastTrustStrip";
+import { TideStatusHero } from "./TideStatusHero";
+import { WaterLevelGraph } from "./WaterLevelGraph";
+import DisasterAlert from "./DisasterAlert";
 import WeatherTrends from "./WeatherTrends";
 import QuickActions from "./QuickActions";
+import { StatCard } from "./StatCard";
 import { cn } from "@/lib/utils";
 import type { LocationData, TideData, WeatherData } from "@/lib/domain/types";
 import type { DisasterAnalysis } from "@/lib/domain/disaster-analysis";
@@ -131,45 +132,50 @@ export default function ForecastTodayPanel({
       <div className="grid gap-3 md:grid-cols-[1.15fr_repeat(4,minmax(0,1fr))]">
         <Card className="rounded-2xl border-0 bg-slate-950 text-white shadow-xl shadow-slate-200/70 transition-shadow duration-200 motion-reduce:transition-none dark:bg-slate-900 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/60">ตัวเลขที่ต้องดูตอนนี้</div>
-            <div className="mt-3 flex items-end gap-2">
-              <span className="text-5xl font-black leading-none tabular-nums">
-                {currentTideData.currentWaterLevel.toFixed(2)}
-              </span>
-              <span className="pb-1 text-lg font-bold text-white/60">ม.</span>
-            </div>
-            <div className="mt-2 text-base font-semibold text-white/90">{currentTideData.waterLevelStatus}</div>
+            <StatCard label="ตัวเลขที่ต้องดูตอนนี้" labelClassName="text-[11px] font-black uppercase tracking-[0.22em] text-white/60">
+              <div className="mt-3 flex items-end gap-2">
+                <span className="text-5xl font-black leading-none tabular-nums">
+                  {currentTideData.currentWaterLevel.toFixed(2)}
+                </span>
+                <span className="pb-1 text-lg font-bold text-white/60">ม.</span>
+              </div>
+              <div className="mt-2 text-base font-semibold text-white/90">{currentTideData.waterLevelStatus}</div>
+            </StatCard>
           </CardContent>
         </Card>
 
         <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">น้ำขึ้นสูงสุด</div>
-            <div className="mt-3 text-3xl font-black tabular-nums text-slate-900 dark:text-white">{currentTideData.highTideTime || "-"}</div>
+            <StatCard label="น้ำขึ้นสูงสุด">
+              <div className="mt-3 text-3xl font-black tabular-nums text-slate-900 dark:text-white">{currentTideData.highTideTime || "-"}</div>
+            </StatCard>
           </CardContent>
         </Card>
 
         <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">น้ำลงต่ำสุด</div>
-            <div className="mt-3 text-3xl font-black tabular-nums text-slate-900 dark:text-white">{currentTideData.lowTideTime || "-"}</div>
+            <StatCard label="น้ำลงต่ำสุด">
+              <div className="mt-3 text-3xl font-black tabular-nums text-slate-900 dark:text-white">{currentTideData.lowTideTime || "-"}</div>
+            </StatCard>
           </CardContent>
         </Card>
 
         <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">อุณหภูมิ</div>
-            <div className="mt-3 flex items-center gap-2 text-3xl font-black tabular-nums text-slate-900 dark:text-white">
-              <Thermometer className="h-5 w-5 text-orange-500" />
-              {Math.round(currentWeatherData.main?.temp ?? 0)}°C
-            </div>
+            <StatCard label="อุณหภูมิ">
+              <div className="mt-3 flex items-center gap-2 text-3xl font-black tabular-nums text-slate-900 dark:text-white">
+                <Thermometer className="h-5 w-5 text-orange-500" />
+                {Math.round(currentWeatherData.main?.temp ?? 0)}°C
+              </div>
+            </StatCard>
           </CardContent>
         </Card>
 
         <Card className="rounded-2xl border-0 bg-white shadow-md shadow-slate-100 transition-shadow duration-200 hover:shadow-lg motion-reduce:transition-none dark:bg-slate-900/80 dark:shadow-none">
           <CardContent className="p-5">
-            <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">สภาพน้ำวันนี้</div>
-            <div className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{currentTideData.tideStatus}</div>
+            <StatCard label="สภาพน้ำวันนี้">
+              <div className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{currentTideData.tideStatus}</div>
+            </StatCard>
           </CardContent>
         </Card>
       </div>

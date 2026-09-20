@@ -1,5 +1,10 @@
 # Offline-First Tide Architecture Blueprint
 
+> **Status: historical / never implemented.** This is an aspirational design from
+> 2025-10-11. The `lib/offline-first/` module it describes was never built and has
+> been deleted, and the WASM compute core does not exist. Paths below are stale.
+> See `docs/architecture.md` for the system as built.
+
 Date: 2025-10-11
 
 Objective: Define the modules, data contracts, and runtime flow required to implement the MEGA prompt within the current Next.js codebase while keeping the existing UI components (`EnhancedLocationSelector`, `WaterLevelGraph`, etc.) as the primary presentation layer.
