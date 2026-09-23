@@ -2,8 +2,8 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Sarabun } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import { ThemeProvider } from "@/components/shared/theme-provider";
+import { ServiceWorkerRegistration } from "@/components/shared/service-worker-registration";
 
 const sarabun = Sarabun({
   weight: ["300", "400", "500", "600", "700"],

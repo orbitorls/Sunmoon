@@ -6,7 +6,7 @@
  * can depend on types without pulling in the whole forecast facade.
  */
 
-import type { StationMeasuredAccuracy } from "../comparison";
+import type { StationMeasuredAccuracy } from "@/lib/comparison";
 
 export type { WeatherData } from "./weather-blend";
 

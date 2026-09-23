@@ -6,14 +6,14 @@
  * validation fixtures, WorldTides, Stormglass, website placeholder).
  */
 
-import validationFixtures from '../../data/tide-validation-events.json'
-import { getStationHarmonicPrediction } from '../harmonic'
+import validationFixtures from '@/data/tide-validation-events.json'
+import { getStationHarmonicPrediction } from '@/lib/harmonic'
 import {
   formatThailandClock,
   formatThailandTimestamp,
   getThailandDayBoundsFromIsoDate,
-} from '../domain/thailand-time'
-import { WorldTidesClient } from '../services/worldtides-client'
+} from '@/lib/domain/thailand-time'
+import { WorldTidesClient } from '@/lib/services/worldtides-client'
 import {
   VALIDATION_EVENT_SOURCES,
   getSourceLabel,

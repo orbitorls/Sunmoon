@@ -1,15 +1,15 @@
 import { readFile, writeFile } from 'node:fs/promises'
 
-import hydroStations from '../data/hydro-stations.json'
-import stationConstants from '../data/station-harmonic-constants.json'
-import validationFixtures from '../data/tide-validation-events.json'
+import hydroStations from '@/data/hydro-stations.json'
+import stationConstants from '@/data/station-harmonic-constants.json'
+import validationFixtures from '@/data/tide-validation-events.json'
 import {
   densifySamples,
   fitConstituents,
   mergeWeightedSamples,
   SHALLOW_WATER_CONSTITUENT_NAMES,
   type FitSample,
-} from '../lib/harmonic'
+} from '@/lib/harmonic'
 
 type HydroStation = { id: string; lat: number; lon: number; name: string }
 type StationConstant = {

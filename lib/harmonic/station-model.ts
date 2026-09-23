@@ -11,8 +11,8 @@ import {
   formatThailandTimestamp,
   getThailandDayBounds,
   roundToDigits,
-} from "../domain/thailand-time";
-import { calculateDistance } from "../domain/geo";
+} from "@/lib/domain/thailand-time";
+import { calculateDistance } from "@/lib/domain/geo";
 
 const MAX_STATION_DISTANCE_KM = 150;
 const DEFAULT_HARMONIC_EPOCH = new Date("2000-01-01T00:00:00Z");

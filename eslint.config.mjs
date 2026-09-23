@@ -3,6 +3,26 @@ import typescript from "eslint-config-next/typescript";
 
 /** @type {import("eslint").Linter.Config[]} */
 const eslintConfig = [
+  {
+    // ESLint 9 flat config: an object with only `ignores` acts as global ignores.
+    // ESLint does NOT read .gitignore, so every non-source dir must be listed here
+    // or `eslint .` walks into local tool state and generated output.
+    ignores: [
+      "**/node_modules/**",
+      ".next/**",
+      "out/**",
+      "coverage/**",
+      "reports/**",
+      ".agents/**",
+      ".claude/**",
+      ".codex/**",
+      ".cursor/**",
+      ".omc/**",
+      ".openclaude/**",
+      ".slim/**",
+      ".workflow/**",
+    ],
+  },
   ...coreWebVitals,
   ...typescript,
   {

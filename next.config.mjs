@@ -1,8 +1,3 @@
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-
-const rootDir = path.dirname(fileURLToPath(import.meta.url));
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -15,23 +10,7 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: false,
 
-  modularizeImports: {
-    'lucide-react': {
-      transform: 'lucide-react/{{member}}',
-    },
-  },
-
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': rootDir,
-    };
-
-    return config;
-  },
-
   experimental: {
-    optimizeCss: false,
     serverActions: {
       allowedOrigins: [
         "localhost:3000",

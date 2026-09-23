@@ -5,7 +5,7 @@ import {
   getDefaultLineLocation,
   getLineDispatchToken,
   dispatchWeatherUpdate,
-} from "@/lib/services/line-service"
+} from "@/lib/services/line"
 
 export const runtime = "nodejs"
 

@@ -11,7 +11,7 @@ import {
   type DisasterAnalysis,
   type FloodPrediction,
   type RiskLevel,
-} from '../domain/disaster-analysis-types'
+} from '@/lib/domain/disaster-analysis-types'
 
 /**
  * แปลงองศาลมเป็นทิศภาษาไทย

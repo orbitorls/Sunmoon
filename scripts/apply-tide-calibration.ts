@@ -1,8 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises'
 
-import stationConstants from '../data/station-harmonic-constants.json'
-import { applyCalibrationSuggestions } from '../lib/comparison/tide-calibration-apply'
-import type { TideComparisonReport } from '../lib/comparison'
+import stationConstants from '@/data/station-harmonic-constants.json'
+import { applyCalibrationSuggestions } from '@/lib/comparison/tide-calibration-apply'
+import type { TideComparisonReport } from '@/lib/comparison'
 
 function parseArgument(name: string): string | undefined {
   return process.argv

@@ -13,7 +13,7 @@ import {
   loadWeatherDataCache,
   saveTideDataCache,
   saveWeatherDataCache,
-} from "../storage/offline-storage";
+} from "@/lib/storage/offline-storage";
 
 export const defaultTideData: TideData = {
   isWaxingMoon: true,

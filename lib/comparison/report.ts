@@ -8,7 +8,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { getStationHarmonicDiagnostics } from '../harmonic'
+import { getStationHarmonicDiagnostics } from '@/lib/harmonic'
 import {
   DEFAULT_MATCH_WINDOW_MINUTES,
   getSourceLabel,

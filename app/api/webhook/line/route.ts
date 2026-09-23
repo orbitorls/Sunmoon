@@ -3,7 +3,7 @@ import {
   handleLineMessage,
   sendWelcomeMessage,
   verifyLineSignature,
-} from '@/lib/services/line-service'
+} from '@/lib/services/line'
 
 /**
  * LINE Webhook API endpoint

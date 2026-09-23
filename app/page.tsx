@@ -1,4 +1,4 @@
-import EnhancedLocationSelector from "../components/enhanced-location-selector";
+import EnhancedLocationSelector from "@/components/features/location/enhanced-location-selector";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

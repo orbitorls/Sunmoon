@@ -1,6 +1,6 @@
 import { TileData, ConstituentData } from './tile-storage'
-import { getEphemeridesMetadata } from '../harmonic/ephemerides'
-import { TIDAL_CONSTITUENTS } from '../harmonic'
+import { getEphemeridesMetadata } from '@/lib/harmonic/ephemerides'
+import { TIDAL_CONSTITUENTS } from '@/lib/harmonic'
 
 export interface TilePackage {
   tile: TileData

@@ -14,8 +14,8 @@ import { performance } from 'node:perf_hooks';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
-import { CONSTITUENTS_DATABASE, createPredictionSeries, predictTideLevel } from '../../lib/harmonic/core';
-import { getStationHarmonicDayPrediction } from '../../lib/harmonic/station-model';
+import { CONSTITUENTS_DATABASE, createPredictionSeries, predictTideLevel } from '@/lib/harmonic/core';
+import { getStationHarmonicDayPrediction } from '@/lib/harmonic/station-model';
 
 type BenchResult = {
   label: string;

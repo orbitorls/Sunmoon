@@ -1,12 +1,12 @@
-import benchmarkLocations from '../data/forecast-benchmark-thai-coastal.json'
-import hydroStations from '../data/hydro-stations.json'
-import userLocations from '../data/accuracy-user-locations.json'
+import benchmarkLocations from '@/data/forecast-benchmark-thai-coastal.json'
+import hydroStations from '@/data/hydro-stations.json'
+import userLocations from '@/data/accuracy-user-locations.json'
 import {
   runTideComparisonReport,
   writeComparisonArtifacts,
   type ComparisonLocation,
   type ComparisonSourceId,
-} from '../lib/comparison'
+} from '@/lib/comparison'
 
 function parseArgument(name: string): string | undefined {
   return process.argv

@@ -10,13 +10,13 @@
 import {
   getStationHarmonicDayPrediction,
   getStationHarmonicUnavailable,
-} from "../harmonic/station-model";
+} from "@/lib/harmonic/station-model";
 import {
   getThailandClockParts,
   getThailandDayBounds,
   roundToDigits,
 } from "./thailand-time";
-import type { StationMeasuredAccuracy } from "../comparison";
+import type { StationMeasuredAccuracy } from "@/lib/comparison";
 import { calculateLunarPhase } from "./lunar-phase";
 import { predictTideEvents } from "./tide-prediction";
 import type {

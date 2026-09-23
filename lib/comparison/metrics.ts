@@ -7,8 +7,8 @@
  * used by the forecast facade, and the calibration recommendation builders.
  */
 
-import { getNearestConfiguredStationId } from '../harmonic'
-import { roundToDigits } from '../domain/thailand-time'
+import { getNearestConfiguredStationId } from '@/lib/harmonic'
+import { roundToDigits } from '@/lib/domain/thailand-time'
 import {
   DEFAULT_LEVEL_MAE_THRESHOLD_METERS,
   DEFAULT_LEVEL_RMSE_THRESHOLD_METERS,

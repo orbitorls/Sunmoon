@@ -1,4 +1,4 @@
-import { TileManagementPanel } from '@/components/tile-management-panel'
+import { TileManagementPanel } from '@/components/features/tiles/tile-management-panel'
 
 export default function TilesPage() {
   return (

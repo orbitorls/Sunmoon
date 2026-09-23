@@ -32,4 +32,4 @@ export {
   getWarningLevelText,
   getWarningLevelColor,
   getFloodTypeText,
-} from '../presentation/disaster-formatter'
+} from '@/lib/presentation/disaster-formatter'

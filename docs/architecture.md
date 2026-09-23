@@ -1,7 +1,7 @@
 # Sunmoon Architecture
 
 Current, as-built module map. Where this disagrees with anything under
-`docs/superpowers/plans/`, this document wins — those plans predate the
+`docs/archive/`, this document wins — the archived plans predate the
 consolidation waves.
 
 ## Principles

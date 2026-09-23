@@ -25,7 +25,7 @@ import {
   type RiskLevel,
   type RiskTimeSlot,
 } from './disaster-analysis-types';
-import { formatDisasterHeadline } from '../presentation/disaster-formatter';
+import { formatDisasterHeadline } from '@/lib/presentation/disaster-formatter';
 
 /**
  * คำนวณช่วงขึ้นลงของน้ำ (Tide Range)
