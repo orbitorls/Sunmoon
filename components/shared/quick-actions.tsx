@@ -30,14 +30,14 @@ interface QuickActionsProps {
     className?: string;
 }
 
-// Quick location presets
+// A short subset of the shared location list, for the one-tap share row.
 const LOCATION_PRESETS = [
     { name: "กรุงเทพมหานคร", lat: 13.7563, lon: 100.5018 },
-    { name: "พัทยา", lat: 12.93, lon: 100.88 },
+    { name: "พัทยา, ชลบุรี", lat: 12.93, lon: 100.88 },
     { name: "ภูเก็ต", lat: 7.89, lon: 98.40 },
-    { name: "หัวหิน", lat: 12.57, lon: 99.96 },
-    { name: "สมุย", lat: 9.51, lon: 100.06 },
-    { name: "เกาะช้าง", lat: 12.05, lon: 102.36 },
+    { name: "หัวหิน, ประจวบคีรีขันธ์", lat: 12.57, lon: 99.96 },
+    { name: "เกาะสมุย, สุราษฎร์ธานี", lat: 9.51, lon: 100.06 },
+    { name: "เกาะช้าง, ตราด", lat: 12.05, lon: 102.36 },
 ];
 
 export default function QuickActions({

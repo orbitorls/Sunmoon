@@ -140,7 +140,7 @@ function StationMarker({
             onClick={onClick}
         >
             <div className="relative group cursor-pointer z-20">
-                <div className="absolute -top-8 -left-6 bg-white dark:bg-slate-800 px-2 py-1 rounded text-xs shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-30">
+                <div className="absolute -top-8 -left-6 bg-white px-2 py-1 rounded text-xs shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-30">
                     {station.water_level.toFixed(2)} ม.
                 </div>
                 <div className="w-5 h-5 rounded-sm bg-blue-500 border-2 border-white shadow-md flex items-center justify-center transform rotate-45 hover:scale-125 transition-transform">
@@ -186,7 +186,11 @@ export default function RiskAreaMapInner({
     onStationClick,
 }: RiskAreaMapInnerProps) {
     return (
-        <div className="h-[450px] md:h-[550px] w-full relative">
+        <div
+            className="relative h-[450px] w-full overflow-hidden rounded-xl md:h-[550px]"
+            role="region"
+            aria-label="แผนที่พื้นที่เสี่ยงภัยและสถานีวัดระดับน้ำ"
+        >
             <PigeonMap
                 center={center}
                 zoom={6}

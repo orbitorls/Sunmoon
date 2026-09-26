@@ -29,17 +29,17 @@ const CustomTooltip = ({ active, payload, label, referenceLevel }: CustomTooltip
   const diff = level - referenceLevel;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-950">
-      <p className="text-sm font-bold tabular-nums text-slate-800 dark:text-slate-100">{label}</p>
-      <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg">
+      <p className="text-sm font-bold tabular-nums text-slate-800">{label}</p>
+      <p className="mt-1 text-xs text-slate-600">
         ระดับน้ำ: <span className="font-bold tabular-nums">{level.toFixed(2)} ม.</span>
       </p>
-      <p className="text-xs text-slate-600 dark:text-slate-400">
-        เทียบอ้างอิง: <span className={cn("font-medium tabular-nums", diff > 0 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400")}>
+      <p className="text-xs text-slate-600">
+        เทียบอ้างอิง: <span className={cn("font-medium tabular-nums", diff > 0 ? "text-orange-600" : "text-emerald-600")}>
           {diff > 0 ? "+" : ""}{diff.toFixed(2)} ม.
         </span>
       </p>
-      <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+      <p className="mt-1 text-xs text-slate-600">
         {prediction ? "ค่าทำนาย" : "ค่าจริง"}
       </p>
     </div>
@@ -67,8 +67,17 @@ export default function WaterLevelChart({
   warningThresholdMeters,
   floodThresholdMeters,
 }: WaterLevelChartProps) {
+  const levels = data.map((d) => d.level);
+  const chartSummary = data.length
+    ? `กราฟระดับน้ำ ${data.length} จุด สูงสุด ${Math.max(...levels).toFixed(2)} เมตร ต่ำสุด ${Math.min(...levels).toFixed(2)} เมตร เทียบเส้นอ้างอิง ${referenceLevel.toFixed(2)} เมตร ตารางค่าทั้งหมดอยู่ในส่วนรายละเอียดด้านล่าง`
+    : "ยังไม่มีข้อมูลกราฟ";
+
   return (
-    <div className="h-[320px] w-full">
+    <div
+      className="h-[320px] w-full"
+      role="img"
+      aria-label={chartSummary}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
@@ -76,8 +85,8 @@ export default function WaterLevelChart({
         >
           <defs>
             <linearGradient id="colorLevel" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#2563eb" stopOpacity={0.45} />
-              <stop offset="95%" stopColor="#2563eb" stopOpacity={0.05} />
+              <stop offset="5%" stopColor="#0284C7" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#0284C7" stopOpacity={0.04} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
@@ -96,7 +105,7 @@ export default function WaterLevelChart({
             strokeDasharray="5 5"
             strokeWidth={2}
             label={{
-              value: `MSL ${referenceLevel.toFixed(2)}m`,
+              value: `เส้นอ้างอิง ม.รทก. ${referenceLevel.toFixed(2)}m`,
               position: "right",
               fill: "#059669",
               fontSize: 11,
@@ -106,15 +115,15 @@ export default function WaterLevelChart({
           {warningThresholdMeters && (
             <ReferenceLine
               y={referenceLevel + warningThresholdMeters}
-              stroke="#f59e0b"
-              strokeDasharray="3 3"
-              strokeWidth={1}
+              stroke="#DC2626"
+              strokeDasharray="6 4"
+              strokeWidth={2}
               label={{
-                value: "เตือน",
+                value: `วิกฤต ${(referenceLevel + warningThresholdMeters).toFixed(2)} ม. (±2.40)`,
                 position: "right",
-                fill: "#d97706",
-                fontSize: 10,
-                fontWeight: 600,
+                fill: "#DC2626",
+                fontSize: 11,
+                fontWeight: 700,
               }}
             />
           )}
@@ -134,7 +143,7 @@ export default function WaterLevelChart({
             />
           )}
           <Tooltip content={<CustomTooltip referenceLevel={referenceLevel} />} cursor={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 1, strokeDasharray: "4 4" }} />
-          <Area type="monotone" dataKey="level" stroke="#2563eb" strokeWidth={3} fill="url(#colorLevel)" animationDuration={800} activeDot={{ r: 6, strokeWidth: 0 }} />
+          <Area type="monotone" dataKey="level" stroke="#0284C7" strokeWidth={3} fill="url(#colorLevel)" animationDuration={800} activeDot={{ r: 6, strokeWidth: 0 }} style={{ filter: "drop-shadow(0 4px 8px rgba(3,105,161,0.15))" }} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

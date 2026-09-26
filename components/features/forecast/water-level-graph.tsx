@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AlertTriangle, MapPin, TrendingDown, TrendingUp, Waves } from "lucide-react";
 import { TideData } from "@/lib/domain/types";
-import { tideControlManager } from "@/lib/ui/controls";
 import { cn } from "@/lib/utils";
 import {
   compareWaterLevel,
@@ -22,7 +21,7 @@ import {
 const WaterLevelChart = dynamic(() => import("./water-level-graph.client"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-[320px] w-full items-center justify-center rounded-xl bg-slate-50 text-sm text-slate-500 dark:bg-slate-900/40 dark:text-slate-400">
+    <div className="flex h-[320px] w-full items-center justify-center rounded-xl bg-slate-50 text-sm text-slate-500">
       กำลังโหลดกราฟ...
     </div>
   ),
@@ -36,9 +35,9 @@ interface WaterLevelGraphProps {
 const ReferenceComparisonBadge: React.FC<{ comparison: WaterLevelComparison }> = ({ comparison }) => {
   if (!comparison.referencePoint && comparison.distanceKm < 0) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-100 px-3 py-2 dark:border-amber-800/60 dark:bg-amber-900/25">
-        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-        <span className="text-xs text-amber-700 dark:text-amber-300">
+      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-100 px-3 py-2">
+        <AlertTriangle className="h-4 w-4 text-amber-600" />
+        <span className="text-xs text-amber-700">
           ใช้ค่าประมาณเพราะไม่พบจุดอ้างอิงใกล้เคียง
         </span>
       </div>
@@ -99,14 +98,15 @@ export const WaterLevelGraph: React.FC<WaterLevelGraphProps> = ({ tideData, loca
   }, [tideData.graphData, tideData.currentWaterLevel]);
 
   const levels = tideData.graphData.map((d) => d.level);
-  const minLevel = levels.length > 0 ? Math.min(...levels) : 0;
-  const maxLevel = levels.length > 0 ? Math.max(...levels) : 0;
+  const hasSeries = levels.length > 0;
+  const minLevel = hasSeries ? Math.min(...levels) : 0;
+  const maxLevel = hasSeries ? Math.max(...levels) : 0;
   const paddedMin = minLevel - 0.3;
   const paddedMax = maxLevel + 0.3;
 
   return (
-    <Card className="w-full overflow-hidden rounded-2xl border-0 bg-white/90 shadow-lg ring-1 ring-slate-900/5 dark:bg-slate-950/80">
-      <CardHeader className="border-b border-slate-100 bg-slate-50/70 pb-3 dark:border-slate-800 dark:bg-slate-900/50">
+    <Card className="w-full overflow-hidden rounded-2xl border-0 bg-white/90 shadow-lg ring-1 ring-slate-900/5">
+      <CardHeader className="border-b border-slate-100 bg-slate-50/70 pb-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -114,20 +114,28 @@ export const WaterLevelGraph: React.FC<WaterLevelGraphProps> = ({ tideData, loca
               กราฟระดับน้ำ 24 ชั่วโมง
             </CardTitle>
             <div className="mt-2 flex flex-wrap gap-2">
-              <Badge variant="secondary" className="bg-slate-100 tabular-nums text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              <Badge variant="secondary" className="bg-slate-100 tabular-nums text-slate-700">
                 สูงสุด {maxLevel.toFixed(2)} ม.
               </Badge>
-              <Badge variant="secondary" className="bg-slate-100 tabular-nums text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              <Badge variant="secondary" className="bg-slate-100 tabular-nums text-slate-700">
                 ต่ำสุด {minLevel.toFixed(2)} ม.
               </Badge>
-              <Badge className="bg-blue-100 tabular-nums text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
-                MSL {waterLevelComparison.referenceLevel.toFixed(2)} ม.
+              <Badge
+                className={cn(
+                  "tabular-nums",
+                  tideData.isDatumConvertedToMsl
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-amber-100 text-amber-800",
+                )}
+              >
+                เส้นอ้างอิง ม.รทก. {waterLevelComparison.referenceLevel.toFixed(2)} ม.
+                {!tideData.isDatumConvertedToMsl && " (คนละ datum)"}
               </Badge>
             </div>
           </div>
-          <div className="text-right text-xs text-slate-600 dark:text-slate-400">
+          <div className="text-right text-xs text-slate-600">
             <div>อัปเดตล่าสุด</div>
-            <div className="font-medium tabular-nums text-slate-700 dark:text-slate-200">
+            <div className="font-medium tabular-nums text-slate-700">
               {new Date(tideData.lastUpdated).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
             </div>
           </div>
@@ -154,8 +162,9 @@ export const WaterLevelGraph: React.FC<WaterLevelGraphProps> = ({ tideData, loca
                 {waterLevelComparison.status === "low" ? " - น้ำลง" : ""}
               </p>
               <div className="mt-1 flex items-baseline gap-2">
+                {/* Shown as computed; see the note in tide-status-hero.tsx. */}
                 <span className="text-5xl font-black tabular-nums tracking-tight">
-                  {tideControlManager.adjustHeightForDatum(tideData.currentWaterLevel).toFixed(2)}
+                  {tideData.currentWaterLevel.toFixed(2)}
                 </span>
                 <span className="pb-2 text-lg font-medium text-white/80">เมตร</span>
               </div>
@@ -183,13 +192,19 @@ export const WaterLevelGraph: React.FC<WaterLevelGraphProps> = ({ tideData, loca
           </div>
         </div>
 
-        <WaterLevelChart
-          data={tideData.graphData}
-          domain={[paddedMin, paddedMax]}
-          referenceLevel={waterLevelComparison.referenceLevel}
-          warningThresholdMeters={waterLevelComparison.referencePoint?.warningThresholdMeters}
-          floodThresholdMeters={waterLevelComparison.referencePoint?.floodThresholdMeters}
-        />
+        {hasSeries ? (
+          <WaterLevelChart
+            data={tideData.graphData}
+            domain={[paddedMin, paddedMax]}
+            referenceLevel={waterLevelComparison.referenceLevel}
+            warningThresholdMeters={waterLevelComparison.referencePoint?.warningThresholdMeters}
+            floodThresholdMeters={waterLevelComparison.referencePoint?.floodThresholdMeters}
+          />
+        ) : (
+          <div className="flex h-[320px] w-full items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-sm text-slate-500">
+            ยังไม่มีข้อมูลกราฟสำหรับตำแหน่งนี้
+          </div>
+        )}
 
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="details">
@@ -204,21 +219,21 @@ export const WaterLevelGraph: React.FC<WaterLevelGraphProps> = ({ tideData, loca
                 )}
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
                 กราฟนี้แสดงข้อมูลรายชั่วโมงเพื่ออ่านภาพรวมเร็วขึ้น รายละเอียดเชิงเทคนิคยังคงมีให้แต่ถูกซ่อนไว้เป็นค่าเริ่มต้น
               </div>
 
-              <div className="max-h-60 overflow-y-auto overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+              <div className="max-h-60 overflow-y-auto overflow-x-auto rounded-xl border border-slate-200">
                 <table className="w-full text-xs">
-                  <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">
+                  <thead className="sticky top-0 z-10 bg-slate-50">
                     <tr>
-                      <th className="px-4 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">เวลา</th>
-                      <th className="px-4 py-2 text-right font-semibold text-slate-600 dark:text-slate-300">ระดับน้ำ</th>
-                      <th className="px-4 py-2 text-center font-semibold text-slate-600 dark:text-slate-300">เทียบ MSL</th>
-                      <th className="px-4 py-2 text-center font-semibold text-slate-600 dark:text-slate-300">สถานะ</th>
+                      <th className="px-4 py-2 text-left font-semibold text-slate-600">เวลา</th>
+                      <th className="px-4 py-2 text-right font-semibold text-slate-600">ระดับน้ำ</th>
+                      <th className="px-4 py-2 text-center font-semibold text-slate-600">ต่างจากเส้นอ้างอิง</th>
+                      <th className="px-4 py-2 text-center font-semibold text-slate-600">สถานะ</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody className="divide-y divide-slate-100">
                     {tideData.graphData.map((data, index) => {
                       const diff = data.level - waterLevelComparison.referenceLevel;
                       const isCurrent = parseInt(data.time.split(":")[0], 10) === new Date().getHours();
@@ -227,16 +242,16 @@ export const WaterLevelGraph: React.FC<WaterLevelGraphProps> = ({ tideData, loca
                         <tr
                           key={index}
                           className={cn(
-                            "transition-colors duration-200 hover:bg-slate-50 dark:hover:bg-slate-900/40",
-                            isCurrent ? "bg-blue-50/60 dark:bg-blue-900/20" : "bg-white dark:bg-slate-950"
+                            "transition-colors duration-200 hover:bg-slate-50",
+                            isCurrent ? "bg-blue-50/60" : "bg-white"
                           )}
                         >
-                          <td className="px-4 py-2.5 font-mono tabular-nums text-slate-600 dark:text-slate-300">{data.time}</td>
-                          <td className="px-4 py-2.5 text-right font-mono tabular-nums font-bold text-slate-800 dark:text-slate-200">{data.level.toFixed(2)}</td>
-                          <td className={cn("px-4 py-2.5 text-center font-mono tabular-nums", diff > 0 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400")}>
+                          <td className="px-4 py-2.5 font-mono tabular-nums text-slate-600">{data.time}</td>
+                          <td className="px-4 py-2.5 text-right font-mono tabular-nums font-bold text-slate-800">{data.level.toFixed(2)}</td>
+                          <td className={cn("px-4 py-2.5 text-center font-mono tabular-nums", diff > 0 ? "text-orange-600" : "text-emerald-600")}>
                             {diff > 0 ? "+" : ""}{diff.toFixed(2)}
                           </td>
-                          <td className="px-4 py-2.5 text-center text-slate-600 dark:text-slate-300">
+                          <td className="px-4 py-2.5 text-center text-slate-600">
                             <span className={cn("mr-2 inline-block h-1.5 w-1.5 rounded-full", data.prediction ? "bg-blue-400" : "bg-emerald-500")} />
                             {data.prediction ? "ทำนาย" : "จริง"}
                           </td>

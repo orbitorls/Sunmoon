@@ -2,13 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
 @layer components {
+
+  /* SEAPALO marine telemetry system (DESIGN.md) */
+  .telemetry-num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .micro-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .card-l1 {
+    @apply bg-white border border-line rounded-lg;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  }
+
+  .card-l2 {
+    @apply bg-white border border-line-soft rounded-lg;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  }
+
+  .badge-critical {
+    @apply inline-flex items-center gap-1 rounded-[4px] border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em];
+    border-color: hsl(var(--danger) / 0.35);
+    background-color: hsl(var(--danger-soft));
+    color: hsl(var(--danger));
+  }
+
+  .badge-warning {
+    @apply inline-flex items-center gap-1 rounded-[4px] border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em];
+    border-color: hsl(var(--warning) / 0.35);
+    background-color: hsl(var(--warning-soft));
+    color: hsl(var(--warning));
+  }
+
+  .badge-nominal {
+    @apply inline-flex items-center gap-1 rounded-[4px] border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em];
+    border-color: hsl(var(--success) / 0.35);
+    background-color: hsl(var(--success-soft));
+    color: hsl(var(--success));
+  }
+
+  .badge-neutral {
+    @apply inline-flex items-center gap-1 rounded-[4px] border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em];
+    border-color: hsl(var(--line));
+    background-color: hsl(var(--canvas));
+    color: hsl(var(--ink-muted));
+  }
+
+  .hero-metric {
+    @apply font-thai font-bold tabular-nums;
+  }
 
   /* Mobile-friendly improvements */
   .mobile-friendly-card {
@@ -49,14 +97,17 @@
 
   /* Better focus states for accessibility */
   .focus-enhanced {
-    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white;
   }
 }
 
 @layer base {
   :root {
-    --background: 210 40% 99%;
-    --foreground: 222.2 84% 4.9%;
+    color-scheme: light;
+    /* Canvas and ink are the SEAPALO base; the shadcn semantic tokens below are
+       derived from the same palette so the two layers cannot drift. */
+    --background: 210 40% 98%;
+    --foreground: 222.2 47.4% 11.2%;
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -84,61 +135,32 @@
     --ring: 217 91% 60%;
 
     --radius: 0.75rem;
-    /* Slightly larger radius for softer look */
-    --sidebar-background: 210 40% 98%;
-    --sidebar-foreground: 217 91% 30%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 199 89% 95%;
-    --sidebar-accent-foreground: 217 91% 30%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 217 91% 60%;
-  }
 
-  .dark {
-    --background: 222 47% 8%;
-    /* Deep blue-grey instead of pure black/slate */
-    --foreground: 210 40% 98%;
+    /* SEAPALO marine telemetry palette. Single source of truth: the Tailwind
+       `brand`/`ink`/`line`/`canvas` colours resolve to these, and the component
+       classes below use them too, so there is no second hardcoded copy. */
+    --brand-50: 212 100% 97.1%;
+    --brand-100: 210 93.8% 93.7%;
+    --brand-200: 208.7 97.2% 86.1%;
+    --brand-500: 200.4 98% 39.4%;
+    --brand-600: 201.3 96.3% 32.2%;
+    --brand-700: 201 90% 27.5%;
+    --brand-800: 202 80.3% 23.9%;
 
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
+    --danger: 0 72.2% 50.6%;
+    --danger-soft: 0 93.3% 94.1%;
+    --warning: 32.1 94.6% 43.7%;
+    --warning-soft: 48 96.5% 88.8%;
+    --success: 161.4 93.5% 30.4%;
+    --success-soft: 149.3 80.4% 90%;
 
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 199 89% 30%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 20%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 217 91% 60%;
-
-    --chart-1: 217 91% 60%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-
-    --sidebar-background: 222 47% 10%;
-    --sidebar-foreground: 210 40% 95%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 47% 15%;
-    --sidebar-accent-foreground: 210 40% 95%;
-    --sidebar-border: 217.2 32.6% 20%;
-    --sidebar-ring: 217 91% 60%;
+    --canvas: 210 40% 98%;
+    --ink: 222.2 47.4% 11.2%;
+    --ink-soft: 217.2 32.6% 17.5%;
+    --ink-muted: 215.3 25% 26.7%;
+    --ink-faint: 215.4 16.3% 46.9%;
+    --line: 214.3 31.8% 91.4%;
+    --line-soft: 212.7 26.8% 83.9%;
   }
 }
 
@@ -146,11 +168,11 @@
 
   /* Modern Flat Utilities */
   .flat-card {
-    @apply bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200;
+    @apply bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200;
   }
 
   .flat-card-inset {
-    @apply bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-xl;
+    @apply bg-slate-50 border border-slate-100 rounded-xl;
   }
 
   .text-balance {
@@ -169,6 +191,8 @@
     @apply border-border;
   }
 
+  /* `--background`/`--foreground` are the canvas and ink tokens; the previous
+     hardcoded hex pair silently overrode the @apply on the line above. */
   body {
     @apply bg-background text-foreground;
   }

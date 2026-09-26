@@ -1,14 +1,27 @@
+import { Suspense } from "react";
 import type React from "react";
 import type { Metadata } from "next";
-import { Sarabun } from "next/font/google";
+import { Inter, Manrope, Prompt } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/shared/theme-provider";
 import { ServiceWorkerRegistration } from "@/components/shared/service-worker-registration";
+import { AppShell } from "@/components/shared/app-shell";
 
-const sarabun = Sarabun({
+const inter = Inter({
+  weight: ["400", "500", "600", "700", "800"],
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+const manrope = Manrope({
+  weight: ["400", "500", "600", "700", "800"],
+  subsets: ["latin"],
+  variable: "--font-manrope",
+});
+
+const prompt = Prompt({
   weight: ["300", "400", "500", "600", "700"],
   subsets: ["thai", "latin"],
-  variable: "--font-sarabun",
+  variable: "--font-prompt",
 });
 
 export const metadata: Metadata = {
@@ -33,6 +46,8 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
+  colorScheme: "light",
+  themeColor: "#F8FAFC",
 };
 
 export default function RootLayout({
@@ -41,11 +56,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" suppressHydrationWarning>
-      <body
-        className={`${sarabun.variable} font-sans`}
-        suppressHydrationWarning
-      >
+    <html lang="th">
+      <body className={`${inter.variable} ${manrope.variable} ${prompt.variable} font-sans`}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-3 focus:py-2 focus:rounded"
@@ -53,14 +65,9 @@ export default function RootLayout({
           ข้ามไปยังเนื้อหา
         </a>
         <ServiceWorkerRegistration />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <Suspense>
+          <AppShell>{children}</AppShell>
+        </Suspense>
       </body>
     </html>
   );

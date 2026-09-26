@@ -7,6 +7,18 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog'
+import { toast } from 'sonner'
+import {
   Download,
   Trash2,
   Database,
@@ -85,34 +97,34 @@ export function TileManagementPanel() {
       console.log(`Downloaded tile: ${tileInfo.tileId}`)
     } catch (error) {
       console.error('Failed to download tile:', error)
-      alert(`เกิดข้อผิดพลาดในการดาวน์โหลด: ${error}`)
+      toast.error(`เกิดข้อผิดพลาดในการดาวน์โหลด: ${error}`)
     } finally {
       setDownloadingTile(null)
     }
   }
 
   const deleteTile = async (tileId: string) => {
-    if (!confirm('คุณต้องการลบไทล์นี้หรือไม่?')) return
-
     try {
       await tileStorage.deleteTile(tileId)
+      toast.success('ลบไทล์เรียบร้อยแล้ว')
       await loadTiles()
       await loadStorageInfo()
     } catch (error) {
       console.error('Failed to delete tile:', error)
+      toast.error('ไม่สามารถลบไทล์ได้')
     }
   }
 
   const clearAllTiles = async () => {
-    if (!confirm('คุณต้องการลบไทล์ทั้งหมดหรือไม่?')) return
-
     setIsLoading(true)
     try {
       await tileStorage.clearAllTiles()
+      toast.success('ลบไทล์ทั้งหมดเรียบร้อยแล้ว')
       await loadTiles()
       await loadStorageInfo()
     } catch (error) {
       console.error('Failed to clear tiles:', error)
+      toast.error('ไม่สามารถลบไทล์ทั้งหมดได้')
     } finally {
       setIsLoading(false)
     }
@@ -123,84 +135,116 @@ export function TileManagementPanel() {
   const usagePercent = storageInfo.quota > 0 ? (storageInfo.usage / storageInfo.quota) * 100 : 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Storage Overview */}
-      <Card>
+      <Card className="card-l1">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <HardDrive className="h-5 w-5" />
-            พื้นที่จัดเก็บข้อมูล
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 font-display">
+              <HardDrive className="h-5 w-5 text-brand-600" />
+              พื้นที่จัดเก็บข้อมูลไหลในเครื่อง
+            </CardTitle>
+            <span className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-slate-500">โควตา IndexedDB ปลอดภัย MAX 6.0 GB</span>
+          </div>
           <CardDescription>
-            จัดการไทล์ข้อมูลสำหรับการใช้งานแบบออฟไลน์
+            สำหรับดาวน์โหลดแผนที่และคลื่นโดยไม่ใช้พลังมอเตอร์เซลล์รายวัน
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">
-                ใช้ไป {formatBytes(storageInfo.usage)} จาก {formatBytes(storageInfo.quota)}
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-sm text-slate-500">
+                <span className="telemetry-num text-2xl font-extrabold text-slate-900">{formatBytes(storageInfo.usage)}</span>
+                {" "}ใช้ไปในเต้าใช้ {formatBytes(storageInfo.quota || 6 * 1024 ** 3)}
               </span>
-              <span className="font-medium">{usagePercent.toFixed(1)}%</span>
+              <span className="telemetry-num text-sm font-bold text-brand-600">{usagePercent.toFixed(1)}%</span>
             </div>
-            <Progress value={usagePercent} className="h-2" />
+            <Progress value={usagePercent} className="h-2 [&>div]:bg-brand-600" />
+            <div className="flex justify-between text-[11px] text-slate-500">
+              <span>ความถี่ทับซ้อนต่ำ 1 ในตระแกง</span>
+              <span className="tabular-nums">พื้นที่คงเหลือ {formatBytes(storageInfo.available)}</span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
-            <div className="space-y-1">
-              <div className="text-2xl font-bold text-blue-600">{tiles.length}</div>
-              <div className="text-xs text-gray-600">ไทล์ที่ดาวน์โหลด</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+            <div className="rounded-lg border border-slate-200 bg-white p-3">
+              <div className="telemetry-num text-2xl font-extrabold text-brand-600">{tiles.length}</div>
+              <div className="micro-label mt-1 text-slate-500">ไทล์ที่ดาวน์โหลด</div>
             </div>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold text-green-600">
+            <div className="rounded-lg border border-slate-200 bg-white p-3">
+              <div className="telemetry-num text-2xl font-extrabold text-slate-900">
                 {formatBytes(tiles.reduce((sum, t) => sum + t.compressedSize, 0))}
               </div>
-              <div className="text-xs text-gray-600">ขนาดรวม</div>
+              <div className="micro-label mt-1 text-slate-500">ขนาดรวม</div>
             </div>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold text-purple-600">
+            <div className="rounded-lg border border-slate-200 bg-white p-3">
+              <div className="telemetry-num text-2xl font-extrabold text-slate-900">
                 {formatBytes(storageInfo.available)}
               </div>
-              <div className="text-xs text-gray-600">พื้นที่ว่าง</div>
+              <div className="micro-label mt-1 text-slate-500">พื้นที่ว่าง</div>
             </div>
-            <div className="space-y-1">
-              <div className="text-2xl font-bold text-orange-600">
+            <div className="rounded-lg border border-slate-200 bg-white p-3">
+              <div className="telemetry-num text-2xl font-extrabold text-slate-900">
                 {availableTiles.length - tiles.length}
               </div>
-              <div className="text-xs text-gray-600">พร้อมดาวน์โหลด</div>
+              <div className="micro-label mt-1 text-slate-500">พร้อมดาวน์โหลด</div>
             </div>
           </div>
 
-          <div className="flex gap-2 pt-2">
+          <div className="grid grid-cols-3 gap-2 text-[11px]">
+            <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center text-slate-500">อัลกอริทึมบีบอัด<br /><strong className="text-slate-700">deflate / gzip</strong></div>
+            <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center text-slate-500">อัตราการบีบอัด<br /><strong className="tabular-nums text-slate-700">วัดจริงทุกครั้งที่ดาวน์โหลด</strong></div>
+            <div className="rounded-lg bg-slate-50 px-2 py-1.5 text-center text-slate-500">ล้างหมดอายุแคช<br /><strong className="text-slate-700">30 วัน (Auto-EV)</strong></div>
+          </div>
+
+          <div className="flex gap-2 pt-1">
             <Button
               variant="outline"
               size="sm"
               onClick={() => { loadTiles(); loadStorageInfo(); }}
-              className="flex-1"
+              className="flex-1 rounded-[4px]"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               รีเฟรช
             </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={clearAllTiles}
-              disabled={tiles.length === 0 || isLoading}
-              className="flex-1"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              ลบทั้งหมด
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={tiles.length === 0 || isLoading}
+                  className="flex-1 rounded-[4px]"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  ลบทั้งหมด
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>ลบไทล์ทั้งหมด?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    ข้อมูลไทล์ทั้งหมด {tiles.length} รายการจะถูกลบออกจากเครื่อง และต้องดาวน์โหลดใหม่เมื่อต้องการใช้งานออฟไลน์
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                  <AlertDialogAction onClick={clearAllTiles}>ลบทั้งหมด</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </CardContent>
       </Card>
 
       {/* Available Tiles */}
-      <Card>
+      <Card className="card-l1">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            ไทล์ที่พร้อมใช้งาน
+          <CardTitle className="flex items-center justify-between font-display">
+            <span className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-brand-600" />
+              ไทล์ข้อมูลระดับน้ำชายฝั่ง (Regional Hydro Tiles)
+            </span>
+            <span className="font-mono text-[11px] font-semibold text-slate-500">{availableTiles.length} ภูมิภาคโทรโมรขน</span>
           </CardTitle>
           <CardDescription>
             เลือกพื้นที่เพื่อดาวน์โหลดข้อมูลสำหรับใช้งานออฟไลน์
@@ -216,23 +260,30 @@ export function TileManagementPanel() {
               return (
                 <div
                   key={tileInfo.tileId}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-4"
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium">{tileInfo.location}</h3>
-                      {isDownloaded && (
-                        <Badge variant="outline" className="text-green-600 border-green-300">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          ดาวน์โหลดแล้ว
-                        </Badge>
-                      )}
+                  <div className="flex min-w-0 flex-1 items-start gap-3">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border ${isDownloaded ? "border-emerald-200 bg-emerald-50 text-emerald-600" : "border-slate-200 bg-slate-50 text-slate-400"}`} aria-hidden="true">
+                      {isDownloaded ? <CheckCircle className="h-5 w-5" /> : <Download className="h-5 w-5" />}
                     </div>
-                    <p className="text-sm text-gray-600">
-                      พิกัด: {tileInfo.centroid[1].toFixed(2)}°N, {tileInfo.centroid[0].toFixed(2)}°E
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-bold text-slate-900">{tileInfo.location}</h3>
+                        {isDownloaded ? (
+                          <Badge className="rounded-md border border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-700">
+                            ดาวน์โหลดแล้ว · {tile ? formatBytes(tile.compressedSize) : ""}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="rounded-md text-xs text-slate-500">
+                            ยังไม่ได้บันทึก · ~180 MB
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="mt-0.5 font-mono text-xs tabular-nums text-slate-500">
+                        {tileInfo.centroid[1].toFixed(2)}°N, {tileInfo.centroid[0].toFixed(2)}°E · Harmonic 37+ พร้อมใช้ · FES2022
+                      </p>
                     {tile && (
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 mt-1.5 text-xs text-gray-500">
                         <span className="flex items-center gap-1">
                           <Database className="h-3 w-3" />
                           {formatBytes(tile.compressedSize)}
@@ -243,23 +294,54 @@ export function TileManagementPanel() {
                         </span>
                       </div>
                     )}
+                    </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 gap-2">
                     {isDownloaded ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deleteTile(tileInfo.tileId)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => downloadTile(tileInfo)}
+                          className="rounded-[4px]"
+                        >
+                          <RefreshCw className="h-4 w-4 mr-1" />
+                          อัปเดต
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="rounded-[4px] text-red-600 hover:text-red-700"
+                              aria-label={`ลบไทล์ ${tileInfo.location}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>ลบไทล์ {tileInfo.location}?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                ไทล์นี้จะถูกลบออกจากเครื่อง และต้องดาวน์โหลดใหม่เมื่อต้องการใช้งานออฟไลน์
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteTile(tileInfo.tileId)}>
+                                ลบไทล์
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
                     ) : (
                       <Button
                         size="sm"
                         onClick={() => downloadTile(tileInfo)}
                         disabled={isDownloading}
+                        className="rounded-[4px] bg-brand-600 hover:bg-brand-700"
                       >
                         {isDownloading ? (
                           <>
@@ -283,10 +365,10 @@ export function TileManagementPanel() {
       </Card>
 
       {/* Info Alert */}
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          <strong>หมายเหตุ:</strong> ไทล์ข้อมูลจะถูกเก็บไว้ในเครื่องของคุณเพื่อการใช้งานแบบออฟไลน์ 
+      <Alert className="rounded-xl border border-slate-200 bg-white">
+        <AlertCircle className="h-4 w-4 text-brand-600" />
+        <AlertDescription className="text-sm text-slate-600">
+          <strong>หมายเหตุ:</strong> ไทล์ข้อมูลจะถูกเก็บไว้ในเครื่องของคุณเพื่อการใช้งานแบบออฟไลน์
           ข้อมูลจะอัปเดตอัตโนมัติทุก 30 วันหรือเมื่อมีเวอร์ชันใหม่
         </AlertDescription>
       </Alert>

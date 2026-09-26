@@ -1,34 +1,66 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import {
-  Waves,
-  Thermometer,
   Loader2,
   MapPin,
   Navigation,
   RefreshCw,
   CalendarIcon,
   Map,
-  Calendar as CalendarDays,
-  Activity,
 } from "lucide-react";
 import type { LocationData } from "@/lib/domain/types";
+import { BANGKOK_DEFAULT } from "@/lib/domain/locations";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import MapSelector from "@/components/features/location/map-selector";
-import ApiStatusDashboard from "@/components/features/status/api-status-dashboard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import RiskAreaMap from "@/components/features/disaster/risk-area-map";
+import { TabsContent } from "@/components/ui/tabs";
 import HistoricalEventsPanel from "@/components/features/disaster/historical-events-panel";
-import MultiDayForecast from "@/components/features/forecast/multi-day-forecast";
 import FavoriteLocations from "@/components/features/location/favorite-locations";
 import SettingsPanel from "@/components/shared/settings-panel";
 import SafetyTips from "@/components/features/disaster/safety-tips";
-import ThemeToggle from "@/components/shared/theme-toggle";
 import ForecastTodayPanel from "@/components/features/forecast/forecast-today-panel";
+import { TideStatusHero } from "@/components/features/forecast/tide-status-hero";
+import { useHeaderTelemetry, useSwitchTab } from "@/components/shared/app-shell";
+
+// Heavy below-the-fold tab panels are code-split so the default "forecast"
+// tab (LCP) stays lean. RiskAreaMap pulls pigeon-maps (browser-only), so it
+// loads client-side only; the already-split *.client.tsx inner chunks
+// (map-selector, water-level-graph, risk-area-map) stay ssr:false per
+// docs/architecture.md#Performance. MultiDayForecast / ApiStatusDashboard are
+// light enough to prerender, so they keep SSR and stream in on demand.
+function TabPanelFallback({ label }: { label: string }) {
+  return (
+    <div
+      className="flex min-h-[240px] items-center justify-center rounded-2xl border border-blue-100 bg-white/70 text-sm text-slate-500"
+      role="status"
+      aria-label={label}
+    >
+      <span className="animate-pulse motion-reduce:animate-none">{label}…</span>
+    </div>
+  );
+}
+
+const MultiDayForecast = dynamic(
+  () => import("@/components/features/forecast/multi-day-forecast"),
+  { loading: () => <TabPanelFallback label="กำลังโหลดพยากรณ์ 7 วัน" /> },
+);
+
+const RiskAreaMap = dynamic(
+  () => import("@/components/features/disaster/risk-area-map"),
+  {
+    ssr: false,
+    loading: () => <TabPanelFallback label="กำลังโหลดแผนที่เสี่ยง" />,
+  },
+);
+
+const ApiStatusDashboard = dynamic(
+  () => import("@/components/features/status/api-status-dashboard"),
+  { loading: () => <TabPanelFallback label="กำลังโหลดสถานะระบบ" /> },
+);
 
 import { useForecastData } from "@/hooks/use-forecast-data";
 import { initializeOfflineStorage } from "@/lib/storage/offline-storage";
@@ -38,22 +70,18 @@ import { useLocationContext } from "@/hooks/use-location-context";
 import { useSafetyAlerts } from "@/hooks/use-safety-alerts";
 
 export default function EnhancedLocationSelector() {
-  const [selectedLocation, setSelectedLocation] = useState<LocationData>({
-    lat: 13.7563,
-    lon: 100.5018,
-    name: "กรุงเทพมหานคร",
-  });
+  const [selectedLocation, setSelectedLocation] = useState<LocationData>(BANGKOK_DEFAULT);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isMapDialogOpen, setIsMapDialogOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("forecast");
+  const switchTab = useSwitchTab();
 
   // Forecast data (tide + weather + cache + auto-refresh)
   const { tideData: currentTideData, weatherData: currentWeatherData, loading, refresh: fetchForecastData } =
     useForecastData(selectedLocation, selectedDate, isHydrated);
 
   // Geolocation (GPS + IP fallback)
-  const { getLocation: getCurrentLocation, gettingLocation } = useGeolocation(
+  const { getLocation: getCurrentLocation, gettingLocation, geoError } = useGeolocation(
     isHydrated,
     (location) => {
       setSelectedLocation(location);
@@ -81,6 +109,24 @@ export default function EnhancedLocationSelector() {
 
   // Safety alerts (wind speed, water level)
   useSafetyAlerts(currentTideData, currentWeatherData, isHydrated);
+
+  // The header renders from the layout shell, so it reads this instead of props.
+  useHeaderTelemetry({
+    locationName: selectedLocation.name,
+    lat: selectedLocation.lat,
+    lon: selectedLocation.lon,
+    updatedLabel: currentTideData.lastUpdated
+      ? new Date(currentTideData.lastUpdated).toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }) + " น."
+      : undefined,
+    online: currentTideData.apiStatus === "success" || currentWeatherData?.main != null,
+    surgeLabel:
+      currentTideData.currentWaterLevel > 0
+        ? `+${currentTideData.currentWaterLevel.toFixed(2)}m`
+        : undefined,
+  });
 
   const handleLocationSelect = useCallback((location: LocationData) => {
     setSelectedLocation(location);
@@ -116,72 +162,73 @@ export default function EnhancedLocationSelector() {
     );
   }
 
+  let nextEvent:
+    | {
+        type: "high" | "low";
+        time: string;
+        level: number;
+      }
+    | undefined;
+
+  if (currentTideData.tideEvents && currentTideData.tideEvents.length > 0) {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const upcomingEvent = currentTideData.tideEvents.find((event) => {
+      const [hours, minutes] = event.time.split(":").map(Number);
+      return hours * 60 + minutes > currentMinutes;
+    });
+
+    if (upcomingEvent) {
+      nextEvent = {
+        type: upcomingEvent.type,
+        time: upcomingEvent.time,
+        level: upcomingEvent.level,
+      };
+    }
+  }
+
   return (
-    <div className="w-full" aria-label="ตัวเลือกตำแหน่งและเวลา" role="region">
-      <div className="bg-gradient-to-b from-blue-50/50 to-white p-4 md:p-6 dark:from-slate-900/30 dark:to-slate-900/10">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <div className="rounded-2xl bg-white/85 backdrop-blur-sm p-4 sm:p-5 shadow-sm ring-1 ring-blue-100/70 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none dark:bg-slate-800/80 dark:ring-slate-700">
-              <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">ระดับน้ำตอนนี้</div>
-              <div className="mt-2 flex items-end gap-1">
-                <span className="text-3xl font-black tabular-nums text-slate-900 dark:text-slate-100">
-                  {currentTideData.currentWaterLevel.toFixed(2)}
-                </span>
-                <span className="pb-1 text-sm font-bold text-slate-600 dark:text-slate-400">ม.</span>
-              </div>
-              <div className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                {currentTideData.waterLevelStatus}
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-white/85 backdrop-blur-sm p-4 sm:p-5 shadow-sm ring-1 ring-blue-100/70 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none dark:bg-slate-800/80 dark:ring-slate-700">
-              <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">น้ำขึ้นสูงสุด</div>
-              <div className="mt-2 text-3xl font-black tabular-nums text-slate-900 dark:text-slate-100">
-                {currentTideData.highTideTime || "-"}
-              </div>
-              <div className="mt-1 text-sm text-slate-600 dark:text-slate-400">เวลาที่ควรระวังน้ำหนุน</div>
-            </div>
-
-            <div className="rounded-2xl bg-white/85 backdrop-blur-sm p-4 sm:p-5 shadow-sm ring-1 ring-blue-100/70 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none dark:bg-slate-800/80 dark:ring-slate-700">
-              <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">น้ำลงต่ำสุด</div>
-              <div className="mt-2 text-3xl font-black tabular-nums text-slate-900 dark:text-slate-100">
-                {currentTideData.lowTideTime || "-"}
-              </div>
-              <div className="mt-1 text-sm text-slate-600 dark:text-slate-400">ช่วงเห็นแนวชายฝั่งชัดขึ้น</div>
-            </div>
-
-            <div className="rounded-2xl bg-white/85 backdrop-blur-sm p-4 sm:p-5 shadow-sm ring-1 ring-blue-100/70 transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none dark:bg-slate-800/80 dark:ring-slate-700">
-              <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 dark:text-slate-400">อุณหภูมิ</div>
-              <div className="mt-2 flex items-center gap-2 text-3xl font-black tabular-nums text-slate-900 dark:text-slate-100">
-                <Thermometer className="h-5 w-5 text-orange-500" />
-                {Math.round(currentWeatherData.main?.temp ?? 0)}°
-              </div>
-              <div className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                รู้สึกเหมือน {Math.round(currentWeatherData.main?.feels_like ?? 0)}°C
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 p-4 sm:p-5 text-white shadow-lg shadow-blue-200/50 transition-shadow duration-200 hover:shadow-xl motion-reduce:transition-none dark:shadow-blue-950/30">
-              <div className="text-[11px] font-black uppercase tracking-[0.18em] text-white/80">สรุปวันนี้</div>
-              <div className="mt-2 text-2xl font-black">
-                {currentTideData.tideStatus}
-              </div>
-              <div className="mt-1 text-sm text-white/90">
-                {currentTideData.apiStatus === "success" ? "มีข้อมูลพร้อมดูต่อ" : "ใช้ข้อมูลสำรองหรือออฟไลน์"}
-              </div>
-            </div>
-          </div>
+    <div className="w-full">
+      <div className="sr-only">
+        <div id="forecast-tab-description">
+          แสดงข้อมูลพยากรณ์น้ำขึ้นน้ำลง สภาพอากาศ และกราฟแสดงระดับน้ำทั้งวัน
+        </div>
+        <div id="multiday-tab-description">
+          แสดงพยากรณ์น้ำขึ้นน้ำลงล่วงหน้า 7 วัน พร้อมระดับความเสี่ยง
+        </div>
+        <div id="status-tab-description">
+          แสดงสถานะการเชื่อมต่อ API และแหล่งข้อมูล
+        </div>
+        <div id="riskmap-tab-description">
+          แสดงแผนที่พื้นที่เสี่ยงและเหตุการณ์ย้อนหลังที่เกี่ยวข้อง
+        </div>
+      </div>
+      <div className="px-4 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+        <TabsContent
+          value="forecast"
+          className="space-y-6"
+          aria-describedby="forecast-tab-description"
+        >
+          <TideStatusHero
+            status={currentTideData.waterLevelStatus}
+            currentLevel={currentTideData.currentWaterLevel}
+            nextEvent={nextEvent}
+            isDatumConvertedToMsl={currentTideData.isDatumConvertedToMsl}
+            stationId={currentTideData.stationId}
+            location={{ lat: selectedLocation.lat, lon: selectedLocation.lon }}
+            locationName={selectedLocation.name}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
-              <div className="bg-white/85 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl border border-blue-100 dark:border-slate-700 p-4 sm:p-6 shadow-sm transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
+              <div className="bg-white/85 backdrop-blur-sm rounded-2xl border border-blue-100 p-4 sm:p-6 shadow-sm transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
                 <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">ตำแหน่ง</h3>
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-bold text-slate-800">ตำแหน่ง</h3>
                 </div>
-                <div className="mb-4 p-3 bg-blue-50 dark:bg-slate-900/50 rounded-xl border border-blue-100 dark:border-slate-700">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">ตำแหน่งที่เลือก</p>
-                  <p className="text-sm font-semibold tabular-nums text-slate-900 dark:text-slate-100 truncate">
+                <div className="mb-4 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                  <p className="text-xs text-slate-600 font-medium mb-1">ตำแหน่งที่เลือก</p>
+                  <p className="text-sm font-semibold tabular-nums text-slate-900 truncate">
                     {selectedLocation.name || `${selectedLocation.lat.toFixed(4)}°, ${selectedLocation.lon.toFixed(4)}°`}
                   </p>
                 </div>
@@ -189,7 +236,7 @@ export default function EnhancedLocationSelector() {
                   <Button
                     variant="outline"
                     onClick={() => setIsMapDialogOpen(true)}
-                    className="h-12 cursor-pointer border-blue-200 dark:border-slate-600 hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors duration-200 focus-enhanced"
+                    className="h-12 cursor-pointer border-blue-200 hover:bg-blue-50 text-slate-700 font-medium transition-colors duration-200 focus-enhanced"
                   >
                     <Map className="w-4 h-4 mr-2 text-blue-500" />
                     แผนที่
@@ -198,7 +245,7 @@ export default function EnhancedLocationSelector() {
                     variant="outline"
                     onClick={getCurrentLocation}
                     disabled={gettingLocation}
-                    className="h-12 cursor-pointer border-blue-200 dark:border-slate-600 hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors duration-200 focus-enhanced"
+                    className="h-12 cursor-pointer border-blue-200 hover:bg-blue-50 text-slate-700 font-medium transition-colors duration-200 focus-enhanced"
                   >
                     {gettingLocation ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin motion-reduce:animate-none" />
@@ -208,10 +255,15 @@ export default function EnhancedLocationSelector() {
                     ปัจจุบัน
                   </Button>
                 </div>
+                {geoError && (
+                  <p role="alert" className="mt-2 text-xs font-medium text-amber-700">
+                    {geoError}
+                  </p>
+                )}
                 <Button
                   onClick={fetchForecastData}
                   disabled={loading}
-                  className="w-full h-12 mt-4 cursor-pointer bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white rounded-xl font-semibold shadow-lg shadow-blue-200/50 transition-colors duration-200 focus-enhanced dark:shadow-blue-900/20"
+                  className="w-full h-12 mt-4 cursor-pointer bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white rounded-xl font-semibold shadow-lg shadow-blue-200/50 transition-colors duration-200 focus-enhanced"
                 >
                   {loading ? (
                     <Loader2 className="h-5 w-5 animate-spin mr-2 motion-reduce:animate-none" />
@@ -223,127 +275,53 @@ export default function EnhancedLocationSelector() {
               </div>
             </div>
             <div className="lg:col-span-2">
-              <div className="bg-white/85 backdrop-blur-sm dark:bg-slate-800/80 rounded-2xl border border-blue-100 dark:border-slate-700 p-4 sm:p-6 shadow-sm transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
+              <div className="bg-white/85 backdrop-blur-sm rounded-2xl border border-blue-100 p-4 sm:p-6 shadow-sm transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <CalendarIcon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">เลือกวันที่</h3>
+                    <CalendarIcon className="w-5 h-5 text-blue-600" />
+                    <h3 className="text-lg font-bold text-slate-800">เลือกวันที่</h3>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full font-medium tabular-nums">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full font-medium tabular-nums">
                       <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse motion-reduce:animate-none"></div>
                       วันนี้: {format(new Date(), "d MMM", { locale: th })}
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-center relative">
-                  {loading && (
-                    <div className="absolute inset-0 bg-white/80 dark:bg-slate-800/80 rounded-xl flex items-center justify-center z-10">
-                      <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-500 motion-reduce:animate-none" />
-                        <span className="text-sm text-slate-600 dark:text-slate-400">กำลังโหลดข้อมูล...</span>
+                <div className="flex flex-col items-center justify-center gap-4 xl:flex-row xl:items-start xl:gap-12">
+                  <div className="relative">
+                    {loading && (
+                      <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+                        <div className="flex flex-col items-center gap-2">
+                          <Loader2 className="w-8 h-8 animate-spin text-blue-500 motion-reduce:animate-none" />
+                          <span className="text-sm text-slate-600">กำลังโหลดข้อมูล...</span>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate || new Date()}
-                    onSelect={(date) => setSelectedDate(date)}
-                    locale={th}
-                    className="rounded-xl border border-slate-100 dark:border-slate-700"
-                    modifiers={{
-                      selected: selectedDate || new Date(),
-                      today: new Date()
-                    }}
-                    modifiersStyles={{
-                      selected: {
-                        backgroundColor: 'rgb(16 185 129)',
-                        color: 'white',
-                        fontWeight: 'bold'
-                      },
-                      today: {
-                        border: '2px solid rgb(59 130 246)',
-                        borderRadius: '8px'
-                      }
-                    }}
-                  />
-                </div>
-                <div className="mt-4 flex items-center justify-center gap-2">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">วันที่เลือก:</span>
-                  <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full font-semibold text-sm tabular-nums flex items-center gap-2">
-                    {loading && <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" />}
-                    {selectedDate ? format(selectedDate, "PPPP", { locale: th }) : format(new Date(), "PPPP", { locale: th }) + " (วันนี้)"}
-                  </span>
+                    )}
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate || new Date()}
+                      onSelect={(date) => setSelectedDate(date)}
+                      locale={th}
+                      className="rounded-xl border border-slate-100"
+                      modifiers={{
+                        selected: selectedDate || new Date(),
+                        today: new Date()
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-center gap-2 xl:flex-col xl:items-start xl:gap-3 xl:pt-2">
+                    <span className="text-sm text-slate-600">วันที่เลือก:</span>
+                    <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full font-semibold text-sm tabular-nums flex items-center gap-2">
+                      {loading && <Loader2 className="w-3 h-3 animate-spin motion-reduce:animate-none" />}
+                      {selectedDate ? format(selectedDate, "PPPP", { locale: th }) : format(new Date(), "PPPP", { locale: th }) + " (วันนี้)"}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="w-full mt-8"
-        aria-label="แผงควบคุมพยากรณ์และสถานะระบบ"
-      >
-        <TabsList
-          className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 h-auto bg-blue-50 dark:bg-slate-800/50 p-1.5 rounded-2xl border border-blue-100 dark:border-slate-700"
-          role="tablist"
-          aria-label="เลือกประเภทข้อมูล"
-        >
-          <TabsTrigger
-            value="forecast"
-            className="flex items-center gap-2 py-3 cursor-pointer"
-            aria-describedby="forecast-tab-description"
-          >
-            <Waves className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">พยากรณ์</span>วันนี้
-          </TabsTrigger>
-          <TabsTrigger
-            value="multiday"
-            className="flex items-center gap-2 py-3 cursor-pointer"
-            aria-describedby="multiday-tab-description"
-          >
-            <CalendarDays className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">พยากรณ์</span>7 วัน
-          </TabsTrigger>
-          <TabsTrigger
-            value="status"
-            className="flex items-center gap-2 py-3 cursor-pointer"
-            aria-describedby="status-tab-description"
-          >
-            <Activity className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">สถานะ</span>ระบบ
-          </TabsTrigger>
-          <TabsTrigger
-            value="riskmap"
-            className="flex items-center gap-2 py-3 cursor-pointer"
-            aria-describedby="riskmap-tab-description"
-          >
-            <Map className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">แผนที่</span>เสี่ยง
-          </TabsTrigger>
-        </TabsList>
-        <div id="forecast-tab-description" className="sr-only">
-          แสดงข้อมูลพยากรณ์น้ำขึ้นน้ำลง สภาพอากาศ และกราฟแสดงระดับน้ำทั้งวัน
-        </div>
-        <div id="multiday-tab-description" className="sr-only">
-          แสดงพยากรณ์น้ำขึ้นน้ำลงล่วงหน้า 7 วัน พร้อมระดับความเสี่ยง
-        </div>
-        <div id="status-tab-description" className="sr-only">
-          แสดงสถานะการเชื่อมต่อ API และแหล่งข้อมูล
-        </div>
-        <div id="riskmap-tab-description" className="sr-only">
-          แสดงแผนที่พื้นที่เสี่ยงและเหตุการณ์ย้อนหลังที่เกี่ยวข้อง
-        </div>
 
-        <TabsContent
-          value="forecast"
-          className="space-y-6"
-          role="tabpanel"
-          aria-labelledby="forecast-tab"
-          tabIndex={0}
-        >
           <ForecastTodayPanel
             loading={loading}
             selectedLocation={selectedLocation}
@@ -352,17 +330,16 @@ export default function EnhancedLocationSelector() {
             nearestPierInfo={nearestPierInfo}
             disasterAnalysis={disasterAnalysis}
             onSelectPreset={handleLocationSelect}
-            onOpenRiskMap={() => setActiveTab("riskmap")}
-            onOpenMultiday={() => setActiveTab("multiday")}
+            onOpenRiskMap={() => switchTab("riskmap")}
+            onOpenMultiday={() => switchTab("multiday")}
           />
         </TabsContent>
+      </div>
 
         <TabsContent
           value="multiday"
-          className="space-y-6"
-          role="tabpanel"
-          aria-labelledby="multiday-tab"
-          tabIndex={0}
+          className="space-y-6 px-4 sm:px-6 lg:px-8"
+          aria-describedby="multiday-tab-description"
         >
           <MultiDayForecast currentLocation={selectedLocation} />
         </TabsContent>
@@ -370,13 +347,15 @@ export default function EnhancedLocationSelector() {
         <TabsContent
           value="riskmap"
           className="space-y-6"
-          role="tabpanel"
-          aria-labelledby="riskmap-tab"
-          tabIndex={0}
+          aria-describedby="riskmap-tab-description"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <RiskAreaMap
               currentLocation={selectedLocation}
+              currentTideLevel={currentTideData.currentWaterLevel}
+              nextHighTime={currentTideData.highTideTime || "--:--"}
+              nextHighLevel={currentTideData.tideEvents?.find((e) => e.type === "high")?.level ?? currentTideData.currentWaterLevel}
+              windSpeed={currentWeatherData.wind?.speed}
               onLocationSelect={(lat, lon) => {
                 setSelectedLocation({
                   lat,
@@ -392,14 +371,9 @@ export default function EnhancedLocationSelector() {
         <TabsContent
           value="status"
           className="space-y-6"
-          role="tabpanel"
-          aria-labelledby="status-tab"
-          tabIndex={0}
+          aria-describedby="status-tab-description"
         >
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">ตั้งค่าและสถานะระบบ</h2>
-            <ThemeToggle />
-          </div>
+          <h2 className="font-display text-xl font-bold text-slate-900">การจัดการไทล์และสถานะระบบ <span className="ml-1 rounded bg-slate-100 px-1.5 py-0.5 align-middle font-mono text-[11px] font-semibold text-slate-500">TELEMETRY v2.8</span></h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6">
@@ -427,7 +401,6 @@ export default function EnhancedLocationSelector() {
             </div>
           </div>
         </TabsContent>
-      </Tabs>
 
       <MapSelector
         isOpen={isMapDialogOpen}

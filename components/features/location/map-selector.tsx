@@ -115,17 +115,17 @@ export default function MapSelector({ isOpen, currentLocation, onSelectLocationA
           </div>
 
           <aside className="sm:w-1/3 p-3 bg-gray-50">
-            <Input placeholder="ค้นหาสถานที่" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} />
+            <Input placeholder="ค้นหาสถานที่" aria-label="ค้นหาสถานที่" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} />
             <div className="mt-2 flex gap-2">
-              <Button onClick={handleSearch} className="flex-1">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}</Button>
+              <Button onClick={handleSearch} className="flex-1" aria-label="ค้นหา">{loading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="h-4 w-4" aria-hidden="true" />}</Button>
               <Button variant="outline" onClick={() => { setMarkerPosition(currentLocation); setQuery('') }}>Reset</Button>
             </div>
             <div className="mt-3">
               <Button variant="secondary" className="w-full justify-center" onClick={useMyLocation}>
-                <Crosshair className="mr-2 h-4 w-4" /> ใช้ตำแหน่งปัจจุบัน
+                <Crosshair className="mr-2 h-4 w-4" aria-hidden="true" /> ใช้ตำแหน่งปัจจุบัน
               </Button>
             </div>
-            {error && <div className="text-sm text-red-500 mt-2">{error}</div>}
+            {error && <div role="alert" className="text-sm text-red-500 mt-2">{error}</div>}
           </aside>
         </div>
       </DialogContent>

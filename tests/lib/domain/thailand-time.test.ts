@@ -8,7 +8,7 @@ import {
   toThailandDayStart,
   toThailandInstant,
 } from '@/lib/domain/thailand-time'
-import { tideControlManager } from '@/lib/ui/controls'
+import { formatTime, getDefaultTideControls } from '@/lib/presentation/tide-controls'
 
 describe('thailand-time helpers', () => {
   it('formats UTC instants as ICT clock times', () => {
@@ -48,9 +48,7 @@ describe('thailand-time helpers', () => {
 
 describe('controls timezone formatting', () => {
   it('does not double-apply ICT offset when formatting Thai time', () => {
-    tideControlManager.updateSetting('timezone', 'thai')
-
     const sample = new Date('2025-03-24T05:00:00.000Z')
-    expect(tideControlManager.formatTime(sample, { use24Hour: true })).toBe('12:00')
+    expect(formatTime(sample, getDefaultTideControls())).toBe('12:00')
   })
 })

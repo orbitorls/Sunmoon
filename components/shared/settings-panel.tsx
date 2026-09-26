@@ -6,6 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { getRiskLevelColor, getRiskLevelText } from "@/lib/presentation/disaster-formatter";
+import { toast } from "sonner";
 import {
     Settings,
     Bell,
@@ -84,7 +86,7 @@ export default function SettingsPanel({
     // Request notification permission
     const requestNotificationPermission = async () => {
         if (!("Notification" in window)) {
-            alert("เบราว์เซอร์ไม่รองรับการแจ้งเตือน");
+            toast.error("เบราว์เซอร์ไม่รองรับการแจ้งเตือน");
             return;
         }
 
@@ -265,26 +267,15 @@ export default function SettingsPanel({
                                     <button
                                         key={level}
                                         onClick={() => updateSettings({ riskAlertLevel: level })}
+                                        aria-pressed={settings.riskAlertLevel === level}
                                         className={cn(
                                             "py-2 px-3 rounded-lg text-xs font-medium transition-all",
                                             settings.riskAlertLevel === level
-                                                ? level === "critical"
-                                                    ? "bg-red-500 text-white"
-                                                    : level === "high"
-                                                        ? "bg-orange-500 text-white"
-                                                        : level === "medium"
-                                                            ? "bg-yellow-500 text-white"
-                                                            : "bg-green-500 text-white"
-                                                : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                                ? getRiskLevelColor(level).bg + " text-white"
+                                                : "bg-gray-100 hover:bg-gray-200"
                                         )}
                                     >
-                                        {level === "critical"
-                                            ? "วิกฤต"
-                                            : level === "high"
-                                                ? "สูง"
-                                                : level === "medium"
-                                                    ? "กลาง"
-                                                    : "ต่ำ"}
+                                        {getRiskLevelText(level)}
                                     </button>
                                 ))}
                             </div>

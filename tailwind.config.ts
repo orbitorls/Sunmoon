@@ -2,24 +2,20 @@ import type { Config } from "tailwindcss"
 import tailwindAnimate from "tailwindcss-animate"
 
 const config = {
-  darkMode: ["class"],
+  // No `darkMode`: the app is light-mode only, `color-scheme: light` is pinned
+  // in globals.css, and no `dark:` variant exists in the codebase.
   content: [
-    "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
-    "*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{ts,tsx}",
+    "./lib/**/*.{ts,tsx}",
   ],
   prefix: "",
   theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sarabun)", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "var(--font-prompt)", "system-ui", "sans-serif"],
+        display: ["var(--font-manrope)", "var(--font-inter)", "system-ui", "sans-serif"],
+        thai: ["var(--font-prompt)", "var(--font-inter)", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -55,26 +51,36 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom colors for sidebar (if still used)
-        sidebar: {
-          background: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: {
-            DEFAULT: "hsl(var(--sidebar-primary))",
-            foreground: "hsl(var(--sidebar-primary-foreground))",
-          },
-          accent: {
-            DEFAULT: "hsl(var(--sidebar-accent))",
-            foreground: "hsl(var(--sidebar-accent-foreground))",
-          },
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        // SEAPALO marine telemetry tokens. Values live in `app/globals.css` as
+        // HSL channel triples so opacity modifiers (bg-brand-600/10) work and
+        // the palette has exactly one source of truth.
+        brand: {
+          50: "hsl(var(--brand-50))",
+          100: "hsl(var(--brand-100))",
+          200: "hsl(var(--brand-200))",
+          500: "hsl(var(--brand-500))",
+          600: "hsl(var(--brand-600))",
+          700: "hsl(var(--brand-700))",
+          800: "hsl(var(--brand-800))",
+        },
+        canvas: "hsl(var(--canvas))",
+        ink: {
+          DEFAULT: "hsl(var(--ink))",
+          soft: "hsl(var(--ink-soft))",
+          muted: "hsl(var(--ink-muted))",
+          faint: "hsl(var(--ink-faint))",
+        },
+        line: {
+          DEFAULT: "hsl(var(--line))",
+          soft: "hsl(var(--line-soft))",
         },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "calc(var(--radius) + 4px)",
+        "2xl": "calc(var(--radius) + 12px)",
       },
       keyframes: {
         "accordion-down": {

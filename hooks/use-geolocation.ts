@@ -2,12 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { LocationData } from "@/lib/domain/types";
-
-const BANGKOK_DEFAULT: LocationData = {
-  lat: 13.7563,
-  lon: 100.5018,
-  name: "กรุงเทพมหานคร (ค่าพื้นฐาน)",
-};
+import { BANGKOK_DEFAULT } from "@/lib/domain/locations";
 
 export type GeolocationResult = {
   getLocation: () => Promise<void>;

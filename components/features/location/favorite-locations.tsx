@@ -23,28 +23,13 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import type { LocationData } from "@/lib/domain/types";
+import { searchPopularLocations } from "@/lib/domain/locations";
 
 interface FavoriteLocationsProps {
     currentLocation: LocationData;
     onSelectLocation: (location: LocationData) => void;
     className?: string;
 }
-
-// Popular Thai coastal locations
-const POPULAR_LOCATIONS: LocationData[] = [
-    { name: "กรุงเทพมหานคร", lat: 13.7563, lon: 100.5018 },
-    { name: "พัทยา, ชลบุรี", lat: 12.93, lon: 100.88 },
-    { name: "หัวหิน, ประจวบฯ", lat: 12.57, lon: 99.96 },
-    { name: "ภูเก็ต", lat: 7.89, lon: 98.40 },
-    { name: "เกาะสมุย, สุราษฎร์ฯ", lat: 9.51, lon: 100.06 },
-    { name: "กระบี่", lat: 8.09, lon: 98.91 },
-    { name: "เกาะช้าง, ตราด", lat: 12.05, lon: 102.36 },
-    { name: "ระยอง", lat: 12.68, lon: 101.28 },
-    { name: "ชะอำ, เพชรบุรี", lat: 12.80, lon: 99.97 },
-    { name: "สมุทรปราการ", lat: 13.60, lon: 100.60 },
-    { name: "สมุทรสาคร", lat: 13.55, lon: 100.28 },
-    { name: "ชุมพร", lat: 10.49, lon: 99.18 },
-];
 
 interface SavedLocation extends LocationData {
     id: string;
@@ -103,9 +88,7 @@ export default function FavoriteLocations({
     );
 
     // Filter popular locations by search
-    const filteredPopular = POPULAR_LOCATIONS.filter((loc) =>
-        loc.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredPopular = searchPopularLocations(searchQuery);
 
     return (
         <Card className={cn("", className)}>
@@ -161,7 +144,7 @@ export default function FavoriteLocations({
                                     {savedLocations.map((location) => (
                                         <div
                                             key={location.id}
-                                            className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800"
+                                            className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200"
                                         >
                                             <button
                                                 onClick={() => onSelectLocation(location)}
@@ -180,8 +163,9 @@ export default function FavoriteLocations({
                                                 size="icon"
                                                 className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
                                                 onClick={() => removeLocation(location.id)}
+                                                aria-label={`ลบตำแหน่ง ${location.name}`}
                                             >
-                                                <Trash2 className="h-4 w-4" />
+                                                <Trash2 className="h-4 w-4" aria-hidden="true" />
                                             </Button>
                                         </div>
                                     ))}
@@ -210,9 +194,10 @@ export default function FavoriteLocations({
                                 <>
                                     {/* Search */}
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                                         <Input
                                             placeholder="ค้นหาสถานที่..."
+                                            aria-label="ค้นหาสถานที่ยอดนิยม"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             className="pl-9"
@@ -227,11 +212,11 @@ export default function FavoriteLocations({
                                                 onClick={() => onSelectLocation(location)}
                                                 className={cn(
                                                     "p-2 text-left rounded-lg border transition-all text-sm",
-                                                    "hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300",
+                                                    "hover:bg-blue-50 hover:border-blue-300",
                                                     Math.abs(location.lat - currentLocation.lat) < 0.01 &&
                                                         Math.abs(location.lon - currentLocation.lon) < 0.01
-                                                        ? "bg-blue-100 dark:bg-blue-900/40 border-blue-400"
-                                                        : "bg-white dark:bg-slate-800 border-gray-200 dark:border-gray-700"
+                                                        ? "bg-blue-100 border-blue-400"
+                                                        : "bg-white border-gray-200"
                                                 )}
                                             >
                                                 <div className="font-medium truncate">{location.name}</div>

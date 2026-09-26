@@ -43,15 +43,18 @@ async function checkOpenWeatherAPI() {
   try {
     // Test with Bangkok coordinates
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=13.7563&lon=100.5018&appid=${apiKey}&units=metric`
+    const startedAt = performance.now()
     const response = await fetch(url, {
       signal: AbortSignal.timeout(5000)
     })
+    const latencyMs = Math.round(performance.now() - startedAt)
 
     if (!response.ok) {
       return {
         status: 'error',
         message: `HTTP ${response.status}`,
-        code: response.status
+        code: response.status,
+        latencyMs
       }
     }
 
@@ -61,7 +64,8 @@ async function checkOpenWeatherAPI() {
       status: 'ok',
       message: 'API responding',
       testLocation: data.name,
-      temperature: data.main.temp
+      temperature: data.main.temp,
+      latencyMs
     }
   } catch (error) {
     return {
@@ -93,28 +97,32 @@ async function checkStormglassAPI() {
 
     const url = `https://api.stormglass.io/v2/tide/extremes/point?lat=13.1627&lng=100.8076&start=${start.toISOString()}&end=${end.toISOString()}`
     
+    const startedAt = performance.now()
     const response = await fetch(url, {
       headers: {
         'Authorization': apiKey
       },
       signal: AbortSignal.timeout(5000)
     })
+    const latencyMs = Math.round(performance.now() - startedAt)
 
     if (!response.ok) {
       return {
         status: 'error',
         message: `HTTP ${response.status}`,
-        code: response.status
+        code: response.status,
+        latencyMs
       }
     }
 
     const data = await response.json()
-
+    
     return {
       status: 'ok',
       message: 'API responding',
       testLocation: 'Ko Sichang',
-      dataPoints: data.data ? data.data.length : 0
+      dataPoints: data.data ? data.data.length : 0,
+      latencyMs
     }
   } catch (error) {
     return {
